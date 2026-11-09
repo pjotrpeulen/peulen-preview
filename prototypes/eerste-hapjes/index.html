@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#FFFFFF">
+<title>Eerste hapjes · klikbaar prototype</title>
+<!-- Klikbaar prototype Eerste hapjes (APP-19), 9 november 2026, volgens plan.md en de mockup. Eén bestand, geen netwerk, geen tracking.
+     Teksten zijn concept en nog na te lezen door een jeugdverpleegkundige of kinderdiëtist. Geen medisch advies.
+     Delen, PDF en aankoop zijn nagebootst. Gegevens alleen in deze browser. -->
+<style>
+:root{--ac:#4E8A6E;--licht:#E9F2ED;--ora:#C0703A;--oral:#FFF6EF;--ink:#1F2A25;--sub:#6B7570;--lijn:#E4E8E5;--bg:#FFFFFF;--zand:#F7F8F6}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--zand);color:var(--ink);font:16px/1.45 -apple-system,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
+.app{max-width:420px;min-height:100vh;margin:0 auto;background:var(--bg);position:relative}
+main{padding:16px 20px 110px}
+.kop{display:flex;justify-content:space-between;align-items:center} .kop h1{margin:8px 0 0}
+h1{font-size:22px;margin:16px 0 4px} h2{font-size:16px;margin:20px 0 8px}
+.sub{color:var(--sub);font-size:14px} .klein{font-size:12.5px;color:var(--sub)} .midden{text-align:center}
+.knop{display:block;width:100%;border:0;border-radius:24px;background:var(--ac);color:#fff;font:600 16px/1 inherit;padding:14px;margin-top:14px;cursor:pointer}
+.knop.licht{background:var(--licht);color:var(--ac)} .knop.rand{background:#fff;color:var(--ink);border:1px solid var(--lijn);font-weight:500}
+.link{background:none;border:0;color:var(--ac);font:600 14px inherit;padding:6px 0;cursor:pointer}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0} .chip{border:1px solid var(--lijn);background:#fff;border-radius:16px;padding:7px 13px;font:14px inherit;cursor:pointer;color:var(--ink)} .chip.aan{background:var(--ac);border-color:var(--ac);color:#fff}
+.item{padding:12px 2px;border-bottom:1px solid var(--lijn);cursor:pointer}
+.item .r{display:flex;justify-content:space-between;align-items:baseline} .item b{font-size:16px}
+.stip{display:inline-block;width:9px;height:9px;border-radius:50%;border:1.5px solid var(--lijn);margin-right:4px} .stip.vol{background:var(--ac);border-color:var(--ac)}
+.oord-lekker{color:var(--ac);font-weight:600} .oord-twijfel,.oord-niet{color:var(--sub)}
+.kaart{background:var(--licht);border-radius:16px;padding:14px 16px;margin-top:12px}
+.waarschuw{background:var(--oral);border:1px solid var(--ora);border-radius:14px;padding:12px 14px;margin-top:12px;font-size:14px}
+.stappen{display:flex;justify-content:space-between;margin-top:12px}
+.stappen button{background:none;border:0;cursor:pointer;text-align:center;font:12px inherit;color:var(--ink);width:25%}
+.stappen i{display:flex;width:26px;height:26px;margin:0 auto 4px;border-radius:50%;border:2px solid var(--ac);align-items:center;justify-content:center;font-style:normal;font-weight:700;color:var(--ac)}
+.stappen i.af{background:var(--ac);color:#fff}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:#fff;border-top:1px solid var(--lijn);display:flex;padding:10px 0 calc(14px + env(safe-area-inset-bottom));z-index:3}
+nav button{flex:1;background:none;border:0;color:var(--sub);font:500 14px inherit;padding:8px;cursor:pointer} nav button.aan{color:var(--ac);font-weight:700}
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:flex-end;justify-content:center;z-index:9}
+.sheet{background:#fff;width:100%;max-width:420px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:14px 20px 30px}
+.greep{width:40px;height:5px;border-radius:3px;background:var(--lijn);margin:0 auto 10px}
+input[type=text],input[type=date],textarea{width:100%;border:1px solid var(--lijn);border-radius:12px;padding:11px;font:15px inherit;background:#fff}
+.rij{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--lijn)}
+.pdf{background:#EDEFEC;padding:12px;border-radius:12px} .blad{background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.12);padding:18px 16px;font-size:12px;line-height:1.5;color:#222;aspect-ratio:1/1.414;overflow:hidden}
+.blad h3{font-size:15px;margin:0 0 2px} .blad h4{font-size:12px;margin:10px 0 2px;color:var(--ac)}
+.slot{opacity:.5} .demo{margin-top:22px;padding:12px;border:1px dashed var(--lijn);border-radius:14px}
+.vink{display:flex;gap:10px;margin:8px 0} .vink span:first-child{color:var(--ac);font-weight:700}
+.prijs{font-size:42px;font-weight:200;text-align:center;margin:6px 0 0}
+.concept{font-size:11px;color:var(--ora)}
+</style>
+</head>
+<body>
+<div class="app"><main id="s"></main>
+<nav id="nav" hidden><button data-t="lijst">Proeven</button><button data-t="pinda">Pinda en ei</button><button data-t="fases">Fases</button></nav></div>
+<div id="sheet"></div>
+<script>
+const K="hapjes-proto-v1", DAG=864e5, $=q=>document.querySelector(q);
+const CAT={Groente:["Wortel","Pompoen","Broccoli","Spinazie","Courgette","Zoete aardappel"],Fruit:["Peer","Appel","Banaan","Avocado","Mango"],Granen:["Havermout","Brood","Rijst"],Eiwit:["Pindakaas","Ei","Kip","Linzen","Yoghurt"]};
+const catVan=n=>Object.keys(CAT).find(c=>CAT[c].includes(n))||"Groente";
+function voorbeeld(){const n=Date.now();const h=(naam,k,o,dagen)=>({naam,cat:catVan(naam),keer:k,oordeel:o,laatst:n-dagen*DAG});
+ return [h("Wortel",6,"lekker",0),h("Pompoen",4,"lekker",1),h("Broccoli",2,"twijfel",2),h("Peer",8,"lekker",0),h("Avocado",1,"niet",3),h("Pindakaas",3,"lekker",1),h("Havermout",5,"lekker",0)];}
+let S=(()=>{try{return JSON.parse(localStorage.getItem(K))}catch(e){return null}})()||{start:true,naam:"Noa",geboren:new Date(Date.now()-198*DAG).toISOString().slice(0,10),eczeem:"nee",lijst:voorbeeld(),notities:[{datum:Date.now()-DAG,tekst:"Avocado: vies gezicht, verder niets."}],pinda:{klaar:3,laatst:Date.now()-2*DAG},ei:{klaar:1,laatst:Date.now()-DAG},herinnering:true,partner:null,installDag:1,gekocht:false,scherm:"start",filter:"Alles"};
+function bewaar(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
+const open=()=>S.gekocht||S.installDag<=14;
+function leeftijd(){const d=Math.floor((Date.now()-new Date(S.geboren))/DAG);const m=Math.floor(d/30.44),w=Math.floor((d-m*30.44)/7);return {m,w,d};}
+function tot8(){const g=new Date(S.geboren);const acht=new Date(g);acht.setMonth(acht.getMonth()+8);return Math.ceil((acht-Date.now())/(7*DAG));}
+const DG=["zondag","maandag","dinsdag","woensdag","donderdag","vrijdag","zaterdag"];
+function volgende(sch){if(sch.klaar===0)return "vandaag";const v=sch.klaar<3?sch.laatst+DAG:sch.laatst+7*DAG;const x=Math.round((new Date(new Date(v).toDateString())-new Date(new Date().toDateString()))/DAG);return x<=0?"vandaag":x===1?"morgen":DG[new Date(v).getDay()];}
+function ga(x){S.scherm=x;bewaar();teken();scrollTo(0,0);}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>ga(b.dataset.t));
+function teken(){$("#nav").hidden=S.scherm==="start";document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("aan",b.dataset.t===S.scherm));$("#s").innerHTML=V[S.scherm]();koppel();}
+const stippen=k=>[...Array(10)].map((_,i)=>`<span class="stip ${i<k?"vol":""}"></span>`).join("");
+const PINDA=[["dag 1","¼ tl"],["dag 2","1 tl"],["dag 3","3 tl"],["wekelijks","3 tl"]], EI=[["dag 1","1 tl"],["dag 2","1 el"],["dag 3","2 el"],["wekelijks","½ ei"]];
+const V={
+start(){return `<h1 style="margin-top:40px">Eerste hapjes</h1><p class="sub">Bijhouden wat je kindje proeft, met het pinda- en ei-schema erbij. Nederlands, rustig, één keer betalen.</p>
+ <h2>Hoe heet je kindje?</h2><input type="text" id="nm" value="${S.naam}">
+ <h2>Geboortedatum</h2><input type="date" id="gb" value="${S.geboren}">
+ <h2>Heeft je kindje eczeem of een bekende voedselallergie?</h2>
+ <div class="chips">${["nee","ja","weet ik niet"].map(x=>`<button class="chip ${S.eczeem===x?"aan":""}" data-ecz="${x}">${x}</button>`).join("")}</div>
+ <p class="klein">Bij "ja" of "weet ik niet" toont de app geen pinda- en ei-schema, maar het advies om eerst met je arts of het consultatiebureau te overleggen.</p>
+ <div class="vink"><span>✓</span><span>14 dagen alles open, daarna € 3,99, één keer. Gezinsdeling: beide ouders.</span></div>
+ <div class="vink"><span>✓</span><span>Geen account. Alles blijft op je telefoon (en die van je partner, als je deelt).</span></div>
+ <p class="klein">Deze app geeft geen medisch advies en herkent geen allergie. Benauwd na een hapje: bel 112.</p>
+ <button class="knop" data-a="beginnen">Beginnen</button>`;},
+lijst(){const l=leeftijd();const L=S.lijst.filter(x=>S.filter==="Alles"||x.cat===S.filter).sort((a,b)=>b.laatst-a.laatst);
+ return `<div class="kop"><div><h1>Proeflijst</h1><div class="sub">${S.naam} · ${l.m} maanden en ${l.w} weken</div></div><button class="link" style="font-size:20px" data-g="meer">⚙</button></div>
+ <div class="chips">${["Alles",...Object.keys(CAT)].map(x=>`<button class="chip ${S.filter===x?"aan":""}" data-filter="${x}">${x}</button>`).join("")}</div>
+ ${L.map(x=>`<div class="item" data-item="${S.lijst.indexOf(x)}"><div class="r"><b>${x.naam}</b><span class="oord-${x.oordeel}">${x.oordeel}</span></div><div class="r"><span>${stippen(Math.min(10,x.keer))}</span><span class="klein">${x.keer} van 10</span></div></div>`).join("")||`<p class="sub">Nog niets in deze groep.</p>`}
+ <p class="klein">Een kindje went soms pas na 10 keer proeven aan een smaak. Twijfel of niet is gewoon: probeer het een andere dag nog eens.</p>
+ <button class="knop" data-a="nieuw">+ Hapje</button>
+ <p class="klein midden">${S.partner?"Gedeeld met "+S.partner+" · via iCloud":`<button class="link" data-a="delen">Deel met je partner</button>`}</p>`;},
+pinda(){if(S.eczeem!=="nee")return `<h1>Pinda en ei</h1><div class="waarschuw"><b>Overleg eerst met je arts of het consultatiebureau.</b><br>Je gaf aan dat ${S.naam} eczeem of een voedselallergie heeft, of dat je het niet zeker weet. Dan begin je niet zelf met het schema.<br><br>Benauwd na een hapje: bel 112.</div><p class="klein">Is dit veranderd? Pas het aan bij ⚙.</p><button class="knop rand" data-g="meer">Naar instellingen</button>`;
+ const w=tot8(); const kaart=(naam,sch,stappen,sleutel)=>`<div class="kaart"><div class="kop"><b>${naam}</b><span class="klein" style="color:var(--ac);font-weight:600">volgende: ${volgende(sch)}</span></div>
+  <div class="stappen">${stappen.map(([d,h],i)=>`<button data-stap="${sleutel}:${i}"><i class="${i<sch.klaar?"af":""}">${i<sch.klaar?"✓":i+1}</i>${d}<br><span class="klein">${h}</span></button>`).join("")}</div></div>`;
+ return `<h1 class="midden">Pinda en ei</h1><p class="midden" style="color:var(--ac);font-weight:600;margin:0">${w>0?"Vóór 8 maanden · nog "+w+" weken":"Na 8 maanden: blijf het wekelijks geven"}</p>
+  ${kaart("Pinda",S.pinda,PINDA,"pinda")}${kaart("Ei",S.ei,EI,"ei")}
+  <div class="rij"><span>Herinnering</span><span>${open()?`<button class="link" data-a="herinnering">${S.herinnering?"aan · 10:00":"uit"}</button>`:`<button class="link" data-g="koop">na aankoop</button>`}</span></div>
+  <div class="waarschuw">Eczeem of een voedselallergie? Overleg eerst met je arts.<br>Benauwd na een hapje: bel 112.</div>
+  <p class="klein midden">100% pindakaas, dun gesmeerd of door de pap · ei goed gaar<br>Bron: Voedingscentrum, De eerste hapjes (juli 2026). Geen medisch advies.<br><span class="concept">Hoeveelheden nog te controleren door de nalezer.</span></p>`;},
+fases(){const F=[["4 tot 6 maanden",["Melk blijft de basis; hapjes komen erbij.","Begin met kleine beetjes, bijvoorbeeld een paar lepeltjes.","Een nieuwe smaak mag je vaker aanbieden; soms went het pas na 10 keer.","Geen zout of suiker toevoegen.","Begin vóór 8 maanden met pinda en ei (zie het schema)."]],["6 tot 8 maanden",["Van glad naar grover: puree met kleine stukjes.","Bied ook zacht vingerfood aan, onder toezicht.","Laat je kindje zelf bepalen hoeveel het eet.","Water uit een bekertje bij de hapjes.","Blijf pinda en ei wekelijks geven."]],["8 tot 12 maanden",["Steeds meer met de pot mee, zonder zout.","Drie maaltijden en een paar tussendoortjes.","Eten met de handen hoort erbij.","Geen honing vóór 1 jaar.","Twijfel je? Vraag het op het consultatiebureau."]]];
+ return `<h1>Fases</h1><p class="klein">Korte uitleg per leeftijd. <span class="concept">Concept, nog na te lezen.</span></p>${F.map(([t,z])=>`<div class="kaart"><b>${t}</b><ul style="margin:6px 0 0 -18px">${z.map(x=>`<li>${x}</li>`).join("")}</ul></div>`).join("")}<p class="klein midden">Bron: Voedingscentrum en de JGZ-richtlijn Voeding en eetgedrag. Geen medisch advies.</p>`;},
+overzicht(){const L=S.lijst; const vaak=[...L].sort((a,b)=>b.keer-a.keer).slice(0,3).map(x=>x.naam).join(", "); const tw=L.filter(x=>x.oordeel!=="lekker").map(x=>x.naam.toLowerCase()).join(", ")||"geen";
+ const rows=[["Geproefd",L.length+" soorten"],["Vaak gegeten",vaak],["Twijfel of niet",tw],["Pinda",S.eczeem!=="nee"?"geen schema (overleg arts)":S.pinda.klaar>=3?"schema klaar, wekelijks":"dag "+S.pinda.klaar+" van 3"],["Ei",S.eczeem!=="nee"?"geen schema (overleg arts)":S.ei.klaar>=3?"schema klaar, wekelijks":"dag "+S.ei.klaar+" van 3"],["Notities bij een reactie",S.notities.length]];
+ return `<h1 class="midden">Overzicht</h1><p class="sub midden" style="margin:0">voor het consultatiebureau</p>${rows.map(([a,b])=>`<div class="rij"><span class="klein">${a}</span><b style="font-size:14px;text-align:right">${b}</b></div>`).join("")}
+  <button class="knop" data-a="pdf">Bekijk als PDF</button><button class="knop licht" data-a="csv">Exporteren (CSV)</button><p class="klein midden">Geen account. Blijft op je telefoon.</p>`;},
+meer(){return `<h1>Instellingen</h1>
+ <div class="rij"><span>Kindje</span><span class="sub">${S.naam}, ${leeftijd().m} maanden</span></div>
+ <div class="rij"><span>Eczeem of allergie</span><span class="chips" style="margin:0">${["nee","ja","weet ik niet"].map(x=>`<button class="chip ${S.eczeem===x?"aan":""}" data-ecz="${x}">${x}</button>`).join("")}</span></div>
+ <div class="rij"><span>Delen met je partner</span>${S.partner?`<span class="sub">${S.partner}</span>`:`<button class="link" data-a="delen">Deel</button>`}</div>
+ <div class="rij"><span>Overzicht voor het consultatiebureau</span><button class="link" data-a="naarOverzicht">Open</button></div>
+ <div class="rij"><span>Eerste hapjes</span><span class="sub">${S.gekocht?"gekocht, dank je":open()?"proef: nog "+(15-S.installDag)+" dagen":"proef voorbij"}</span></div>
+ ${S.gekocht?"":`<div class="rij"><span>Eenmalig kopen</span><button class="link" data-g="koop">€ 3,99 ›</button></div>`}
+ <p class="klein">Deze app geeft geen medisch advies en herkent geen allergie. Twijfel je? Vraag het op het consultatiebureau of aan je huisarts. Benauwd: bel 112.</p>
+ <div class="demo"><b class="klein">Alleen in dit prototype</b>
+  <div class="rij"><span class="klein">Proefdag</span><span class="chips" style="margin:0">${[1,13,15].map(x=>`<button class="chip ${S.installDag===x?"aan":""}" data-proef="${x}">dag ${x}</button>`).join("")}</span></div>
+  <div class="rij"><span class="klein">Leeftijd kindje</span><span class="chips" style="margin:0">${[[140,"4½ mnd"],[198,"6½ mnd"],[255,"8½ mnd"]].map(([d,l])=>`<button class="chip" data-leeftijd="${d}">${l}</button>`).join("")}</span></div>
+  <button class="knop rand" data-a="wis">Alles wissen en opnieuw beginnen</button></div>`;},
+koop(){return `<h1 class="midden" style="margin-top:34px">${S.installDag>14?"Je proef van 14 dagen is voorbij":"Alles van Eerste hapjes, voor altijd"}</h1>
+ <p class="prijs">€ 3,99</p><p class="midden sub" style="margin-top:0">één keer · geen abonnement</p>
+ <div class="kaart"><div class="vink"><span>✓</span><span>Hapjes toevoegen en de teller tot 10</span></div><div class="vink"><span>✓</span><span>Pinda- en ei-schema met herinnering</span></div><div class="vink"><span>✓</span><span>Overzicht voor het consultatiebureau (PDF en CSV)</span></div><div class="vink"><span>✓</span><span>Gezinsdeling: je partner doet mee</span></div></div>
+ <p class="klein midden">Je proeflijst bekijken blijft altijd kunnen. Er wordt nooit iets vanzelf afgeschreven.</p>
+ <button class="knop" data-a="koop">Koop voor € 3,99</button><p class="midden"><button class="link" data-a="herstel">Aankoop herstellen</button> · <button class="link" data-g="lijst">Niet nu</button></p>`;}
+};
+// ---------- sheets ----------
+function sheet(h){$("#sheet").innerHTML=`<div class="sheet-bg"><div class="sheet"><div class="greep"></div>${h}</div></div>`;$("#sheet .sheet-bg").onclick=e=>{if(e.target.classList.contains("sheet-bg"))sluit();};koppelIn($("#sheet"));}
+function sluit(){$("#sheet").innerHTML="";teken();}
+let H={};
+function hapjeSheet(naam){if(!open())return ga("koop");const x=S.lijst.find(i=>i.naam===naam);H={naam:naam||"",oordeel:"lekker",vorm:"stukjes",notitie:""};
+ const keer=x?x.keer+1:1;
+ sheet(`<h2 class="midden" style="margin-top:0">Hapje toevoegen</h2><p class="klein midden">Vandaag</p>
+  ${naam?`<div class="kaart" style="display:flex;justify-content:space-between"><b>${naam}</b><span style="color:var(--ac);font-weight:600">${keer}e keer</span></div>`:`<input type="text" id="hn" placeholder="Wat proeft je kindje? (bijv. Courgette)"><div class="chips">${Object.values(CAT).flat().filter(n=>!S.lijst.find(i=>i.naam===n)).slice(0,6).map(n=>`<button class="chip" data-kies="${n}">${n}</button>`).join("")}</div>`}
+  <h2>Hoe ging het?</h2><div class="chips" id="oo">${["lekker","twijfel","niet"].map(o=>`<button class="chip ${o==="lekker"?"aan":""}" data-oo="${o}">${o}</button>`).join("")}</div>
+  <h2>Vorm</h2><div class="chips" id="vv">${["puree","stukjes","vingerfood"].map(o=>`<button class="chip ${o==="stukjes"?"aan":""}" data-vv="${o}">${o}</button>`).join("")}</div>
+  <h2>Notitie (optioneel)</h2><textarea id="nt" rows="2" placeholder="Bijvoorbeeld: vies gezicht, toen nog een hap."></textarea>
+  <div class="waarschuw" data-tips="1" style="cursor:pointer">Reactie op huid of adem? Zie de tips.</div>
+  <button class="knop" data-bewaar="1">Bewaren</button>`);}
+function koppelIn(r){
+ r.querySelectorAll("[data-kies]").forEach(e=>e.onclick=()=>{$("#hn").value=e.dataset.kies;});
+ r.querySelectorAll("[data-oo]").forEach(e=>e.onclick=()=>{H.oordeel=e.dataset.oo;r.querySelectorAll("[data-oo]").forEach(b=>b.classList.toggle("aan",b===e));});
+ r.querySelectorAll("[data-vv]").forEach(e=>e.onclick=()=>{H.vorm=e.dataset.vv;r.querySelectorAll("[data-vv]").forEach(b=>b.classList.toggle("aan",b===e));});
+ r.querySelectorAll("[data-tips]").forEach(e=>e.onclick=()=>alert("Tips (concept, na te lezen):\n\n• Rode vlekjes rond de mond verdwijnen vaak vanzelf. Houd het in de gaten en noteer het.\n• Bultjes, zwelling of overgeven na een hapje: neem contact op met je huisarts.\n• Benauwd, hoesten of slap: bel 112.\n\nDeze app geeft geen medisch advies."));
+ r.querySelectorAll("[data-bewaar]").forEach(e=>e.onclick=()=>{const naam=H.naam||($("#hn")&&$("#hn").value.trim());if(!naam)return;let x=S.lijst.find(i=>i.naam.toLowerCase()===naam.toLowerCase());if(!x){x={naam:naam[0].toUpperCase()+naam.slice(1),cat:catVan(naam),keer:0};S.lijst.push(x);}x.keer++;x.oordeel=H.oordeel;x.laatst=Date.now();const nt=$("#nt").value.trim();if(nt)S.notities.push({datum:Date.now(),tekst:x.naam+": "+nt});bewaar();sluit();});
+ r.querySelectorAll("[data-sluit]").forEach(e=>e.onclick=sluit);
+ r.querySelectorAll("[data-deel]").forEach(e=>e.onclick=()=>{S.partner=$("#pn").value.trim()||"je partner";bewaar();sluit();});
+}
+const ACT={
+ beginnen(){S.naam=$("#nm").value.trim()||"je kindje";S.geboren=$("#gb").value||S.geboren;S.start=false;ga("lijst");},
+ nieuw(){hapjeSheet(null);},
+ delen(){sheet(`<h2 style="margin-top:0">Deel met je partner</h2><p class="klein">Jullie zien en vullen dezelfde lijst, via iCloud (gedeelde gegevens tussen twee Apple-accounts). Wij zien niets.</p><input type="text" id="pn" placeholder="Naam van je partner" value="Daan"><button class="knop" data-deel="1">Uitnodiging klaarzetten</button><p class="klein midden">Prototype: er wordt niets verstuurd.</p>`);},
+ herinnering(){S.herinnering=!S.herinnering;bewaar();teken();},
+ naarOverzicht(){if(!open())return ga("koop");ga("overzicht");},
+ pdf(){if(!open())return ga("koop");const l=leeftijd();const L=[...S.lijst].sort((a,b)=>a.naam.localeCompare(b.naam));
+  sheet(`<p class="klein midden" style="margin-top:0">Voorbeeld van de PDF (nagebootst)</p><div class="pdf"><div class="blad"><h3>Eerste hapjes van ${S.naam}</h3><div style="color:#666">${l.m} maanden en ${l.w} weken · ${new Date().toLocaleDateString("nl-NL",{day:"numeric",month:"long",year:"numeric"})}</div>
+   <h4>Geproefd (${L.length})</h4>${L.map(x=>`${x.naam}: ${x.keer}×, ${x.oordeel}`).join(" · ")}
+   <h4>Pinda en ei</h4>${S.eczeem!=="nee"?"Geen schema gestart: eczeem of allergie aangegeven, overleg met arts.":`Pinda: ${S.pinda.klaar>=3?"opbouw klaar, wekelijks":"dag "+S.pinda.klaar+" van 3"} · Ei: ${S.ei.klaar>=3?"opbouw klaar, wekelijks":"dag "+S.ei.klaar+" van 3"}`}
+   <h4>Notities</h4>${S.notities.map(n=>new Date(n.datum).toLocaleDateString("nl-NL",{day:"numeric",month:"short"})+": "+n.tekst).join("<br>")||"geen"}
+   <p style="color:#888;margin-top:12px">Bijgehouden door de ouders met de app Eerste hapjes. Geen medisch advies.</p></div></div>
+   <button class="knop" data-sluit="1">Delen (via het deelmenu van je telefoon)</button>`);},
+ csv(){if(!open())return ga("koop");alert("Prototype: de export zou dit bestand maken:\n\nvoedingsmiddel,groep,keer,oordeel\n"+S.lijst.slice(0,3).map(x=>`${x.naam},${x.cat},${x.keer},${x.oordeel}`).join("\n")+"\n…");},
+ koop(){if(confirm("Dit is een prototype. Er wordt niet betaald. Aankoop nabootsen?")){S.gekocht=true;bewaar();ga("lijst");}},
+ herstel(){alert("Prototype: in de echte app vraagt dit de App Store om je eerdere aankoop. Hier gebeurt niets.");},
+ wis(){if(confirm("Alles in dit prototype wissen?")){try{localStorage.removeItem(K)}catch(e){}location.reload();}}};
+function koppel(){
+ document.querySelectorAll("#s [data-a]").forEach(e=>e.onclick=()=>ACT[e.dataset.a]());
+ document.querySelectorAll("#s [data-g]").forEach(e=>e.onclick=()=>ga(e.dataset.g));
+ document.querySelectorAll("[data-ecz]").forEach(e=>e.onclick=()=>{S.eczeem=e.dataset.ecz;bewaar();if(S.scherm==="start"){const n=$("#nm").value,g=$("#gb").value;teken();$("#nm").value=n;$("#gb").value=g;}else teken();});
+ document.querySelectorAll("[data-filter]").forEach(e=>e.onclick=()=>{S.filter=e.dataset.filter;bewaar();teken();});
+ document.querySelectorAll("[data-item]").forEach(e=>e.onclick=()=>hapjeSheet(S.lijst[+e.dataset.item].naam));
+ document.querySelectorAll("[data-stap]").forEach(e=>e.onclick=()=>{if(!open())return ga("koop");const [k,i]=e.dataset.stap.split(":");const sch=S[k];if(+i===sch.klaar&&sch.klaar<4){sch.klaar++;sch.laatst=Date.now();}else if(+i===3&&sch.klaar>=4){sch.laatst=Date.now();}bewaar();teken();});
+ document.querySelectorAll("[data-proef]").forEach(e=>e.onclick=()=>{S.installDag=+e.dataset.proef;bewaar();teken();});
+ document.querySelectorAll("[data-leeftijd]").forEach(e=>e.onclick=()=>{S.geboren=new Date(Date.now()-e.dataset.leeftijd*DAG).toISOString().slice(0,10);bewaar();teken();});
+}
+if(S.start)S.scherm="start"; teken();
+</script>
+</body>
+</html>
