@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0D1830">
+<title>Durora · klikbaar prototype</title>
+<!-- Klikbaar prototype Durora 1.0 (APP-12), 8 november 2026. Design A "Nacht en maan". Eén bestand, geen netwerk, geen tracking.
+     Tijden berekend in de browser (zonnestand). Presets volgens VT-17 (9 november): Diyanet 18° en iftar +6, hoeken 18, 16, 15 en 13,5 met iftar +2; imsak naar beneden, iftar naar boven afgerond.
+     Gegevens alleen in deze browser (localStorage). Betalen is nagebootst. -->
+<style>
+:root{--a1:#0D1830;--a2:#1C2C50;--goud:#E8D9A8;--zacht:#9AA6C2;--lijn:#2E3E63;--wit:#FFFFFF;--kaart:rgba(255,255,255,.07);--oranje:#E39A6B}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;color:var(--wit);font:16px/1.4 -apple-system,"SF Pro Text","Helvetica Neue",Arial,sans-serif;background:linear-gradient(180deg,var(--a1),var(--a2)) fixed}
+body.nacht{--a1:#070F22;--a2:#111D38}
+.app{max-width:420px;min-height:100vh;margin:0 auto;position:relative;overflow:hidden}
+.sterren{position:absolute;inset:0 0 auto 0;height:260px;pointer-events:none}
+main{position:relative;padding:18px 22px 120px}
+.kop{display:flex;justify-content:space-between;align-items:flex-start;margin-top:8px}
+.merk{color:var(--goud);font-weight:700}
+.zacht{color:var(--zacht)} .klein{font-size:13px;color:var(--zacht)} .midden{text-align:center}
+h1{font-size:24px;margin:18px 0 6px} h2{font-size:17px;margin:22px 0 10px}
+.kaart{background:var(--kaart);border-radius:16px;padding:14px 16px;margin-top:12px}
+.knop{display:block;width:100%;border:0;border-radius:26px;background:var(--goud);color:#13213D;font:700 16px/1 inherit;padding:15px;margin-top:18px;cursor:pointer}
+.knop.rand{background:transparent;color:var(--wit);border:1px solid var(--zacht);font-weight:500}
+.link{background:none;border:0;color:var(--goud);font:500 15px inherit;padding:8px 0;cursor:pointer}
+.jn{display:flex;gap:8px} .jn button{border-radius:18px;padding:8px 16px;font:700 14px inherit;cursor:pointer;border:1px solid var(--zacht);background:transparent;color:var(--wit)} .jn button.ja{background:var(--goud);border-color:var(--goud);color:#13213D}
+.groot{font-size:56px;font-weight:300;letter-spacing:-1px}
+.lijst div,.optie{display:flex;justify-content:space-between;align-items:center;padding:13px 2px;border-bottom:1px solid var(--lijn);cursor:pointer}
+.optie.aan b{color:var(--goud)} .optie small{display:block;color:var(--zacht);font-size:12px;max-width:290px}
+.kal{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:12px;text-align:center}
+.kal span{font-size:12px;color:var(--zacht)}
+.kal b{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:13px;font-weight:600;color:var(--zacht);cursor:pointer}
+.kal b.g{background:var(--goud);color:#13213D} .kal b.m{border:2px dashed var(--oranje);color:var(--wit)} .kal b.i{background:transparent;border:2px solid var(--goud);color:var(--goud)} .kal b.v{border:2px solid var(--wit);color:var(--wit)}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:rgba(13,24,48,.96);border-top:1px solid var(--lijn);display:flex;padding:10px 0 calc(14px + env(safe-area-inset-bottom));z-index:5}
+nav button{flex:1;background:none;border:0;color:var(--zacht);font:500 14px inherit;padding:8px;cursor:pointer} nav button.aan{color:var(--goud);font-weight:700}
+.chips{display:flex;gap:6px;flex-wrap:wrap} .chip{border:1px solid var(--lijn);background:var(--kaart);color:var(--wit);border-radius:14px;padding:6px 11px;font:13px inherit;cursor:pointer} .chip.aan{background:var(--goud);color:#13213D;border-color:var(--goud)}
+textarea,select,input[type=date]{width:100%;background:rgba(255,255,255,.06);color:var(--wit);border:1px solid var(--lijn);border-radius:14px;padding:12px;font:15px inherit}
+select option{color:#000}
+.slot{position:relative} .slot .waas{filter:blur(5px);opacity:.45;pointer-events:none}
+.slot .over{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;z-index:9}
+.sheet{background:#13213D;width:100%;max-width:420px;border-radius:24px 24px 0 0;padding:14px 22px 34px}
+.greep{width:40px;height:5px;border-radius:3px;background:var(--lijn);margin:0 auto 12px}
+.demo{margin-top:26px;padding:14px;border:1px dashed var(--lijn);border-radius:16px}
+.vink{display:flex;gap:10px;margin:10px 0} .vink span:first-child{color:var(--goud);font-weight:700}
+.prijs{font-size:44px;font-weight:300;text-align:center;margin:8px 0 0}
+</style>
+</head>
+<body>
+<div class="app"><svg class="sterren" id="sterren" viewBox="0 0 420 260" preserveAspectRatio="none"></svg><main id="s"></main>
+<nav id="nav" hidden><button data-t="vandaag">Vandaag</button><button data-t="logboek">Logboek</button><button data-t="tijden">Tijden</button></nav></div>
+<div id="sheet"></div>
+<script>
+const K="durora-proto-v1", DAG=864e5, MIN=6e4, TZ="Europe/Amsterdam";
+const $=q=>document.querySelector(q);
+const PLAATSEN={"Amsterdam":[52.37,4.90],"Rotterdam":[51.92,4.48],"Den Haag":[52.08,4.30],"Utrecht":[52.09,5.12],"Eindhoven":[51.44,5.48],"Arnhem":[51.98,5.91],"Groningen":[53.22,6.57],"Zaandam":[52.44,4.83],"Tilburg":[51.56,5.09],"Almere":[52.37,5.21],"Antwerpen":[51.22,4.40],"Brussel":[50.85,4.35]};
+const METHODEN={
+ diyanet:{naam:"Diyanet",uitleg:"De tijden van Diyanet, die veel Turkse moskeeën volgen: fajr bij 18°, iftar 6 minuten na zonsondergang.",hoek:18,naIftar:6},
+ moskee:{naam:"Eigen moskee",uitleg:"De tabel van je eigen moskee, ingevoerd of geplakt. Dan gelden precies die tijden.",tabel:true},
+ m18:{naam:"18 graden",uitleg:"Zoals veel moskeeën in Nederland: fajr bij 18°, iftar 2 minuten na zonsondergang.",hoek:18,naIftar:2},
+ m16:{naam:"16 graden",uitleg:"Sommige moskeeën, onder meer in Amsterdam, gebruiken een kleinere hoek; fajr valt dan later.",hoek:16,naIftar:2},
+ m15:{naam:"15 graden",uitleg:"Sommige moskeeën, onder meer in Den Haag, gebruiken een kleinere hoek; fajr valt dan later.",hoek:15,naIftar:2},
+ m135:{naam:"13,5 graden",uitleg:"Sommige moskeeën, onder meer in België, gebruiken een kleinere hoek; fajr valt dan later.",hoek:13.5,naIftar:2}};
+// ---------- zonnestand (NOAA, vereenvoudigd; genoeg voor een prototype) ----------
+const rad=d=>d*Math.PI/180, deg=r=>r*180/Math.PI;
+function zon(datumStr,lat,lon,hoogte,ochtend){
+ const d=new Date(datumStr+"T12:00:00Z"); const J=d.getTime()/DAG+2440587.5; const n=Math.round(J-2451545+0.0008);
+ const Js=n-lon/360; const M=(357.5291+0.98560028*Js)%360; const C=1.9148*Math.sin(rad(M))+0.02*Math.sin(rad(2*M))+0.0003*Math.sin(rad(3*M));
+ const L=(M+C+180+102.9372)%360; const Jt=2451545+Js+0.0053*Math.sin(rad(M))-0.0069*Math.sin(rad(2*L));
+ const dec=Math.asin(Math.sin(rad(L))*Math.sin(rad(23.4397)));
+ const w=Math.acos((Math.sin(rad(hoogte))-Math.sin(rad(lat))*Math.sin(dec))/(Math.cos(rad(lat))*Math.cos(dec)));
+ const Jx=ochtend?Jt-deg(w)/360:Jt+deg(w)/360; return (Jx-2440587.5)*DAG;
+}
+// ---------- toestand ----------
+let S=(()=>{try{return JSON.parse(localStorage.getItem(K))}catch(e){return null}})()||{plaats:null,methode:"diyanet",marge:0,tabel:"",eersteDag:"2027-02-08",log:{1:"g",2:"g",3:"g",4:"g",5:"g",6:"g",7:"m",8:"g",9:"g",10:"g",11:"g"},installDag:1,gekocht:false,scherm:"welkom",demo:"2027-02-19T14:01",snel:1,melding:true};
+if(!METHODEN[S.methode])S.methode="diyanet";
+let klok={echt:Date.now(),virt:new Date(S.demo).getTime(),snel:S.snel||1};
+function nu(){return klok.virt+(Date.now()-klok.echt)*klok.snel;}
+function bewaar(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
+function zetDemo(iso){S.demo=iso;klok={echt:Date.now(),virt:new Date(iso).getTime(),snel:klok.snel};bewaar();teken();}
+const pad=n=>String(n).padStart(2,"0");
+const fmt=t=>new Date(t).toLocaleTimeString("nl-NL",{timeZone:TZ,hour:"2-digit",minute:"2-digit"});
+function datumVan(t){const p=new Intl.DateTimeFormat("en-CA",{timeZone:TZ,year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(t));return p;}
+function plusDag(ds,k){const d=new Date(ds+"T12:00:00Z");d.setUTCDate(d.getUTCDate()+k);return d.toISOString().slice(0,10);}
+function ramadanDag(t){return Math.round((new Date(datumVan(t)+"T12:00:00Z")-new Date(S.eersteDag+"T12:00:00Z"))/DAG)+1;}
+function tabelTijden(ds){const dag=Math.round((new Date(ds+"T12:00:00Z")-new Date(S.eersteDag+"T12:00:00Z"))/DAG)+1;const r=S.tabel.split("\n").map(l=>l.trim().split(/\s+/)).find(x=>+x[0]===dag);if(!r)return null;const mk=hm=>{const [h,m]=hm.split(":");const base=new Date(ds+"T00:00:00");return new Date(ds+"T"+pad(+h)+":"+pad(+m)+":00").getTime();};return {imsak:mk(r[1]),iftar:mk(r[2])};}
+function tijden(ds){
+ const m=METHODEN[S.methode]; if(m.tabel){const t=tabelTijden(ds); if(t) return {...t,bron:"tabel"}; }
+ const [lat,lon]=PLAATSEN[S.plaats||"Utrecht"]; const mm=m.tabel?METHODEN.m18:m;
+ const fajr=zon(ds,lat,lon,-mm.hoek,true), iftar=zon(ds,lat,lon,-0.833,false)+(mm.naIftar||0)*MIN;
+ return {imsak:Math.floor((fajr-S.marge*MIN)/MIN)*MIN,iftar:Math.ceil(iftar/MIN)*MIN,bron:m.tabel?"geen regel in je tabel, dus 18°":mm.naam};
+}
+// ---------- navigatie ----------
+function ga(x){S.scherm=x;bewaar();teken();scrollTo(0,0);}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>ga(b.dataset.t));
+function open(){return S.gekocht||S.installDag<=14;}
+function sterren(){let s="";let x=7;for(let i=0;i<30;i++){x=(x*9301+49297)%233280;const a=x/233280;x=(x*9301+49297)%233280;const b=x/233280;s+=`<circle cx="${(a*420).toFixed(0)}" cy="${(b*250).toFixed(0)}" r="${(0.6+a*1.1).toFixed(1)}" fill="#fff" opacity="${(0.25+b*0.5).toFixed(2)}"/>`;}$("#sterren").innerHTML=s;}
+function teken(){
+ const t=nu(), ds=datumVan(t), T=tijden(ds); const nachtNu=t<T.imsak||t>T.iftar;
+ document.body.classList.toggle("nacht",nachtNu&&S.scherm==="vandaag");
+ $("#nav").hidden=["welkom","plaats","eerstedag"].includes(S.scherm);
+ document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("aan",b.dataset.t===S.scherm));
+ $("#s").innerHTML=(V[S.scherm]||V.vandaag)(); koppel();
+}
+const maan=(x,y,r)=>`<svg width="${2*r+6}" height="${2*r+6}" viewBox="0 0 ${2*r+6} ${2*r+6}"><defs><mask id="mk${r}"><rect width="100%" height="100%" fill="#fff"/><circle cx="${r+3+r*0.42}" cy="${r+3-r*0.18}" r="${r*0.92}" fill="#000"/></mask></defs><circle cx="${r+3}" cy="${r+3}" r="${r}" fill="var(--goud)" mask="url(#mk${r})"/></svg>`;
+// ---------- schermen ----------
+const V={
+welkom(){return `<div class="kop"><span class="merk">Durora</span>${maan(0,0,16)}</div>
+ <h1 style="font-size:30px;margin-top:70px">Jouw iftar-tijd, van je moskee of Diyanet.</h1>
+ <p class="zacht">Rustig aftellen naar iftar, 's nachts tot imsak, en een logboek met je inhaaldagen.</p>
+ <div class="vink"><span>✓</span><span>Aftellen, widget en meldingen blijven altijd gratis.</span></div>
+ <div class="vink"><span>✓</span><span>14 dagen alles open, daarna één keer € 4,99. Geen reclame, nooit een abonnement.</span></div>
+ <div class="vink"><span>✓</span><span>Geen account. Je plaats blijft op je telefoon.</span></div>
+ <button class="knop" data-g="plaats">Kies je plaats</button>`;},
+plaats(){return `<h1>Waar ben je?</h1><p class="klein">Zonder locatietoestemming: kies je stad. Je kunt dit altijd wijzigen.</p>
+ <div class="lijst">${Object.keys(PLAATSEN).map(p=>`<div data-plaats="${p}"><span>${p}</span><span class="zacht">${S.plaats===p?"✓":""}</span></div>`).join("")}</div>
+ <button class="knop rand" data-a="locatie">Gebruik mijn locatie (blijft op je telefoon)</button>`;},
+eerstedag(){const d=new Date(S.eersteDag+"T12:00:00Z");return `<h1>Wanneer begint jouw Ramadan?</h1>
+ <p class="klein">Jij bevestigt de eerste dag zelf; moskeeën en landen verschillen soms een dag.</p>
+ <div class="kaart midden"><div class="klein">Eerste vastendag</div><div style="font-size:26px;margin:6px 0">${d.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:"UTC"})}</div>
+ <div class="chips" style="justify-content:center"><button class="chip" data-eerste="-1">een dag eerder</button><button class="chip" data-eerste="1">een dag later</button></div></div>
+ <button class="knop" data-a="bevestig">Bevestig</button>`;},
+vandaag(){
+ const t=nu(), ds=datumVan(t), T=tijden(ds), dag=ramadanDag(t); const overdag=t>=T.imsak&&t<=T.iftar;
+ const morgen=tijden(plusDag(ds,1)); const doel=overdag?T.iftar:(t<T.imsak?T.imsak:morgen.imsak);
+ const rest=doel-t, hh=Math.floor(rest/36e5), mm=Math.floor(rest%36e5/6e4), ss=Math.floor(rest%6e4/1e3);
+ const af=hh>0?`${hh}:${pad(mm)}`:`${mm}:${pad(ss)}`;
+ const frac=overdag?(t-T.imsak)/(T.iftar-T.imsak):(t>T.iftar?1:0);
+ const R=120, cx=150, cy=150, ang=Math.PI*(1-frac), px=cx+R*Math.cos(ang), py=cy-R*0.82*Math.sin(ang);
+ const boog=`<svg viewBox="0 0 300 200" width="100%" style="margin-top:6px"><path d="M ${cx-R} ${cy} A ${R} ${R*0.82} 0 0 1 ${cx+R} ${cy}" fill="none" stroke="var(--lijn)" stroke-width="3"/>
+   ${overdag?`<path d="M ${cx-R} ${cy} A ${R} ${R*0.82} 0 0 1 ${px.toFixed(1)} ${py.toFixed(1)}" fill="none" stroke="var(--goud)" stroke-width="3" stroke-linecap="round"/><circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="16" fill="var(--goud)" opacity=".18"/><circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="8" fill="var(--goud)"/>`:""}
+   <line x1="14" y1="${cy}" x2="286" y2="${cy}" stroke="var(--lijn)"/>
+   <text x="150" y="118" text-anchor="middle" font-size="50" font-weight="300" fill="#fff">${af}</text>
+   <text x="150" y="142" text-anchor="middle" font-size="13" fill="var(--goud)">${overdag?"nog tot iftar · إفطار":"nog eten · tot imsak "+fmt(doel)}</text>
+   <text x="${cx-R}" y="${cy+20}" text-anchor="middle" font-size="11" fill="var(--zacht)">imsak</text><text x="${cx-R}" y="${cy+38}" text-anchor="middle" font-size="14" font-weight="600" fill="#fff">${fmt(T.imsak)}</text>
+   <text x="${cx+R}" y="${cy+20}" text-anchor="middle" font-size="11" fill="var(--zacht)">iftar</text><text x="${cx+R}" y="${cy+38}" text-anchor="middle" font-size="14" font-weight="600" fill="#fff">${fmt(T.iftar)}</text></svg>`;
+ const gisteren=dag-1, vraag=gisteren>=1&&gisteren<=29&&!S.log[gisteren];
+ return `<div class="kop"><div><span class="merk">Durora</span><div class="klein">${dag>=1&&dag<=29?"Ramadan · dag "+dag:dag<1?"nog "+(1-dag)+" dagen tot de Ramadan":"na de Ramadan"}</div></div>${maan(0,0,overdag?15:20)}</div>
+  ${boog}
+  <div class="kaart"><div>Suhoor eindigt ${t<T.imsak?"vandaag":"morgen"} om ${fmt(t<T.imsak?T.imsak:morgen.imsak)}</div><div class="klein">${S.melding?"Melding 30 minuten vooraf":"Geen melding"} · <button class="link" style="padding:0;font-size:13px" data-a="melding">${S.melding?"uit":"aan"}</button></div></div>
+  ${vraag?`<div class="kaart" style="display:flex;justify-content:space-between;align-items:center"><div><b>Gisteren gevast?</b><div class="klein">Voor je logboek</div></div><div class="jn"><button class="ja" data-gisteren="g">Ja</button><button data-gisteren="m">Nee</button></div></div>`:""}
+  <p class="klein midden" style="margin-top:20px">Tijden: ${METHODEN[S.methode].naam}${S.marge?" (−"+S.marge+" min)":""} · ${S.plaats||"Utrecht"}<br>Geen reclame · niets verzameld</p>`;},
+logboek(){
+ const dag=ramadanDag(nu()); const inTeHalen=Object.values(S.log).filter(x=>x==="m").length;
+ const cellen=[...Array(29)].map((_,i)=>{const d=i+1;const s=S.log[d];return `<b class="${s||""} ${d===dag?"v":""}" data-dag="${d}">${d}</b>`;}).join("");
+ const inhoud=`<div class="kal">${"mdwdvzz".split("").map(x=>`<span>${x}</span>`).join("")}${"<i></i>".repeat((new Date(S.eersteDag+"T12:00:00Z").getUTCDay()+6)%7)}${cellen}</div>
+  <div class="kaart" style="display:flex;justify-content:space-between;align-items:center;margin-top:18px"><div><div class="klein">Nog in te halen</div><div style="font-size:24px;font-weight:600">${inTeHalen} ${inTeHalen===1?"dag":"dagen"}</div></div>${inTeHalen?`<button class="knop" style="width:auto;margin:0;padding:11px 18px" data-a="inhalen">Inhalen</button>`:""}</div>
+  <p class="klein"><span style="color:var(--goud)">●</span> gevast &nbsp; <span style="color:var(--oranje)">◌</span> in te halen &nbsp; <span style="color:var(--goud)">○</span> ingehaald &nbsp; ○ vandaag. Tik op een dag om hem te wijzigen.</p>`;
+ return `<div class="kop"><div><h1 style="margin:6px 0 0">Logboek</h1><div class="klein">Ramadan 1448 · ${new Date(S.eersteDag).toLocaleDateString("nl-NL",{month:"long",year:"numeric"})}</div></div>${maan(0,0,11)}</div>
+  ${open()?inhoud:`<div class="slot"><div class="waas">${inhoud}</div><div class="over"><b>Je logboek staat klaar</b><p class="klein">Na 14 dagen is het logboek onderdeel van de aankoop. Aftellen en meldingen blijven gratis; er gaat niets verloren.</p><button class="knop" data-g="koop" style="width:auto;padding:12px 24px">Bekijk de aankoop</button></div></div>`}
+  <p class="klein midden">Alleen op deze telefoon</p>`;},
+tijden(){const m=METHODEN[S.methode], T=tijden(datumVan(nu()));return `<h1>Tijden</h1>
+  <div class="optie" data-g="plaats"><span>Plaats</span><b>${S.plaats||"Utrecht"} ›</b></div>
+  <h2>Methode</h2>${Object.entries(METHODEN).map(([k,x])=>`<div class="optie ${S.methode===k?"aan":""}" data-methode="${k}"><span><b>${x.naam}</b><small>${x.uitleg}</small></span><span>${S.methode===k?"✓":""}</span></div>`).join("")}
+  ${m.tabel?`<h2>Tabel van je moskee</h2><p class="klein">Eén regel per dag: dag, imsak, iftar. Bijvoorbeeld "12 06:05 17:45".</p><textarea id="tabel" rows="5" placeholder="1 06:31 17:24">${S.tabel}</textarea><button class="knop rand" data-a="tabel">Bewaar tabel</button>`:""}
+  <h2>Imsak-marge</h2><p class="klein">Hoeveel minuten vóór fajr je stopt met eten.</p><div class="chips">${[0,5,10,15].map(x=>`<button class="chip ${S.marge===x?"aan":""}" data-marge="${x}">${x} min</button>`).join("")}</div>
+  <div class="kaart"><div class="klein">Vandaag (${T.bron})</div>imsak ${fmt(T.imsak)} · iftar ${fmt(T.iftar)}</div>
+  <div class="optie" data-g="eerstedag"><span>Eerste dag van de Ramadan</span><b>${new Date(S.eersteDag+"T12:00:00Z").toLocaleDateString("nl-NL",{day:"numeric",month:"long",timeZone:"UTC"})} ›</b></div>
+  <div class="optie" data-g="koop"><span>Durora</span><b>${S.gekocht?"gekocht":open()?"proef: nog "+(15-S.installDag)+" dagen":"proef voorbij"} ›</b></div>
+  <p class="klein">Durora rekent tijden uit en houdt je logboek bij. Het geeft geen religieuze uitspraken: welke tijden je volgt, kies je zelf.</p>
+  <div class="demo"><b class="klein">Alleen in dit prototype</b>
+   <p class="klein">Demo-moment:</p><div class="chips">${[["03:40","suhoor"],["09:30","ochtend"],["14:01","middag"],["17:30","vlak voor iftar"],["21:00","avond"]].map(([h,l])=>`<button class="chip" data-moment="${h}">${l}</button>`).join("")}</div>
+   <p class="klein">Datum:</p><input type="date" id="demodatum" value="${datumVan(nu())}">
+   <p class="klein">Tijd versnellen:</p><div class="chips">${[1,60,600].map(x=>`<button class="chip ${klok.snel===x?"aan":""}" data-snel="${x}">${x===1?"echt":x+"×"}</button>`).join("")}</div>
+   <p class="klein">Proefdag:</p><div class="chips">${[1,13,15].map(x=>`<button class="chip ${S.installDag===x?"aan":""}" data-proef="${x}">dag ${x}</button>`).join("")}</div>
+   <button class="knop rand" data-a="wis">Alles wissen en opnieuw beginnen</button></div>`;},
+koop(){return `<div class="kop"><span class="merk">Durora</span>${maan(0,0,14)}</div>
+  <h1 class="midden" style="margin-top:28px">${S.installDag>14?"Je proef van 14 dagen is voorbij":"Alles van Durora, voor altijd"}</h1>
+  <p class="prijs">€ 4,99</p><p class="midden zacht" style="margin-top:0">één keer · geen abonnement · geen reclame</p>
+  <div class="kaart"><div class="vink"><span>✓</span><span>Je logboek met in te halen dagen</span></div><div class="vink"><span>✓</span><span>Live-activiteit op je toegangsscherm</span></div><div class="vink"><span>✓</span><span>Export van je logboek</span></div><div class="vink"><span>✓</span><span>Gezinsdeling: je gezin doet mee</span></div></div>
+  <p class="klein midden">Aftellen, widget en meldingen blijven altijd gratis. Er wordt nooit iets vanzelf afgeschreven.</p>
+  <button class="knop" data-a="koop">Koop voor € 4,99</button>
+  <p class="midden"><button class="link" data-a="herstel">Aankoop herstellen</button> · <button class="link" data-g="vandaag">Niet nu</button></p>`;}
+};
+// ---------- acties ----------
+function sheet(h){$("#sheet").innerHTML=`<div class="sheet-bg"><div class="sheet"><div class="greep"></div>${h}</div></div>`;$("#sheet .sheet-bg").onclick=e=>{if(e.target.classList.contains("sheet-bg"))sluit();};$("#sheet").querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{const [d,w]=b.dataset.s.split(":");if(w==="x")delete S.log[d];else S.log[d]=w;bewaar();sluit();});}
+function sluit(){$("#sheet").innerHTML="";teken();}
+const A={
+ locatie(){alert("Prototype: de app vraagt hier om je locatie en houdt die op je telefoon. Kies voor nu een stad.");},
+ bevestig(){ga("vandaag");},
+ melding(){S.melding=!S.melding;bewaar();teken();},
+ inhalen(){const d=Object.keys(S.log).find(k=>S.log[k]==="m");if(d){S.log[d]="i";bewaar();teken();}},
+ tabel(){S.tabel=$("#tabel").value;bewaar();teken();},
+ koop(){if(confirm("Dit is een prototype. Er wordt niet betaald. Aankoop nabootsen?")){S.gekocht=true;bewaar();ga("logboek");}},
+ herstel(){alert("Prototype: in de echte app vraagt dit de App Store om je eerdere aankoop. Hier gebeurt niets.");},
+ wis(){if(confirm("Alles in dit prototype wissen?")){try{localStorage.removeItem(K)}catch(e){}location.reload();}}
+};
+function koppel(){
+ document.querySelectorAll("[data-a]").forEach(e=>e.onclick=()=>A[e.dataset.a]());
+ document.querySelectorAll("[data-g]").forEach(e=>e.onclick=()=>ga(e.dataset.g));
+ document.querySelectorAll("[data-plaats]").forEach(e=>e.onclick=()=>{S.plaats=e.dataset.plaats;bewaar();ga(S.scherm==="plaats"&&!S.bevestigd?"eerstedag":"tijden");S.bevestigd=true;bewaar();});
+ document.querySelectorAll("[data-eerste]").forEach(e=>e.onclick=()=>{S.eersteDag=plusDag(S.eersteDag,+e.dataset.eerste);bewaar();teken();});
+ document.querySelectorAll("[data-gisteren]").forEach(e=>e.onclick=()=>{S.log[ramadanDag(nu())-1]=e.dataset.gisteren;bewaar();teken();});
+ document.querySelectorAll("[data-dag]").forEach(e=>e.onclick=()=>{const d=e.dataset.dag;sheet(`<h2>Dag ${d}</h2><div class="chips"><button class="chip" data-s="${d}:g">gevast</button><button class="chip" data-s="${d}:m">niet gevast (inhalen)</button><button class="chip" data-s="${d}:i">ingehaald</button><button class="chip" data-s="${d}:x">leeg</button></div>`);});
+ document.querySelectorAll("[data-methode]").forEach(e=>e.onclick=()=>{S.methode=e.dataset.methode;bewaar();teken();});
+ document.querySelectorAll("[data-marge]").forEach(e=>e.onclick=()=>{S.marge=+e.dataset.marge;bewaar();teken();});
+ document.querySelectorAll("[data-moment]").forEach(e=>e.onclick=()=>{zetDemo(datumVan(nu())+"T"+e.dataset.moment);ga("vandaag");});
+ const dd=$("#demodatum"); if(dd) dd.onchange=()=>zetDemo(dd.value+"T"+fmt(nu()));
+ document.querySelectorAll("[data-snel]").forEach(e=>e.onclick=()=>{klok={echt:Date.now(),virt:nu(),snel:+e.dataset.snel};S.snel=+e.dataset.snel;bewaar();teken();});
+ document.querySelectorAll("[data-proef]").forEach(e=>e.onclick=()=>{S.installDag=+e.dataset.proef;bewaar();teken();});
+}
+sterren(); if(S.scherm!=="welkom"&&!S.plaats) S.scherm="welkom"; teken();
+setInterval(()=>{if(S.scherm==="vandaag"&&!$("#sheet").innerHTML)teken();},1000);
+</script>
+</body>
+</html>
