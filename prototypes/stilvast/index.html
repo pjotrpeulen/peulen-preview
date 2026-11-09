@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#FAF5EE">
+<title>Stilvast · klikbaar prototype</title>
+<!-- Klikbaar prototype Stilvast 1.0 (APP-12), 8 november 2026. Design A+B, terracotta. Eén bestand, geen netwerk, geen tracking.
+     Gegevens alleen in deze browser (localStorage). Betalen is nagebootst: er wordt nooit iets afgeschreven. -->
+<style>
+:root{--bg:#FAF5EE;--ink:#2B2420;--zacht:#958676;--lijn:#ECE2D6;--kaart:#FFFFFF;--ac:#C26A48;--acl:#EFD3C6;--opac:#FFFFFF}
+body.nacht{--bg:#221B17;--ink:#F1E7DA;--zacht:#A8988A;--lijn:#3A2F28;--kaart:#2E2520;--ac:#E08C6B;--acl:#5A4136;--opac:#221B17}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 -apple-system,"SF Pro Text","Helvetica Neue",Arial,sans-serif;transition:background .3s}
+.app{max-width:420px;min-height:100vh;margin:0 auto;position:relative}
+main{padding:18px 22px 120px}
+.kop{display:flex;justify-content:space-between;align-items:baseline;margin-top:6px}
+.merk{color:var(--ac);font-weight:700}
+.zacht{color:var(--zacht)} .klein{font-size:13px;color:var(--zacht)} .midden{text-align:center}
+h1{font-weight:400;font-size:24px;margin:22px 0 6px}
+h2{font-weight:500;font-size:17px;margin:24px 0 10px}
+.knop{display:block;width:100%;border:0;border-radius:26px;background:var(--ac);color:var(--opac);font:500 17px/1 inherit;padding:16px;margin-top:20px;cursor:pointer}
+.knop.rand{background:transparent;color:var(--ink);border:1px solid var(--lijn)}
+.link{background:none;border:0;color:var(--ac);font:500 15px inherit;padding:8px 0;cursor:pointer}
+.kaart{background:var(--kaart);border-radius:18px;padding:14px 16px}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.duo .kaart small{display:block;color:var(--zacht);font-size:12px}
+.ring{display:block;margin:10px auto 0}
+.groot{font-size:58px;font-weight:200;letter-spacing:-1px}
+.raster{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+.raster button{background:var(--kaart);border:0;border-radius:22px;padding:16px 0;font:200 30px inherit;color:var(--ink);cursor:pointer}
+.raster button small{display:block;font-size:12px;font-weight:400;color:var(--zacht)}
+.raster button.aan{background:var(--ac);color:var(--opac)} .raster button.aan small{color:var(--opac)}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:var(--bg);border-top:1px solid var(--lijn);display:flex;padding:10px 0 calc(14px + env(safe-area-inset-bottom))}
+nav button{flex:1;background:none;border:0;color:var(--zacht);font:500 14px inherit;padding:8px;cursor:pointer}
+nav button.aan{color:var(--ac);font-weight:700}
+.balken{display:flex;align-items:flex-end;gap:12px;height:110px;margin:14px 6px 4px;position:relative}
+.balken div{flex:1;border-radius:6px;background:var(--acl)} .balken div.vol{background:var(--ac)}
+.lijn16{position:absolute;left:0;right:0;border-top:1px dashed var(--ac);opacity:.5}
+.dagen{display:flex;gap:12px;margin:0 6px;font-size:11px;color:var(--zacht)} .dagen span{flex:1;text-align:center}
+.lijst div{display:flex;justify-content:space-between;align-items:center;padding:12px 2px;border-bottom:1px solid var(--lijn);cursor:pointer}
+.lijst small{display:block;color:var(--zacht);font-size:12px}
+.lijst b{font-weight:300;font-size:17px}
+.slot{position:relative} .slot .waas{filter:blur(4px);opacity:.5;pointer-events:none}
+.slot .over{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:flex-end;justify-content:center;z-index:9}
+.sheet{background:var(--bg);width:100%;max-width:420px;border-radius:24px 24px 0 0;padding:14px 22px 34px}
+.greep{width:40px;height:5px;border-radius:3px;background:var(--lijn);margin:0 auto 12px}
+input[type=datetime-local],input[type=number]{width:100%;border:1px solid var(--lijn);background:var(--kaart);color:var(--ink);border-radius:14px;padding:12px;font:16px inherit}
+.rij{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--lijn)}
+.chips{display:flex;gap:6px;flex-wrap:wrap} .chip{border:1px solid var(--lijn);background:var(--kaart);color:var(--ink);border-radius:14px;padding:6px 11px;font:13px inherit;cursor:pointer}
+.chip.aan{background:var(--ac);border-color:var(--ac);color:var(--opac)}
+.demo{margin-top:26px;padding:14px;border:1px dashed var(--lijn);border-radius:16px}
+.demo b{font-size:13px}
+.vink{display:flex;gap:10px;align-items:flex-start;margin:12px 0}
+.vink span:first-child{color:var(--ac);font-weight:700}
+.prijs{font-size:44px;font-weight:200;text-align:center;margin:10px 0 0}
+</style>
+</head>
+<body>
+<div class="app"><main id="s"></main>
+<nav id="nav" hidden><button data-t="timer">Vasten</button><button data-t="gesch">Geschiedenis</button><button data-t="meer">Meer</button></nav></div>
+<div id="sheet"></div>
+<script>
+const K="stilvast-proto-v1", DAG=864e5, U=36e5;
+const $=q=>document.querySelector(q);
+// ---------- demo-klok (versneld te zetten) ----------
+let klok={basisEcht:Date.now(), basisVirt:Date.now(), snel:1};
+function nu(){return klok.basisVirt+(Date.now()-klok.basisEcht)*klok.snel;}
+function zetSnel(x){klok={basisEcht:Date.now(),basisVirt:nu(),snel:x}; S.snel=x; bewaar();}
+function spring(ms){klok.basisVirt+=ms; S.virtOffset=(S.virtOffset||0)+ms; bewaar(); teken();}
+// ---------- gegevens ----------
+function voorbeeld(){ // vier eerdere vastens, voor de geschiedenis
+  const v=[]; const n=Date.now(); const d=new Date(n); d.setHours(20,0,0,0);
+  [[1,16.08],[2,14.5],[3,16.2],[4,15.5],[6,16.0],[7,13.2]].forEach(([k,u])=>{const s=d.getTime()-k*DAG; v.push({start:s,eind:s+u*U});});
+  return v;
+}
+let S=(()=>{try{return JSON.parse(localStorage.getItem(K))}catch(e){return null}})()||{eerste:true,doel:16,vast:null,lijst:voorbeeld(),installDag:1,gekocht:false,thema:"auto",scherm:"welkom",snel:1,virtOffset:0};
+klok.basisVirt+=S.virtOffset||0; klok.snel=S.snel||1;
+function bewaar(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
+// ---------- hulp ----------
+const pad=n=>String(n).padStart(2,"0");
+function duur(ms){ms=Math.max(0,ms);const h=Math.floor(ms/U),m=Math.floor(ms%U/6e4);return h+":"+pad(m);}
+function klokTijd(t){const d=new Date(t);return pad(d.getHours())+":"+pad(d.getMinutes());}
+const DG=["zo","ma","di","wo","do","vr","za"], MD=["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
+function dagNaam(t){const d=new Date(t),v=new Date(nu());const x=Math.round((new Date(v.toDateString())-new Date(d.toDateString()))/DAG);return x===0?"vandaag":x===1?"gisteren":DG[d.getDay()]+" "+d.getDate()+" "+MD[d.getMonth()];}
+function proefOver(){return Math.max(0,15-S.installDag);}
+function open(){return S.gekocht||S.installDag<=14;}
+function lokaal(t){const d=new Date(t);return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+"T"+pad(d.getHours())+":"+pad(d.getMinutes());}
+function nacht(){if(S.thema==="licht")return false;if(S.thema==="nacht")return true;const h=new Date(nu()).getHours();return h>=21||h<6;}
+// ---------- navigatie ----------
+function ga(x){S.scherm=x;bewaar();teken();scrollTo(0,0);}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>ga(b.dataset.t));
+function teken(){
+  document.body.classList.toggle("nacht",nacht());
+  $("#nav").hidden=["welkom","doel"].includes(S.scherm)&&S.eerste;
+  document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("aan",b.dataset.t===S.scherm||(S.scherm==="doel"&&b.dataset.t==="timer")));
+  $("#s").innerHTML=(V[S.scherm]||V.timer)(); koppel();
+}
+// ---------- schermen ----------
+const V={
+welkom(){return `<div class="kop"><span class="merk">Stilvast</span><span class="klein">van Peulen</span></div>
+ <h1 style="font-size:30px;margin-top:60px">Een vastentimer die gewoon klopt.</h1>
+ <p class="zacht">Twee tikken per dag: starten na het eten, stoppen bij je eerste maaltijd.</p>
+ <div class="vink"><span>✓</span><span>Timen blijft altijd gratis.</span></div>
+ <div class="vink"><span>✓</span><span>14 dagen alles open, daarna één keer € 4,99. Nooit een abonnement.</span></div>
+ <div class="vink"><span>✓</span><span>Geen account. Je gegevens blijven op je telefoon.</span></div>
+ <p class="klein" style="margin-top:22px">Vast niet zonder overleg met je arts als je zwanger bent, borstvoeding geeft, een eetstoornis hebt of hebt gehad, diabetes hebt of medicijnen gebruikt.</p>
+ <button class="knop" data-a="begin">Begin</button>`;},
+doel(){return `<h1 class="midden" style="font-size:22px">Hoe lang wil je vasten?</h1><p class="klein midden">Later altijd aan te passen</p>
+ <div class="raster">${[12,14,16,18,20,24].map(u=>`<button class="${S.doel===u?"aan":""}" data-doel="${u}">${u}<small>uur</small></button>`).join("")}</div>
+ <p class="midden"><button class="link" data-a="eigen">Eigen duur…</button></p>
+ <p class="klein midden">${S.doel} uur vasten${S.doel<24?", "+(24-S.doel)+" uur eten":""}</p>
+ <button class="knop" data-a="start">Start vasten</button>
+ ${S.eerste?"":`<button class="knop rand" data-g="timer">Terug</button>`}
+ <p class="klein midden">Alleen timen blijft altijd gratis</p>`;},
+timer(){
+ const t=nu(), v=S.vast; const R=96, O=2*Math.PI*R;
+ if(!v){return `<div class="kop"><span class="merk">Stilvast</span><span class="klein">${S.doel}:${24-S.doel>0?24-S.doel:0}</span></div>
+  <p class="zacht midden" style="margin-top:34px">Je eet nu</p>
+  <svg class="ring" width="230" height="230" viewBox="0 0 230 230"><circle cx="115" cy="115" r="${R}" fill="none" stroke="var(--lijn)" stroke-width="7"/>
+   <text x="115" y="118" text-anchor="middle" font-size="44" font-weight="200" fill="var(--ink)">${S.doel} uur</text><text x="115" y="148" text-anchor="middle" font-size="13" fill="var(--zacht)">doel</text></svg>
+  <button class="knop" data-a="start">Start vasten</button><p class="midden"><button class="link" data-g="doel">Ander doel</button></p>
+  <p class="klein midden">Geen reeks. Morgen mag ook.</p>`;}
+ const verstreken=t-v.start, doelMs=S.doel*U, frac=Math.min(1,verstreken/doelMs), klaar=verstreken>=doelMs;
+ return `<div class="kop"><span class="merk">Stilvast</span><span class="klein">${S.doel}:${Math.max(0,24-S.doel)}</span></div>
+  <p class="zacht midden" style="margin:20px 0 0">${klaar?"Doel bereikt":"Je vast"}</p>
+  <svg class="ring" width="236" height="236" viewBox="0 0 236 236"><circle cx="118" cy="118" r="${R}" fill="none" stroke="var(--lijn)" stroke-width="7"/>
+   <circle cx="118" cy="118" r="${R}" fill="none" stroke="var(--ac)" stroke-width="7" stroke-linecap="round" stroke-dasharray="${(O*frac).toFixed(1)} ${O}" transform="rotate(-90 118 118)"/>
+   <text x="118" y="128" text-anchor="middle" class="groot" fill="var(--ink)" font-size="54" font-weight="200">${duur(verstreken)}</text>
+   <text x="118" y="158" text-anchor="middle" font-size="13" fill="var(--zacht)">${klaar?"+"+duur(verstreken-doelMs)+" voorbij je doel":"nog "+duur(doelMs-verstreken)}</text></svg>
+  <div class="duo"><div class="kaart" data-a="pasStart" style="cursor:pointer"><small>Gestart</small>${dagNaam(v.start)} ${klokTijd(v.start)}</div><div class="kaart"><small>Doel</small>${klokTijd(v.start+doelMs)}</div></div>
+  <button class="knop" data-a="stop">Stop</button>
+  <p class="klein midden">Geen reeks. Morgen mag ook.</p>`;},
+gesch(){
+ const L=[...S.lijst].sort((a,b)=>b.start-a.start);
+ const week=[...Array(7)].map((_,i)=>{const dag=new Date(nu()-(6-i)*DAG).toDateString();const f=L.find(x=>new Date(x.eind).toDateString()===dag);return f?(f.eind-f.start)/U:0;});
+ const n=week.filter(x=>x).length, gem=n?week.filter(x=>x).reduce((a,b)=>a+b,0)/n:0;
+ const inhoud=`<div class="kaart"><div style="display:flex;justify-content:space-between" class="klein"><span>Deze week</span><span>${n} keer · gem. ${duur(gem*U)}</span></div>
+  <div class="balken"><div class="lijn16" style="bottom:${16/24*110}px"></div>${week.map(h=>`<div class="${h>=S.doel?"vol":""}" style="height:${Math.max(2,h/24*110)}px"></div>`).join("")}</div>
+  <div class="dagen">${[...Array(7)].map((_,i)=>`<span>${DG[new Date(nu()-(6-i)*DAG).getDay()][0]}</span>`).join("")}</div></div>
+  <div class="lijst" style="margin-top:8px">${L.slice(0,12).map((x,i)=>`<div data-pas="${S.lijst.indexOf(x)}"><span>${dagNaam(x.eind)}<small>${klokTijd(x.start)} → ${klokTijd(x.eind)}</small></span><b>${duur(x.eind-x.start)}</b></div>`).join("")}</div>`;
+ return `<h1 class="midden" style="font-size:20px">Geschiedenis</h1>
+  ${open()?inhoud:`<div class="slot"><div class="waas">${inhoud}</div><div class="over"><b>Je geschiedenis staat klaar</b><p class="klein">Na 14 dagen is de geschiedenis onderdeel van de aankoop. Timen blijft gratis, en er gaat niets verloren.</p><button class="knop" data-g="koop" style="width:auto;padding:13px 26px">Bekijk de aankoop</button></div></div>`}
+  <p class="klein midden">Geen reeks, geen gemiste dagen</p>`;},
+meer(){return `<h1 style="font-size:20px">Meer</h1>
+  <div class="rij"><span>Doel</span><button class="link" data-g="doel">${S.doel} uur ›</button></div>
+  <div class="rij"><span>Stilvast</span><span class="zacht">${S.gekocht?"Gekocht, dank je":open()?"Proef: nog "+proefOver()+" dagen":"Proef voorbij"}</span></div>
+  ${S.gekocht?"":`<div class="rij"><span>Eenmalig kopen</span><button class="link" data-g="koop">€ 4,99 ›</button></div>`}
+  <div class="rij"><span>Weergave</span><span class="chips">${["auto","licht","nacht"].map(x=>`<button class="chip ${S.thema===x?"aan":""}" data-thema="${x}">${x}</button>`).join("")}</span></div>
+  <div class="rij"><span>Meldingen</span><span class="zacht">alleen "doel bereikt"</span></div>
+  <div class="rij"><span>Exporteer als CSV</span><button class="link" data-a="csv">${open()?"Exporteer":"na aankoop"}</button></div>
+  <p class="klein">Vast niet zonder overleg met je arts als je zwanger bent, borstvoeding geeft, een eetstoornis hebt of hebt gehad, diabetes hebt of medicijnen gebruikt.</p>
+  <div class="demo"><b>Alleen in dit prototype</b>
+   <div class="rij"><span class="klein">Tijd versnellen</span><span class="chips">${[1,60,600,3600].map(x=>`<button class="chip ${S.snel===x?"aan":""}" data-snel="${x}">${x===1?"echt":x+"×"}</button>`).join("")}</span></div>
+   <div class="rij"><span class="klein">Spring vooruit</span><span class="chips"><button class="chip" data-spring="1">+1 uur</button><button class="chip" data-spring="4">+4 uur</button></span></div>
+   <div class="rij"><span class="klein">Proefdag</span><span class="chips">${[1,13,15].map(x=>`<button class="chip ${S.installDag===x?"aan":""}" data-proef="${x}">dag ${x}</button>`).join("")}</span></div>
+   <div class="rij"><span class="klein">Welkom terug</span><button class="chip" data-a="weg">Doe alsof je 3 weken weg was</button></div>
+   <button class="knop rand" data-a="wis">Alles wissen en opnieuw beginnen</button></div>`;},
+koop(){return `<p class="midden" style="margin-top:30px"><span class="merk">Stilvast</span></p>
+  <h1 class="midden" style="margin-top:8px">${S.installDag>14?"Je proef van 14 dagen is voorbij":"Alles van Stilvast, voor altijd"}</h1>
+  <p class="prijs">€ 4,99</p><p class="midden zacht" style="margin-top:0">één keer · geen abonnement</p>
+  <div class="kaart" style="margin-top:18px"><div class="vink"><span>✓</span><span>Je geschiedenis per dag, week en maand</span></div><div class="vink"><span>✓</span><span>Live-activiteit op je toegangsscherm</span></div><div class="vink"><span>✓</span><span>Export als CSV</span></div><div class="vink"><span>✓</span><span>Gezinsdeling: je gezin doet mee</span></div></div>
+  <p class="klein midden">Timen blijft altijd gratis. Er wordt nooit iets vanzelf afgeschreven.</p>
+  <button class="knop" data-a="koop">Koop voor € 4,99</button>
+  <p class="midden"><button class="link" data-a="herstel">Aankoop herstellen</button> · <button class="link" data-g="timer">Niet nu</button></p>`;},
+terug(){const l=[...S.lijst].sort((a,b)=>b.eind-a.eind)[0];return `<h1 class="midden" style="margin-top:60px">Welkom terug</h1>
+  <p class="midden zacht">Fijn dat je er weer bent. Er is niets ingehaald nodig.</p>
+  <div class="kaart midden" style="margin-top:20px"><small class="zacht">Je laatste vasten</small><div style="font-size:30px;font-weight:200">${l?duur(l.eind-l.start):"-"}</div><small class="zacht">${l?dagNaam(l.eind):""} · doel ${S.doel} uur</small></div>
+  <button class="knop" data-a="start">Start vasten</button><button class="knop rand" data-g="doel">Ander doel kiezen</button>
+  <p class="klein midden">Geen reeks die is gebroken. Je oude geschiedenis blijft gewoon staan.</p>`;}
+};
+// ---------- acties ----------
+function sheet(h){$("#sheet").innerHTML=`<div class="sheet-bg"><div class="sheet"><div class="greep"></div>${h}</div></div>`;$("#sheet .sheet-bg").onclick=e=>{if(e.target.classList.contains("sheet-bg"))sluit();};$("#sheet").querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>A[b.dataset.s]());}
+function sluit(){$("#sheet").innerHTML="";teken();}
+const A={
+ begin(){ga("doel");},
+ eigen(){sheet(`<h2>Eigen duur</h2><p class="klein">Tussen 1 uur en 7 dagen (168 uur).</p><input type="number" id="eu" min="1" max="168" value="${S.doel}"><button class="knop" data-s="eigenOk">Bewaar</button>`);},
+ eigenOk(){const v=Math.max(1,Math.min(168,parseInt($("#eu").value)||16));S.doel=v;bewaar();sluit();},
+ start(){S.vast={start:nu()};S.eerste=false;bewaar();ga("timer");},
+ stop(){const v=S.vast,e=nu();sheet(`<h2 class="midden">${duur(e-v.start)} gevast</h2><p class="klein midden">${e-v.start>=S.doel*U?"Doel gehaald.":"Ook goed. Morgen mag ook."}</p>
+   <button class="knop" data-s="stopOk">Bewaar</button><button class="knop rand" data-s="stopPas">Tijden aanpassen</button><p class="midden"><button class="link" data-s="annuleer">Toch doorgaan</button></p>`);},
+ stopOk(){S.lijst.push({start:S.vast.start,eind:nu()});S.vast=null;bewaar();sluit();},
+ stopPas(){S.lijst.push({start:S.vast.start,eind:nu()});S.vast=null;bewaar();pas(S.lijst.length-1);},
+ annuleer(){sluit();},
+ pasStart(){sheet(`<h2>Starttijd aanpassen</h2><p class="klein">Vergeten te starten? Zet de tijd terug.</p><input type="datetime-local" id="ps" value="${lokaal(S.vast.start)}"><button class="knop" data-s="pasStartOk">Bewaar</button>`);},
+ pasStartOk(){const v=new Date($("#ps").value).getTime();if(v&&v<nu()){S.vast.start=v;bewaar();}sluit();},
+ csv(){if(!open())return ga("koop");const r="start,eind,uren\n"+S.lijst.map(x=>`${new Date(x.start).toISOString()},${new Date(x.eind).toISOString()},${((x.eind-x.start)/U).toFixed(2)}`).join("\n");alert("Prototype: de export zou dit bestand maken:\n\n"+r.split("\n").slice(0,4).join("\n")+"\n…");},
+ koop(){if(confirm("Dit is een prototype. Er wordt niet betaald. Aankoop nabootsen?")){S.gekocht=true;bewaar();ga("gesch");}},
+ herstel(){alert("Prototype: in de echte app vraagt dit de App Store om je eerdere aankoop. Hier gebeurt niets.");},
+ weg(){S.lijst.forEach(x=>{x.start-=21*DAG;x.eind-=21*DAG});S.vast=null;bewaar();ga("terug");},
+ wis(){if(confirm("Alles in dit prototype wissen?")){try{localStorage.removeItem(K)}catch(e){}location.reload();}}
+};
+function pas(i){const x=S.lijst[i];sheet(`<h2>Vasten aanpassen</h2><p class="klein">Start</p><input type="datetime-local" id="pa" value="${lokaal(x.start)}"><p class="klein">Einde</p><input type="datetime-local" id="pe" value="${lokaal(x.eind)}">
+  <button class="knop" data-s="pasOk">Bewaar</button><p class="midden"><button class="link" data-s="pasWeg">Wissen</button></p>`);A.pasOk=()=>{const a=new Date($("#pa").value).getTime(),b=new Date($("#pe").value).getTime();if(a&&b&&b>a){x.start=a;x.eind=b;bewaar();}sluit();};
+  A.pasWeg=()=>{const oud=S.lijst.splice(i,1)[0];bewaar();sluit();sheet(`<p class="midden">Vasten gewist.</p><button class="knop rand" data-s="terugzet">Ongedaan maken</button>`);A.terugzet=()=>{S.lijst.splice(i,0,oud);bewaar();sluit();};};}
+function koppel(){
+ document.querySelectorAll("[data-a]").forEach(e=>e.onclick=()=>A[e.dataset.a]());
+ document.querySelectorAll("[data-g]").forEach(e=>e.onclick=()=>ga(e.dataset.g));
+ document.querySelectorAll("[data-doel]").forEach(e=>e.onclick=()=>{S.doel=+e.dataset.doel;bewaar();teken();});
+ document.querySelectorAll("[data-pas]").forEach(e=>e.onclick=()=>open()?pas(+e.dataset.pas):ga("koop"));
+ document.querySelectorAll("[data-thema]").forEach(e=>e.onclick=()=>{S.thema=e.dataset.thema;bewaar();teken();});
+ document.querySelectorAll("[data-snel]").forEach(e=>e.onclick=()=>{zetSnel(+e.dataset.snel);teken();});
+ document.querySelectorAll("[data-spring]").forEach(e=>e.onclick=()=>spring(+e.dataset.spring*U));
+ document.querySelectorAll("[data-proef]").forEach(e=>e.onclick=()=>{S.installDag=+e.dataset.proef;bewaar();teken();});
+}
+// eerste start of terugkomst
+if(!S.eerste){const l=[...S.lijst].sort((a,b)=>b.eind-a.eind)[0]; if(!S.vast&&l&&nu()-l.eind>7*DAG) S.scherm="terug";}
+teken();
+setInterval(()=>{if(S.scherm==="timer"&&S.vast&&!$("#sheet").innerHTML)teken();},1000);
+</script>
+</body>
+</html>
