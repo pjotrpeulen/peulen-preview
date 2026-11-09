@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stilvast: a fasting timer that simply works</title>
+<meta name="description" content="Two taps a day. Timing always stays free. Pay once, never a subscription.">
+<link rel="canonical" href="https://peulen.app/en/stilvast.html">
+<link rel="alternate" hreflang="nl" href="https://peulen.app/stilvast.html">
+<link rel="alternate" hreflang="en" href="https://peulen.app/en/stilvast.html">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="theme-color" content="#FAF6F0">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Peulen">
+<meta property="og:title" content="Stilvast: a fasting timer that simply works">
+<meta property="og:description" content="Two taps a day. Timing always stays free. Pay once, never a subscription.">
+<meta property="og:url" content="https://peulen.app/en/stilvast.html">
+<meta property="og:image" content="https://peulen.app/og-stilvast.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_GB">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+:root{--bg:#FAF6F0;--ink:#25211D;--zacht:#6F655B;--lijn:#E8DFD3;--kaart:#FFFFFF;--groen:#5F7C50;--terra:#C26A48;--nacht:#13213D;--goud:#E8D9A8}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.6 -apple-system,"SF Pro Text","Helvetica Neue","Segoe UI",Arial,sans-serif}
+a{color:var(--groen)}
+.wrap{max-width:720px;margin:0 auto;padding:0 20px}
+header{padding:18px 0;border-bottom:1px solid var(--lijn)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.merk{display:flex;align-items:center;gap:10px;font-weight:700;font-size:22px;text-decoration:none;color:var(--ink)}
+.logo{width:40px;height:40px}
+nav a{margin-left:14px;font-size:15px;text-decoration:none;color:var(--zacht)}
+.mail{font-weight:600}
+.taal{font-size:14px;border:1px solid var(--lijn);border-radius:999px;padding:2px 10px}
+.hero{padding:48px 0 28px}
+.hero h1{font-size:38px;line-height:1.15;margin:0 0 14px;font-weight:700;letter-spacing:-.01em}
+.hero p{font-size:20px;color:var(--zacht);margin:0}
+h2{font-size:26px;margin:46px 0 12px}
+.belofte{list-style:none;padding:0;margin:0}
+.belofte li{background:var(--kaart);border:1px solid var(--lijn);border-radius:18px;padding:16px 18px;margin:12px 0}
+.belofte b{display:block;font-size:18px}
+.app{border-radius:24px;padding:22px;margin:18px 0;overflow:hidden}
+.app.stil{background:#FBF4EA;border:1px solid #EADCCB}
+.app.dur{background:var(--nacht);color:#F4EFE3}
+.app h3{margin:0 0 4px;font-size:24px}
+.app .wat{margin:0 0 14px}
+.app.stil .wat{color:var(--terra);font-weight:600}
+.app.dur .wat{color:var(--goud);font-weight:600}
+.app .schermen{display:block;margin:14px 0 6px;white-space:nowrap;overflow-x:auto}
+.app .schermen img{width:46%;max-width:240px;height:auto;margin-right:3%;border-radius:22px;vertical-align:top}
+.app ul{padding-left:20px;margin:10px 0}
+.app.dur a{color:var(--goud)}
+.prijs{font-size:15px;opacity:.85;margin-bottom:4px}
+.wanneer{font-size:15px;font-weight:600;margin-top:0}
+.binnen li{background:transparent;border-style:dashed}
+.verhaal p{margin:12px 0}
+details{background:var(--kaart);border:1px solid var(--lijn);border-radius:14px;padding:6px 16px;margin:10px 0}
+summary{cursor:pointer;font-weight:600;color:var(--groen);padding:8px 0}
+.klein{font-size:15px;color:var(--zacht)}
+.open{background:#FFF8E5;border:1px dashed #D8C27A;border-radius:8px;padding:0 4px}
+footer{margin:56px 0 0;padding:24px 0 40px;border-top:1px solid var(--lijn);font-size:15px;color:var(--zacht)}
+@media (prefers-color-scheme: dark){:root{--bg:#1F1B18;--ink:#F1E9DE;--zacht:#B7AA9B;--lijn:#3A332D;--kaart:#2A2420}.app.stil{background:#2A2420;border-color:#3A332D}.open{background:#3A3322}}
+@media (max-width:520px){.hero h1{font-size:31px}nav a.verberg{display:none}}
+
+.knop{display:inline-block;background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 18px;font-weight:600;text-decoration:none;margin:8px 0}
+.knop.uit{opacity:.55;cursor:default}
+.shots{display:flex;gap:10px;overflow-x:auto;padding:6px 0 10px}
+.shots img{width:44%;max-width:250px;height:auto;border-radius:18px;flex:0 0 auto}
+.kruimel{font-size:14px;margin:18px 0 0}
+.kaartlinks{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.kaartlinks a{display:block;background:var(--kaart);border:1px solid var(--lijn);border-radius:14px;padding:12px 14px;text-decoration:none;color:var(--ink);font-weight:600}
+footer a{color:var(--zacht);margin-right:12px}
+</style>
+</head>
+<body>
+<header><div class="wrap"><a class="merk" href="index.html" aria-label="Logo: two peas in a pod"><svg class="logo" viewBox="0 0 100 100" aria-hidden="true"><circle cx="36" cy="50" r="14.5" fill="#B5D08F" stroke="#3F5A31" stroke-width="2.5"/><circle cx="64" cy="50" r="14.5" fill="#B5D08F" stroke="#3F5A31" stroke-width="2.5"/><path d="M6 50 C 16 88, 84 88, 94 50 C 78 66, 22 66, 6 50 Z" fill="#5E7D4A"/><path d="M81 63 C 92 59, 98.5 50, 98.5 41 C 98.5 36, 96.8 32, 93.4 29.2 C 91.2 27.4, 88.2 29.6, 89.8 31.9 C 92.2 34.6, 93 37.6, 92.6 41 C 92.2 47.5, 88.5 56.6, 74 59.6 Z" fill="#5E7D4A"/><ellipse cx="91.3" cy="29.0" rx="2.6" ry="4.4" transform="rotate(48 91.3 29.0)" fill="#5E7D4A"/></svg>Peulen</a><nav><a class="altijd" href="index.html#apps">Apps</a><a class="verberg" href="belofte.html">Promise</a><a class="verberg" href="privacy.html">Privacy</a><a class="verberg" href="pers.html">Press</a><a class="taal" href="../stilvast.html">Nederlands</a></nav></div></header>
+<main class="wrap" id="top">
+<p class="kruimel"><a href="index.html#apps">Apps</a> › Stilvast</p><section class="hero"><h1>Stilvast: a fasting timer that simply works</h1><p>Two taps a day. Timing always stays free. Pay once, never a subscription.</p></section>
+<div class="shots"><img src="../img/en-stilvast-1.jpg" alt="Stilvast: a fasting timer that simply works" width="250" height="541" loading="lazy"><img src="../img/en-stilvast-2.jpg" alt="Stilvast: two taps a day from your Lock Screen" width="250" height="541" loading="lazy"><img src="../img/en-stilvast-3.jpg" alt="Stilvast: no streak, tomorrow is fine too" width="250" height="541" loading="lazy"></div>
+<p><span class="knop uit" aria-disabled="true">Coming soon to the App Store</span><br><span class="klein">Expected: Tuesday 5 January 2027.</span></p>
+<h2>What it does</h2><ul><li>Start after dinner, stop at your first meal: right from your Lock Screen or widget, without opening the app.</li><li>Choose 12, 14, 16, 18, 20 or 24 hours, or your own length up to 7 days (also for Lent).</li><li>Forgot to stop? Adjust start and end afterwards.</li><li>No streaks, no badges, no missed days. If you start again, Stilvast simply says: welcome back.</li><li>Notifications are off, except "goal reached". Export everything as CSV whenever you like.</li></ul>
+<h2>What it costs</h2><p>Free to download. Timing always stays free. Everything open for 14 days; then a single purchase of € 4.99 (launch price until 1 April 2027, then € 6.99; if you bought it, you keep everything) for the Live Activity, your history and export. Family Sharing included. Never a subscription, nothing charged automatically.</p>
+<h2>Privacy</h2><p>No account, no ads, no trackers. Everything stays on your phone; the app makes no network requests of its own. The App Store shows the label "Data Not Collected". <a href="privacy.html#stilvast">Privacy policy ›</a></p>
+<h2>Good to know</h2><p>Stilvast is a timer, not a diet and not medical advice. Talk to your doctor before fasting if you are pregnant, breastfeeding, have or have had an eating disorder, have diabetes or take medication.</p>
+<h2 id="hulp">Help and contact</h2><details><summary>How do I restore my purchase on a new phone?</summary><p>Open Stilvast, go to More and tap Restore purchase, using the same Apple ID.</p></details><details><summary>My family wants to join in.</summary><p>With Apple Family Sharing one purchase covers your whole family. Turn it on in your iPhone settings under Family.</p></details><details><summary>How do I take my fasts to another app?</summary><p>Go to More and choose Export as CSV. You can save or share the file.</p></details><details><summary>What happens to my data if I delete the app?</summary><p>It's gone, unless you use iCloud backup or export first. We have no copy.</p></details>
+<p>Question not listed? Email <a class="mail" href="mailto:contact@peulen.app?subject=Stilvast">contact@peulen.app</a>. We read everything ourselves.</p><p>Fasting for Ramadan? Have a look at <a href="durora.html">Durora</a>, from the same makers.</p>
+</main><footer><div class="wrap"><p><a href="belofte.html">Our promise</a><a href="privacy.html">Privacy</a><a href="pers.html">Press</a><a href="index.html#contact">Contact</a></p>Peulen · a brand of Peulen Broers · peulen.app · this site uses no cookies</div></footer>
+</body>
+</html>
