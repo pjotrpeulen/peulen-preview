@@ -60,6 +60,8 @@ function voorbeeld(){const n=Date.now();const h=(naam,k,o,dagen)=>({naam,cat:cat
 let S=(()=>{try{return JSON.parse(localStorage.getItem(K))}catch(e){return null}})()||{start:true,naam:"Noa",geboren:new Date(Date.now()-198*DAG).toISOString().slice(0,10),eczeem:"nee",lijst:voorbeeld(),notities:[{datum:Date.now()-DAG,tekst:"Avocado: vies gezicht, verder niets."}],pinda:{klaar:3,laatst:Date.now()-2*DAG},ei:{klaar:1,laatst:Date.now()-DAG},herinnering:true,partner:null,installDag:1,gekocht:false,scherm:"start",filter:"Alles"};
 function bewaar(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
 const open=()=>S.gekocht||S.installDag<=14;
+if(!S.variant)S.variant="basis"; // prijsvariant (10 november): "basis" = na de proef blijven bekijken en toevoegen gratis (advies); "oud" = alleen bekijken
+const magToevoegen=()=>open()||S.variant==="basis";
 function leeftijd(){const d=Math.floor((Date.now()-new Date(S.geboren))/DAG);const m=Math.floor(d/30.44),w=Math.floor((d-m*30.44)/7);return {m,w,d};}
 function tot8(){const g=new Date(S.geboren);const acht=new Date(g);acht.setMonth(acht.getMonth()+8);return Math.ceil((acht-Date.now())/(7*DAG));}
 const DG=["zondag","maandag","dinsdag","woensdag","donderdag","vrijdag","zaterdag"];
@@ -111,19 +113,20 @@ meer(){return `<h1>Instellingen</h1>
  <p class="klein">Deze app geeft geen medisch advies en herkent geen allergie. Twijfel je? Vraag het op het consultatiebureau of aan je huisarts. Benauwd: bel 112.</p>
  <div class="demo"><b class="klein">Alleen in dit prototype</b>
   <div class="rij"><span class="klein">Proefdag</span><span class="chips" style="margin:0">${[1,13,15].map(x=>`<button class="chip ${S.installDag===x?"aan":""}" data-proef="${x}">dag ${x}</button>`).join("")}</span></div>
+  <div class="rij"><span class="klein">Gratis na de proef</span><span class="chips" style="margin:0">${[["basis","bekijken en toevoegen"],["oud","alleen bekijken"]].map(([v,l])=>`<button class="chip ${S.variant===v?"aan":""}" data-variant="${v}">${l}</button>`).join("")}</span></div>
   <div class="rij"><span class="klein">Leeftijd kindje</span><span class="chips" style="margin:0">${[[140,"4½ mnd"],[198,"6½ mnd"],[255,"8½ mnd"]].map(([d,l])=>`<button class="chip" data-leeftijd="${d}">${l}</button>`).join("")}</span></div>
   <button class="knop rand" data-a="wis">Alles wissen en opnieuw beginnen</button></div>`;},
 koop(){return `<h1 class="midden" style="margin-top:34px">${S.installDag>14?"Je proef van 14 dagen is voorbij":"Alles van Eerste hapjes, voor altijd"}</h1>
  <p class="prijs">€ 3,99</p><p class="midden sub" style="margin-top:0">één keer · geen abonnement</p>
- <div class="kaart"><div class="vink"><span>✓</span><span>Hapjes toevoegen en de teller tot 10</span></div><div class="vink"><span>✓</span><span>Pinda- en ei-schema met herinnering</span></div><div class="vink"><span>✓</span><span>Overzicht voor het consultatiebureau (PDF en CSV)</span></div><div class="vink"><span>✓</span><span>Gezinsdeling: je partner doet mee</span></div></div>
- <p class="klein midden">Je proeflijst bekijken blijft altijd kunnen. Er wordt nooit iets vanzelf afgeschreven.</p>
+ <div class="kaart">${S.variant==="basis"?"":`<div class="vink"><span>✓</span><span>Hapjes toevoegen en de teller tot 10</span></div>`}<div class="vink"><span>✓</span><span>Pinda- en ei-schema met herinnering</span></div><div class="vink"><span>✓</span><span>Overzicht voor het consultatiebureau (PDF)</span></div><div class="vink"><span>✓</span><span>Gezinsdeling: je partner doet mee</span></div></div>
+ <p class="klein midden">${S.variant==="basis"?"Je proeflijst bekijken, hapjes toevoegen en je lijst als CSV exporteren blijven altijd gratis.":"Je proeflijst bekijken blijft altijd kunnen."} Er wordt nooit iets vanzelf afgeschreven. Wat je koopt, blijft van jou.</p>
  <button class="knop" data-a="koop">Koop voor € 3,99</button><p class="midden"><button class="link" data-a="herstel">Aankoop herstellen</button> · <button class="link" data-g="lijst">Niet nu</button></p>`;}
 };
 // ---------- sheets ----------
 function sheet(h){$("#sheet").innerHTML=`<div class="sheet-bg"><div class="sheet"><div class="greep"></div>${h}</div></div>`;$("#sheet .sheet-bg").onclick=e=>{if(e.target.classList.contains("sheet-bg"))sluit();};koppelIn($("#sheet"));}
 function sluit(){$("#sheet").innerHTML="";teken();}
 let H={};
-function hapjeSheet(naam){if(!open())return ga("koop");const x=S.lijst.find(i=>i.naam===naam);H={naam:naam||"",oordeel:"lekker",vorm:"stukjes",notitie:""};
+function hapjeSheet(naam){if(!magToevoegen())return ga("koop");const x=S.lijst.find(i=>i.naam===naam);H={naam:naam||"",oordeel:"lekker",vorm:"stukjes",notitie:""};
  const keer=x?x.keer+1:1;
  sheet(`<h2 class="midden" style="margin-top:0">Hapje toevoegen</h2><p class="klein midden">Vandaag</p>
   ${naam?`<div class="kaart" style="display:flex;justify-content:space-between"><b>${naam}</b><span style="color:var(--ac);font-weight:600">${keer}e keer</span></div>`:`<input type="text" id="hn" placeholder="Wat proeft je kindje? (bijv. Courgette)"><div class="chips">${Object.values(CAT).flat().filter(n=>!S.lijst.find(i=>i.naam===n)).slice(0,6).map(n=>`<button class="chip" data-kies="${n}">${n}</button>`).join("")}</div>`}
@@ -144,7 +147,7 @@ function koppelIn(r){
 const ACT={
  beginnen(){S.naam=$("#nm").value.trim()||"je kindje";S.geboren=$("#gb").value||S.geboren;S.start=false;ga("lijst");},
  nieuw(){hapjeSheet(null);},
- delen(){sheet(`<h2 style="margin-top:0">Deel met je partner</h2><p class="klein">Jullie zien en vullen dezelfde lijst, via iCloud (gedeelde gegevens tussen twee Apple-accounts). Wij zien niets.</p><input type="text" id="pn" placeholder="Naam van je partner" value="Daan"><button class="knop" data-deel="1">Uitnodiging klaarzetten</button><p class="klein midden">Prototype: er wordt niets verstuurd.</p>`);},
+ delen(){if(!open())return ga("koop");sheet(`<h2 style="margin-top:0">Deel met je partner</h2><p class="klein">Jullie zien en vullen dezelfde lijst, via iCloud (gedeelde gegevens tussen twee Apple-accounts). Wij zien niets.</p><input type="text" id="pn" placeholder="Naam van je partner" value="Daan"><button class="knop" data-deel="1">Uitnodiging klaarzetten</button><p class="klein midden">Prototype: er wordt niets verstuurd.</p>`);},
  herinnering(){S.herinnering=!S.herinnering;bewaar();teken();},
  naarOverzicht(){if(!open())return ga("koop");ga("overzicht");},
  pdf(){if(!open())return ga("koop");const l=leeftijd();const L=[...S.lijst].sort((a,b)=>a.naam.localeCompare(b.naam));
@@ -154,7 +157,7 @@ const ACT={
    <h4>Notities</h4>${S.notities.map(n=>new Date(n.datum).toLocaleDateString("nl-NL",{day:"numeric",month:"short"})+": "+n.tekst).join("<br>")||"geen"}
    <p style="color:#888;margin-top:12px">Bijgehouden door de ouders met de app Eerste hapjes. Geen medisch advies.</p></div></div>
    <button class="knop" data-sluit="1">Delen (via het deelmenu van je telefoon)</button>`);},
- csv(){if(!open())return ga("koop");alert("Prototype: de export zou dit bestand maken:\n\nvoedingsmiddel,groep,keer,oordeel\n"+S.lijst.slice(0,3).map(x=>`${x.naam},${x.cat},${x.keer},${x.oordeel}`).join("\n")+"\n…");},
+ csv(){alert("Prototype: de export zou dit bestand maken:\n\nvoedingsmiddel,groep,keer,oordeel\n"+S.lijst.slice(0,3).map(x=>`${x.naam},${x.cat},${x.keer},${x.oordeel}`).join("\n")+"\n…");},
  koop(){if(confirm("Dit is een prototype. Er wordt niet betaald. Aankoop nabootsen?")){S.gekocht=true;bewaar();ga("lijst");}},
  herstel(){alert("Prototype: in de echte app vraagt dit de App Store om je eerdere aankoop. Hier gebeurt niets.");},
  wis(){if(confirm("Alles in dit prototype wissen?")){try{localStorage.removeItem(K)}catch(e){}location.reload();}}};
@@ -165,6 +168,7 @@ function koppel(){
  document.querySelectorAll("[data-filter]").forEach(e=>e.onclick=()=>{S.filter=e.dataset.filter;bewaar();teken();});
  document.querySelectorAll("[data-item]").forEach(e=>e.onclick=()=>hapjeSheet(S.lijst[+e.dataset.item].naam));
  document.querySelectorAll("[data-stap]").forEach(e=>e.onclick=()=>{if(!open())return ga("koop");const [k,i]=e.dataset.stap.split(":");const sch=S[k];if(+i===sch.klaar&&sch.klaar<4){sch.klaar++;sch.laatst=Date.now();}else if(+i===3&&sch.klaar>=4){sch.laatst=Date.now();}bewaar();teken();});
+ document.querySelectorAll("[data-variant]").forEach(e=>e.onclick=()=>{S.variant=e.dataset.variant;bewaar();teken();});
  document.querySelectorAll("[data-proef]").forEach(e=>e.onclick=()=>{S.installDag=+e.dataset.proef;bewaar();teken();});
  document.querySelectorAll("[data-leeftijd]").forEach(e=>e.onclick=()=>{S.geboren=new Date(Date.now()-e.dataset.leeftijd*DAG).toISOString().slice(0,10);bewaar();teken();});
 }
