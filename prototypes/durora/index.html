@@ -111,7 +111,7 @@ welkom(){return `<div class="kop"><span class="merk">Durora</span>${maan(0,0,16)
  <h1 style="font-size:30px;margin-top:70px">Jouw iftar-tijd, van je moskee of Diyanet.</h1>
  <p class="zacht">Rustig aftellen naar iftar, 's nachts tot imsak, en een logboek met je inhaaldagen.</p>
  <div class="vink"><span>✓</span><span>Aftellen, widget en meldingen blijven altijd gratis.</span></div>
- <div class="vink"><span>✓</span><span>14 dagen alles open, daarna één keer € 4,99. Geen reclame, nooit een abonnement.</span></div>
+ <div class="vink"><span>✓</span><span>14 dagen alles open, daarna één keer € 4,99. Geen reclame; er wordt nooit iets vanzelf afgeschreven.</span></div>
  <div class="vink"><span>✓</span><span>Geen account. Je plaats blijft op je telefoon.</span></div>
  <button class="knop" data-g="plaats">Kies je plaats</button>`;},
 plaats(){return `<h1>Waar ben je?</h1><p class="klein">Zonder locatietoestemming: kies je stad. Je kunt dit altijd wijzigen.</p>
@@ -169,8 +169,8 @@ tijden(){const m=METHODEN[S.methode], T=tijden(datumVan(nu()));return `<h1>Tijde
 koop(){return `<div class="kop"><span class="merk">Durora</span>${maan(0,0,14)}</div>
   <h1 class="midden" style="margin-top:28px">${S.installDag>14?"Je proef van 14 dagen is voorbij":"Alles van Durora, voor altijd"}</h1>
   <p class="prijs">€ 4,99</p><p class="midden zacht" style="margin-top:0">één keer · geen abonnement · geen reclame</p>
-  <div class="kaart"><div class="vink"><span>✓</span><span>Je logboek met in te halen dagen</span></div><div class="vink"><span>✓</span><span>Live-activiteit op je toegangsscherm</span></div><div class="vink"><span>✓</span><span>Export van je logboek</span></div><div class="vink"><span>✓</span><span>Gezinsdeling: je gezin doet mee</span></div></div>
-  <p class="klein midden">Aftellen, widget en meldingen blijven altijd gratis. Er wordt nooit iets vanzelf afgeschreven.</p>
+  <div class="kaart"><div class="vink"><span>✓</span><span>Je logboek met in te halen dagen</span></div><div class="vink"><span>✓</span><span>Live-activiteit op je toegangsscherm</span></div><div class="vink"><span>✓</span><span>Gezinsdeling: je gezin doet mee</span></div></div>
+  <p class="klein midden">Aftellen, widget en meldingen blijven altijd gratis. Er wordt nooit iets vanzelf afgeschreven. Exporteren blijft altijd gratis. Wat je koopt, blijft van jou.</p>
   <button class="knop" data-a="koop">Koop voor € 4,99</button>
   <p class="midden"><button class="link" data-a="herstel">Aankoop herstellen</button> · <button class="link" data-g="vandaag">Niet nu</button></p>`;}
 };
