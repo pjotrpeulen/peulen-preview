@@ -192,7 +192,7 @@ gebieden(){
   return `<h1>Gebieden</h1><p class="sub">Begin met één. De rest komt als je er ruimte voor hebt.</p>
   ${GEBIEDEN.map(g=>{ const G=S.gebieden[g]; return `<div class="gebiedkaart" data-open="${g}">
     <div class="mini ${G&&G.beeld?"":"leeg"}" style="${G&&G.beeld?beeldStijl(G.beeld):""}"></div>
-    <div><b>${g}</b><div class="klein">${G&&G.zin?esc(G.zin):"nog geen zin · niet nu is ook goed"}</div></div></div>`;}).join("")}`;
+    <div><b>${g}</b><div class="klein">${G&&G.zin?esc(G.zin):(S.naProef&&Object.keys(S.gebieden).some(x=>S.gebieden[x].zin)?"in de aankoop":"nog geen zin · niet nu is ook goed")}</div></div></div>`;}).join("")}`;
 },
 gebied(){
   const g = S.openGebied; const G = S.gebieden[g] || {};
@@ -214,7 +214,16 @@ alles(){
   return `<h1>Alles</h1><p class="sub">Hier staat alles, als je het wilt zien. Geen tellers, geen rood.</p>
   ${groep("Open", open)}${groep("Gedaan", S.kaarten.filter(k=>k.af))}${groep("Losgelaten", S.kaarten.filter(k=>k.los))}
   <div class="stil">Kaarten waar je 21 dagen niets mee doet, gaan vanzelf naar "losgelaten", zoals oude mail. Terughalen kan altijd.
-  <br><button class="link" data-actie="week">Probeer: een week later terugkomen</button></div>`;
+  <br><button class="link" data-actie="week">Probeer: een week later terugkomen</button></div>
+  <div class="stil"><button class="link" data-actie="export">Exporteer je kaarten als tekst</button> · altijd gratis
+  <br><button class="link" data-actie="naproef">${S.naProef?"Terug naar de proef":"Probeer: na de proef van 14 dagen, zonder aankoop"}</button></div>`;
+},
+betaal(){
+  return `<button class="link" data-ga="gebieden">‹ Gebieden</button><h1>Meer gebieden?</h1>
+  <p class="sub">Je kaarten, één gebied en Nu kan blijven altijd gratis. Exporteren ook.</p>
+  <div class="lijst"><div>Alle zes gebieden<span>✓</span></div><div>Visievragen bij ruimte<span>✓</span></div><div>Het kompas: hoe voelde dat?<span>✓</span></div></div>
+  <p class="sub" style="margin-top:14px">Eén keer betalen, geen abonnement. Wat je koopt, blijft van jou. (Prototype: de prijs vragen we in het gesprek.)</p>
+  <button class="knop" data-actie="koop">Koop, één keer</button><button class="knop rand" data-ga="gebieden">Niet nu</button>`;
 }
 };
 function beeldStijl(b){ return b.startsWith("data:") ? `background-image:url(${b})` : `background:${BEELDEN[+b]}`; }
@@ -232,11 +241,13 @@ function koppel(){
   document.querySelectorAll("[data-ruimte]").forEach(e=>e.onclick=()=>{S.ruimte=e.dataset.ruimte;bewaar();teken();});
   document.querySelectorAll("[data-ga]").forEach(e=>e.onclick=()=>ga(e.dataset.ga));
   document.querySelectorAll("[data-kies]").forEach(e=>e.onclick=()=>{S.kiesGebied=e.dataset.kies;teken();});
-  document.querySelectorAll("[data-open]").forEach(e=>e.onclick=()=>{S.openGebied=e.dataset.open;ga("gebied");});
+  document.querySelectorAll("[data-open]").forEach(e=>e.onclick=()=>{const g=e.dataset.open;const metZin=Object.keys(S.gebieden).filter(x=>S.gebieden[x].zin);
+    if(S.naProef&&!(S.gebieden[g]&&S.gebieden[g].zin)&&metZin.length>=1){ga("betaal");return;}
+    S.openGebied=g;ga("gebied");});
   document.querySelectorAll("[data-duur]").forEach(e=>e.onclick=()=>{const k=vind(e.dataset.duur);k.duur=DUUR[(DUUR.indexOf(k.duur)+1)%3];bewaar();teken();});
   document.querySelectorAll("[data-wacht]").forEach(e=>e.onclick=()=>{const k=vind(e.dataset.wacht);k.wacht=!k.wacht;bewaar();teken();});
   document.querySelectorAll("[data-energie]").forEach(e=>e.onclick=()=>{const k=vind(e.dataset.energie);k.energie=k.energie==="licht"?"zwaar":"licht";bewaar();teken();});
-  document.querySelectorAll("[data-af]").forEach(e=>e.onclick=()=>{const k=vind(e.dataset.af);k.af=true;bewaar();if(S.ruimte==="ruim")kompas(k);else teken();});
+  document.querySelectorAll("[data-af]").forEach(e=>e.onclick=()=>{const k=vind(e.dataset.af);k.af=true;bewaar();if(S.ruimte==="ruim"&&!S.naProef)kompas(k);else teken();});
   document.querySelectorAll("[data-nietnu]").forEach(e=>e.onclick=()=>{vind(e.dataset.nietnu).nietnu=Date.now()+12*3600e3;bewaar();teken();});
   document.querySelectorAll("[data-koppel]").forEach(e=>e.onclick=()=>{vind(e.dataset.koppel).gebied=Object.keys(S.gebieden).find(g=>S.gebieden[g].zin);bewaar();teken();});
   document.querySelectorAll("[data-terug]").forEach(e=>e.onclick=()=>{const k=vind(e.dataset.terug);k.los=false;bewaar();teken();});
@@ -257,16 +268,21 @@ const ACTIES = {
   voegToe(){ const v=$("#nieuw").value.trim(); if(!v) return; v.split(/\n|;/).map(x=>x.trim()).filter(Boolean).forEach(t=>S.kaarten.push({id:id(),titel:t,duur:"kort",wacht:false,energie:"licht",gemaakt:Date.now()})); bewaar(); teken(); $("#nieuw").focus(); },
   voorbeelden(){ [["Marijn bellen","kort",false,"licht","Vrienden"],["Rondje wandelen","half uur",false,"licht","Lichaam"],["Offerte afmaken","half uur",false,"zwaar","Werk"],["Etentje met Sanne plannen","kort",true,"licht","Relatie"],["Belastingaangifte","lang",false,"zwaar",null],["Kaart voor Tom","kort",false,"licht",null]]
       .forEach(([t,d,w,e,g])=>S.kaarten.push({id:id(),titel:t,duur:d,wacht:w,energie:e,gebied:g,gemaakt:Date.now()})); bewaar(); teken(); },
-  bewaarGebied(){ const g=S.kiesGebied||"Lichaam"; const z=$("#zin").value.trim()||VOORBEELD[g]; (S.gebieden[g] ||= {}).zin=z; S.gevraagd.gebied=true; bewaar(); ga("nukan"); },
+  bewaarGebied(){ const g=S.kiesGebied||"Lichaam";
+    if(S.naProef && !(S.gebieden[g]&&S.gebieden[g].zin) && Object.keys(S.gebieden).some(x=>x!==g&&S.gebieden[x].zin)){ ga("betaal"); return; } const z=$("#zin").value.trim()||VOORBEELD[g]; (S.gebieden[g] ||= {}).zin=z; S.gevraagd.gebied=true; bewaar(); ga("nukan"); },
   nietNuGebied(){ S.gevraagd.gebied=true; bewaar(); ga("nukan"); },
   bewaarZin(){ (S.gebieden[S.openGebied] ||= {}).zin=$("#gzin").value.trim(); bewaar(); teken(); },
   kleineKlus(){ S.tijd="5 min"; S.ruimte="vol"; bewaar(); ga(S.kaarten.length?"nukan":"dump"); },
+  export(){ alert("Prototype: de export zou je kaarten en gebieden als tekst geven.\n\n"+S.kaarten.slice(0,4).map(k=>"- "+k.titel+(k.gebied?" ("+k.gebied+")":"")).join("\n")); },
+  naproef(){ S.naProef=!S.naProef; bewaar(); teken(); },
+  koop(){ if(confirm("Dit is een prototype. Er wordt niet betaald. Aankoop nabootsen?")){ S.naProef=false; bewaar(); ga("gebieden"); } },
   week(){ S.kaarten.forEach(k=>{ if(!k.af && !k.gebied && k.duur==="lang") k.los=true; k.nietnu=0; }); S.tijd=null; S.ruimte=null; bewaar(); ga("start"); },
   wis(){ if(confirm("Alles in dit proefje wissen?")){ try{localStorage.removeItem(SLEUTEL);}catch(e){} S=nieuw(); teken(); } }
 };
 function sheet(html){ $("#sheet").innerHTML=`<div class="sheet-bg"><div class="sheet"><div class="greep"></div>${html}</div></div>`; $("#sheet .sheet-bg").onclick=e=>{if(e.target.classList.contains("sheet-bg"))sluit();}; $("#sheet").querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{sluit(); if(b.dataset.s==="ja") ga("kiesgebied");}); }
 function sluit(){ $("#sheet").innerHTML=""; teken(); }
 function visievraag(){
+  if(S.naProef) return;
   if(S.ruimte!=="ruim" || S.gevraagd.visie) return;
   const g = Object.keys(S.gebieden).find(x=>S.gebieden[x].zin) || "Lichaam";
   S.gevraagd.visie=true; S.kiesGebied=g; bewaar();
