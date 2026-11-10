@@ -104,7 +104,7 @@ welkom(){return `<div class="kop"><span class="merk">Stilvast</span><span class=
  <h1 style="font-size:30px;margin-top:60px">Een vastentimer die gewoon klopt.</h1>
  <p class="zacht">Twee tikken per dag: starten na het eten, stoppen bij je eerste maaltijd.</p>
  <div class="vink"><span>✓</span><span>Timen blijft altijd gratis.</span></div>
- <div class="vink"><span>✓</span><span>14 dagen alles open, daarna één keer € 4,99. Nooit een abonnement.</span></div>
+ <div class="vink"><span>✓</span><span>14 dagen alles open, daarna één keer € 4,99. Er wordt nooit iets vanzelf afgeschreven.</span></div>
  <div class="vink"><span>✓</span><span>Geen account. Je gegevens blijven op je telefoon.</span></div>
  <p class="klein" style="margin-top:22px">Vast niet zonder overleg met je arts als je zwanger bent, borstvoeding geeft, een eetstoornis hebt of hebt gehad, diabetes hebt of medicijnen gebruikt.</p>
  <button class="knop" data-a="begin">Begin</button>`;},
@@ -150,7 +150,7 @@ meer(){return `<h1 style="font-size:20px">Meer</h1>
   ${S.gekocht?"":`<div class="rij"><span>Eenmalig kopen</span><button class="link" data-g="koop">€ 4,99 ›</button></div>`}
   <div class="rij"><span>Weergave</span><span class="chips">${["auto","licht","nacht"].map(x=>`<button class="chip ${S.thema===x?"aan":""}" data-thema="${x}">${x}</button>`).join("")}</span></div>
   <div class="rij"><span>Meldingen</span><span class="zacht">alleen "doel bereikt"</span></div>
-  <div class="rij"><span>Exporteer als CSV</span><button class="link" data-a="csv">${open()?"Exporteer":"na aankoop"}</button></div>
+  <div class="rij"><span>Exporteer als CSV</span><button class="link" data-a="csv">Exporteer</button></div>
   <p class="klein">Vast niet zonder overleg met je arts als je zwanger bent, borstvoeding geeft, een eetstoornis hebt of hebt gehad, diabetes hebt of medicijnen gebruikt.</p>
   <div class="demo"><b>Alleen in dit prototype</b>
    <div class="rij"><span class="klein">Tijd versnellen</span><span class="chips">${[1,60,600,3600].map(x=>`<button class="chip ${S.snel===x?"aan":""}" data-snel="${x}">${x===1?"echt":x+"×"}</button>`).join("")}</span></div>
@@ -161,8 +161,8 @@ meer(){return `<h1 style="font-size:20px">Meer</h1>
 koop(){return `<p class="midden" style="margin-top:30px"><span class="merk">Stilvast</span></p>
   <h1 class="midden" style="margin-top:8px">${S.installDag>14?"Je proef van 14 dagen is voorbij":"Alles van Stilvast, voor altijd"}</h1>
   <p class="prijs">€ 4,99</p><p class="midden zacht" style="margin-top:0">één keer · geen abonnement</p>
-  <div class="kaart" style="margin-top:18px"><div class="vink"><span>✓</span><span>Je geschiedenis per dag, week en maand</span></div><div class="vink"><span>✓</span><span>Live-activiteit op je toegangsscherm</span></div><div class="vink"><span>✓</span><span>Export als CSV</span></div><div class="vink"><span>✓</span><span>Gezinsdeling: je gezin doet mee</span></div></div>
-  <p class="klein midden">Timen blijft altijd gratis. Er wordt nooit iets vanzelf afgeschreven.</p>
+  <div class="kaart" style="margin-top:18px"><div class="vink"><span>✓</span><span>Je geschiedenis per dag, week en maand</span></div><div class="vink"><span>✓</span><span>Live-activiteit op je toegangsscherm</span></div><div class="vink"><span>✓</span><span>Gezinsdeling: je gezin doet mee</span></div></div>
+  <p class="klein midden">Timen blijft altijd gratis. Er wordt nooit iets vanzelf afgeschreven. Exporteren blijft altijd gratis. Wat je koopt, blijft van jou.</p>
   <button class="knop" data-a="koop">Koop voor € 4,99</button>
   <p class="midden"><button class="link" data-a="herstel">Aankoop herstellen</button> · <button class="link" data-g="timer">Niet nu</button></p>`;},
 terug(){const l=[...S.lijst].sort((a,b)=>b.eind-a.eind)[0];return `<h1 class="midden" style="margin-top:60px">Welkom terug</h1>
@@ -186,7 +186,7 @@ const A={
  annuleer(){sluit();},
  pasStart(){sheet(`<h2>Starttijd aanpassen</h2><p class="klein">Vergeten te starten? Zet de tijd terug.</p><input type="datetime-local" id="ps" value="${lokaal(S.vast.start)}"><button class="knop" data-s="pasStartOk">Bewaar</button>`);},
  pasStartOk(){const v=new Date($("#ps").value).getTime();if(v&&v<nu()){S.vast.start=v;bewaar();}sluit();},
- csv(){if(!open())return ga("koop");const r="start,eind,uren\n"+S.lijst.map(x=>`${new Date(x.start).toISOString()},${new Date(x.eind).toISOString()},${((x.eind-x.start)/U).toFixed(2)}`).join("\n");alert("Prototype: de export zou dit bestand maken:\n\n"+r.split("\n").slice(0,4).join("\n")+"\n…");},
+ csv(){const r="start,eind,uren\n"+S.lijst.map(x=>`${new Date(x.start).toISOString()},${new Date(x.eind).toISOString()},${((x.eind-x.start)/U).toFixed(2)}`).join("\n");alert("Prototype: de export zou dit bestand maken:\n\n"+r.split("\n").slice(0,4).join("\n")+"\n…");},
  koop(){if(confirm("Dit is een prototype. Er wordt niet betaald. Aankoop nabootsen?")){S.gekocht=true;bewaar();ga("gesch");}},
  herstel(){alert("Prototype: in de echte app vraagt dit de App Store om je eerdere aankoop. Hier gebeurt niets.");},
  weg(){S.lijst.forEach(x=>{x.start-=21*DAG;x.eind-=21*DAG});S.vast=null;bewaar();ga("terug");},
