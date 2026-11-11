@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tartil (werktitel) · leesprototype</title>
+<!-- Lettertype: bewust een systeemlettertype voor het Arabisch (Geeza Pro op iPhone en Mac, anders Noto of Tahoma).
+     Het Uthmani Hafs-lettertype van het King Fahd-complex is NIET ingebed: de licentie is nog open (licenties/, brief 1).
+     Terugval in de app: DigitalKhatt (OFL-1.1). Een systeemlettertype toont de Uthmani-tekens niet altijd goed; alleen voor het prototype. -->
+<style>
+:root{--fs:30px}
+#app{--papier:#FBF7EE;--kaart:#FFFDF8;--inkt:#1F2421;--zacht:#6B6F76;--lijn:#E3DDD0;--ac:#1F5F4A;--ac2:#E3EEE8;--rand:#1F5F4A}
+#app[data-thema="sepia"]{--papier:#F3EAD6;--kaart:#F9F2E3;--inkt:#3A2F22;--zacht:#7A6B57;--lijn:#E0D3B8;--ac:#1F5F4A;--ac2:#E6E4CF}
+#app[data-thema="donker"]{--papier:#111614;--kaart:#1A211E;--inkt:#E7E4DC;--zacht:#9AA19C;--lijn:#2C3531;--ac:#7FC0A6;--ac2:#22312B;--rand:#3F6E5E}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#E7E3DA}
+body{font-family:-apple-system,"SF Pro Text","Helvetica Neue",Arial,sans-serif;color:#1F2421}
+.ar{font-family:"Geeza Pro","Damascus","Noto Naskh Arabic","Noto Sans Arabic","Segoe UI","Tahoma","DejaVu Sans",serif}
+#app{max-width:440px;margin:0 auto;height:100%;background:var(--papier);color:var(--inkt);display:flex;flex-direction:column;position:relative;overflow:hidden}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 8px;padding-top:max(14px,env(safe-area-inset-top));gap:8px}
+header .titel{font-size:17px;font-weight:600;color:var(--ac)}
+header .titel small{display:block;font-size:11.5px;font-weight:400;color:var(--zacht)}
+.knoppen{display:flex;gap:6px}
+.ik{min-width:38px;height:38px;border-radius:19px;border:1px solid var(--lijn);background:var(--kaart);color:var(--ac);display:grid;place-items:center;cursor:pointer;padding:0 10px;font:600 13px -apple-system,Arial,sans-serif}
+.ik svg{width:19px;height:19px}
+.ik.aan{background:var(--ac);color:var(--papier);border-color:var(--ac)}
+main{flex:1;overflow-y:auto;padding:0 18px 24px;-webkit-overflow-scrolling:touch}
+nav.tabs{display:flex;border-top:1px solid var(--lijn);background:var(--kaart);padding-bottom:env(safe-area-inset-bottom)}
+nav.tabs button{flex:1;border:0;background:none;padding:9px 0 11px;font:500 11px -apple-system,Arial,sans-serif;color:var(--zacht);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+nav.tabs button svg{width:22px;height:22px}
+nav.tabs button.aan{color:var(--ac)}
+.blad{border:1.2px solid var(--rand);border-radius:12px;padding:14px 14px 18px;background:var(--kaart);margin-top:4px}
+.bladkop{display:flex;justify-content:space-between;font-size:12px;color:var(--zacht);margin-bottom:10px}
+.soerakop{text-align:center;border:1px solid var(--lijn);border-radius:10px;padding:10px 8px 8px;margin:0 0 12px;background:var(--papier)}
+.soerakop .arn{font-size:calc(var(--fs) * .9);color:var(--ac);line-height:1.4}
+.soerakop .info{font-size:12px;color:var(--zacht)}
+.basmala{text-align:center;margin:4px 0 12px}
+.vers{padding:8px 6px;border-radius:8px;cursor:pointer;line-height:2.1;font-size:var(--fs);text-align:right}
+.vers.plek{background:var(--ac2)}
+.vers .vm{display:inline-grid;place-items:center;min-width:1.5em;height:1.5em;border:1.5px solid var(--ac);border-radius:50%;font-size:.55em;color:var(--ac);margin-inline-start:.35em;vertical-align:middle;line-height:1}
+.vers .lint{color:var(--ac);font-size:.5em;margin-inline-start:.3em;vertical-align:middle}
+.ph{font-family:-apple-system,Arial,sans-serif;font-size:.5em;color:var(--zacht);background:var(--papier);border:1px dashed var(--lijn);border-radius:6px;padding:1px 6px;unicode-bidi:isolate}
+.vt{font-size:calc(var(--fs) * .5);line-height:1.5;color:var(--inkt);text-align:left;margin:-2px 6px 8px;padding:6px 10px;border-left:3px solid var(--ac2)}
+.vt .vn{font-weight:700;color:var(--ac);margin-right:6px}
+.vt.ph2{color:var(--zacht);font-style:italic}
+.bladonder{display:flex;justify-content:space-between;gap:10px;margin:18px 0 6px}
+.bladonder button{flex:1;border:1px solid var(--lijn);background:var(--kaart);border-radius:22px;padding:11px 0;font:500 14px -apple-system,Arial,sans-serif;color:var(--ac);cursor:pointer}
+.bladonder button:disabled{opacity:.35}
+.chip{border:1px solid var(--lijn);background:var(--kaart);color:var(--zacht);border-radius:16px;padding:6px 13px;font:600 13px -apple-system,Arial,sans-serif;cursor:pointer}
+.chip.aan{background:var(--ac2);color:var(--ac);border-color:var(--ac)}
+.groot{font-size:24px;font-weight:600;margin:8px 0 4px}
+.uitleg{color:var(--zacht);font-size:14px;line-height:1.5}
+.zoek{width:100%;border:1px solid var(--lijn);background:var(--kaart);color:var(--inkt);border-radius:12px;padding:11px 12px;font-size:15px;margin:10px 0 4px}
+.rij{display:flex;align-items:center;gap:12px;padding:12px 2px;border-bottom:1px solid var(--lijn);cursor:pointer}
+.rij .n{width:34px;height:34px;border:1.4px solid var(--ac);border-radius:9px;transform:rotate(45deg);display:grid;place-items:center;flex:none;margin:0 4px}
+.rij .n span{transform:rotate(-45deg);font-size:13px;font-weight:600;color:var(--ac)}
+.rij .tx{flex:1}
+.rij .tx b{font-weight:600}
+.rij .tx small{display:block;color:var(--zacht);font-size:12.5px;margin-top:2px}
+.rij .arn{font-size:22px;color:var(--ac)}
+.rij.uit{opacity:.45;cursor:default}
+.instel{background:var(--kaart);border:1px solid var(--lijn);border-radius:16px;padding:2px 14px;margin:14px 0}
+.instel .r{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--lijn);font-size:15px;gap:10px}
+.instel .r:last-child{border-bottom:0}
+.instel .r.k{cursor:pointer}
+.instel .r .pijl{color:var(--zacht)}
+.instel .klein{font-size:12.5px;color:var(--zacht);line-height:1.5;display:block}
+.seg{display:flex;border:1px solid var(--lijn);border-radius:10px;overflow:hidden;flex:none}
+.seg button{border:0;background:var(--kaart);padding:7px 11px;font:500 13px -apple-system,Arial,sans-serif;color:var(--zacht);cursor:pointer}
+.seg button.aan{background:var(--ac);color:var(--papier)}
+.schakel{width:50px;height:30px;border-radius:15px;background:var(--lijn);border:0;position:relative;cursor:pointer;flex:none}
+.schakel::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:12px;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.schakel.aan{background:var(--ac)}
+.schakel.aan::after{left:23px}
+.terug{border:0;background:none;color:var(--ac);font:500 15px -apple-system,Arial,sans-serif;padding:6px 0;cursor:pointer}
+.melding{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;line-height:1.5;background:var(--papier);border:1px dashed var(--lijn);border-radius:10px;padding:10px;color:var(--zacht);white-space:pre-wrap;margin:8px 0}
+.knop{display:block;width:100%;border:0;border-radius:24px;background:var(--ac);color:var(--papier);font:600 16px -apple-system,Arial,sans-serif;padding:14px 0;cursor:pointer;margin-top:10px}
+.knop.licht{background:var(--kaart);color:var(--ac);border:1px solid var(--lijn)}
+.link{border:0;background:none;color:var(--ac);font:500 14px -apple-system,Arial,sans-serif;cursor:pointer;margin-top:10px;display:block;margin-left:auto;margin-right:auto}
+.welkom{position:absolute;inset:0;z-index:25;background:var(--papier);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 30px 40px;text-align:center}
+.welkom .naam{font-size:34px;font-weight:700;color:var(--ac)}
+.welkom .wt{font-size:12px;color:var(--zacht);margin-bottom:22px}
+.welkom p{font-size:17px;color:var(--zacht);line-height:1.5;margin:0}
+.welkom .punten{margin:26px 0 0;font-size:14px;color:var(--inkt);line-height:1.9}
+.welkom .knop{max-width:260px;margin-top:34px}
+.welkom .proto{margin-top:18px}
+.sheet-bg{position:absolute;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:flex-end;z-index:30}
+.sheet{background:var(--kaart);color:var(--inkt);width:100%;border-radius:18px 18px 0 0;padding:16px 18px 26px}
+.sheet .grip{width:40px;height:5px;border-radius:3px;background:var(--lijn);margin:0 auto 14px}
+.sheet h3{margin:0 0 10px;font-size:17px}
+.sheet input{width:100%;border:1px solid var(--lijn);background:var(--papier);color:var(--inkt);border-radius:10px;padding:10px;font-size:15px}
+.sheet .optie{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--lijn);background:none;color:var(--inkt);font:400 16px -apple-system,Arial,sans-serif;padding:13px 2px;cursor:pointer}
+.sheet.ios{background:#F2F2F7;color:#1C1C1E}
+.sheet.ios .app{display:flex;gap:12px;align-items:center;background:#fff;border-radius:12px;padding:12px}
+.sheet.ios .icoon{width:52px;height:52px;border-radius:12px;background:#FBF7EE;border:1px solid #E3DDD0;display:grid;place-items:center;font-size:24px;color:#1F5F4A;font-weight:700}
+.sheet.ios .prijs{display:flex;justify-content:space-between;background:#fff;border-radius:12px;padding:12px;margin-top:10px;font-size:15px}
+.sheet.ios .blauw{display:block;width:100%;border:0;border-radius:12px;background:#0A84FF;color:#fff;font:600 17px -apple-system,Arial,sans-serif;padding:14px;margin-top:14px;cursor:pointer}
+.sheet.ios .klein{font-size:11px;color:#8E8E93;text-align:center;margin-top:10px}
+.toast{position:absolute;left:50%;bottom:78px;transform:translateX(-50%);background:#1F2421;color:#fff;font-size:13px;padding:9px 16px;border-radius:18px;z-index:40;opacity:0;transition:opacity .25s;pointer-events:none;max-width:90%;text-align:center}
+.toast.zien{opacity:.93}
+.proto{font-size:11px;color:var(--zacht);text-align:center;margin:18px 0 0;line-height:1.5}
+.keuze{color:#9A5B00;font-weight:600}
+</style>
+</head>
+<body>
+<div id="app">
+ <header><div class="titel" id="kop">Tartil<small>werktitel · prototype</small></div><div class="knoppen" id="kopknoppen"></div></header>
+ <main id="main"></main>
+ <nav class="tabs" id="tabs"></nav>
+ <div class="toast" id="toast" role="status"></div>
+</div>
+<script>
+const DATA = [{"n":1,"tr":"al-Fatiha","ar":"الفاتحة","nl":"De opening","verzen":7,"plaats":"Mekkaans","juz":1,"pagina":1,"basmala_kop":false,"zoek":"fatiha fatihah faatiha fatiha opening","vz":[{"v":1,"ar":null,"nl":null},{"v":2,"ar":null,"nl":null},{"v":3,"ar":null,"nl":null},{"v":4,"ar":null,"nl":null},{"v":5,"ar":null,"nl":null},{"v":6,"ar":null,"nl":null},{"v":7,"ar":null,"nl":null}]},{"n":108,"tr":"al-Kawthar","ar":"الكوثر","nl":"De overvloed","verzen":3,"plaats":"Mekkaans","juz":30,"pagina":602,"basmala_kop":true,"zoek":"kawthar kauthar kausar kevser kawsar overvloed","vz":[{"v":1,"ar":null,"nl":null},{"v":2,"ar":null,"nl":null},{"v":3,"ar":null,"nl":null}]},{"n":112,"tr":"al-Ikhlas","ar":"الإخلاص","nl":"De oprechtheid","verzen":4,"plaats":"Mekkaans","juz":30,"pagina":604,"basmala_kop":true,"zoek":"ikhlas ichlas ihlas iklas oprechtheid zuiverheid","vz":[{"v":1,"ar":null,"nl":null},{"v":2,"ar":null,"nl":null},{"v":3,"ar":null,"nl":null},{"v":4,"ar":null,"nl":null}]}];
+const BRON = {"ar":null,"nl":null,"kop":[]};
+const KEUZE = '[KEUZE PJOTR]';
+const IC = {
+ lees:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 6.5c-2-1.6-4.6-2-8-2v13c3.4 0 6 .4 8 2 2-1.6 4.6-2 8-2v-13c-3.4 0-6 .4-8 2z"/><path d="M12 6.5v13"/></svg>',
+ inh:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/></svg>',
+ bw:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 3.5h10v17l-5-4-5 4z"/></svg>',
+ bwv:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.7"><path d="M7 3.5h10v17l-5-4-5 4z"/></svg>',
+ ins:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></svg>'
+};
+const SLEUTEL = 'tartil-prototype-v1';
+const BEGIN = () => ({gestart: false, tab: 'lezen', sub: null, soera: 1, vers: 1, vert: false, fs: 30, thema: 'licht', bw: [], gesteund: false});
+let S = BEGIN();
+try { const o = JSON.parse(localStorage.getItem(SLEUTEL) || 'null'); if (o) S = Object.assign(S, o, {sub: null}); } catch (e) {}
+function bewaar() { try { localStorage.setItem(SLEUTEL, JSON.stringify(S)); } catch (e) {} }
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const AR_CIJFERS = '٠١٢٣٤٥٦٧٨٩';
+const arNr = n => String(n).replace(/[0-9]/g, c => AR_CIJFERS[+c]);
+const soera = n => DATA.find(d => d.n === n);
+const idx = n => DATA.findIndex(d => d.n === n);
+function toast(t) { const el = document.getElementById('toast'); el.textContent = t; el.classList.add('zien'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('zien'), 2400); }
+
+function tabs() {
+ const T = [['lezen', 'Lezen', IC.lees], ['inh', 'Inhoud', IC.inh], ['bw', 'Bladwijzers', IC.bw], ['ins', 'Instellingen', IC.ins]];
+ document.getElementById('tabs').innerHTML = T.map(([k, n, i]) => `<button class="${S.tab === k ? 'aan' : ''}" onclick="gaTab('${k}')" aria-label="${n}">${i}${n}</button>`).join('');
+}
+function gaTab(k) { S.tab = k; S.sub = null; bewaar(); teken(); document.getElementById('main').scrollTop = 0; }
+function open(n, v) { S.tab = 'lezen'; S.sub = null; S.soera = n; S.vers = v || 1; bewaar(); teken(); scrollNaarVers(); }
+function scrollNaarVers() {
+ const el = document.getElementById('v-' + S.soera + '-' + S.vers), m = document.getElementById('main');
+ if (el && S.vers > 1) m.scrollTop = el.offsetTop - 120; else m.scrollTop = 0;
+}
+function heeftBw(n, v) { return S.bw.some(b => b.s === n && b.v === v); }
+
+// ---------- lezen ----------
+function arTekst(d, x) {
+ return x.ar ? esc(x.ar) : `<span class="ph" dir="ltr">[Tanzil-tekst ${d.n}:${x.v}]</span>`;
+}
+function vertTekst(d, x) {
+ if (x.nl) return `<div class="vt" dir="ltr" lang="nl"><span class="vn">${x.v}</span>${esc(x.nl)}</div>`;
+ return `<div class="vt ph2" dir="ltr" lang="nl"><span class="vn">${x.v}</span>[Vertaling Keyzer (Gutenberg-eBook 19786), placeholder: de tekst staat nog niet in de map]</div>`;
+}
+function lezen() {
+ const d = soera(S.soera) || DATA[0], i = idx(d.n);
+ let h = `<div class="blad"><div class="bladkop"><span>juz ${d.juz} · pagina ${d.pagina}</span><span>${esc(d.tr)}</span></div>`;
+ h += `<div class="soerakop"><div class="arn ar" dir="rtl" lang="ar">سورة ${esc(d.ar)}</div><div class="info">Soera ${d.n} · ${esc(d.tr)} · ${esc(d.nl)} · ${d.verzen} verzen · ${d.plaats}</div></div>`;
+ if (d.basmala_kop) h += `<div class="basmala" dir="rtl" lang="ar"><span class="ph" dir="ltr" style="font-size:13px">[Tanzil-tekst: basmala boven de soera, geen vers]</span></div>`;
+ h += `<div dir="rtl" lang="ar" class="ar">`;
+ d.vz.forEach(x => {
+  h += `<div class="vers ${x.v === S.vers ? 'plek' : ''}" id="v-${d.n}-${x.v}" onclick="versMenu(${d.n},${x.v})" role="button" aria-label="Soera ${esc(d.tr)}, vers ${x.v}">${arTekst(d, x)}<span class="vm">${arNr(x.v)}</span>${heeftBw(d.n, x.v) ? '<span class="lint" aria-label="bladwijzer">&#9646;</span>' : ''}</div>`;
+  if (S.vert) h += `</div>${vertTekst(d, x)}<div dir="rtl" lang="ar" class="ar">`;
+ });
+ h += `</div></div>`;
+ // rechts naar links: de volgende soera ligt links
+ const vol = DATA[i + 1], vor = DATA[i - 1];
+ h += `<div class="bladonder"><button ${vol ? '' : 'disabled'} onclick="open(${vol ? vol.n : 0})">‹ ${vol ? esc(vol.tr) : 'einde steekproef'}</button><button ${vor ? '' : 'disabled'} onclick="open(${vor ? vor.n : 0})">${vor ? esc(vor.tr) : 'begin'} ›</button></div>`;
+ h += `<p class="proto">Tik op een vers voor bladwijzer, kopiëren of een fout melden. Vegen naar rechts: volgende soera (zoals in een Arabisch boek).<br>Prototype: steekproef van drie soera's; ${BRON.ar ? 'Arabisch uit ' + esc(BRON.ar) : 'de Arabische tekst is een placeholder tot het Tanzil-bestand in data/ staat'}.</p>`;
+ return h;
+}
+function kopknoppen() {
+ const k = document.getElementById('kopknoppen'), kop = document.getElementById('kop');
+ if (S.tab !== 'lezen') { k.innerHTML = ''; kop.innerHTML = 'Tartil<small>werktitel · prototype</small>'; return; }
+ const d = soera(S.soera) || DATA[0], aan = heeftBw(d.n, S.vers);
+ kop.innerHTML = `${esc(d.tr)}<small>${esc(d.nl)} · vers ${S.vers} van ${d.verzen}</small>`;
+ k.innerHTML = `<button class="ik ${S.vert ? 'aan' : ''}" onclick="wisselVert()" aria-label="Vertaling aan of uit" title="Vertaling">NL</button><button class="ik" onclick="letterSheet()" aria-label="Lettergrootte" title="Lettergrootte">Aa</button><button class="ik ${aan ? 'aan' : ''}" onclick="snelBw()" aria-label="Bladwijzer bij de leesplek" title="Bladwijzer">${aan ? IC.bwv : IC.bw}</button>`;
+}
+function wisselVert() { S.vert = !S.vert; bewaar(); teken(); toast(S.vert ? 'Vertaling aan (laag onder elk vers)' : 'Vertaling uit'); }
+function snelBw() {
+ const d = soera(S.soera);
+ if (heeftBw(d.n, S.vers)) { S.bw = S.bw.filter(b => !(b.s === d.n && b.v === S.vers)); toast('Bladwijzer weg'); }
+ else { S.bw.push({s: d.n, v: S.vers, naam: d.tr + ' ' + d.n + ':' + S.vers, t: Date.now()}); toast('Bladwijzer bij ' + d.tr + ' ' + d.n + ':' + S.vers); }
+ bewaar(); teken();
+}
+function sheet(html, cls) {
+ const bg = document.createElement('div'); bg.className = 'sheet-bg';
+ bg.innerHTML = `<div class="sheet ${cls || ''}"><div class="grip"></div>${html}</div>`;
+ bg.onclick = e => { if (e.target === bg) bg.remove(); };
+ document.getElementById('app').appendChild(bg); return bg;
+}
+function versMenu(n, v) {
+ S.soera = n; S.vers = v; bewaar(); teken();
+ const d = soera(n), aan = heeftBw(n, v), b = S.bw.find(x => x.s === n && x.v === v);
+ const bg = sheet(`<h3>${esc(d.tr)} ${n}:${v}</h3>
+  <label class="uitleg" for="bwnaam">Naam van de bladwijzer</label>
+  <input id="bwnaam" value="${esc(b ? b.naam : d.tr + ' ' + n + ':' + v)}">
+  <button class="optie" id="o-bw">${aan ? 'Naam bewaren' : 'Bladwijzer hier'}</button>
+  ${aan ? '<button class="optie" id="o-weg">Bladwijzer weghalen</button>' : ''}
+  <button class="optie" id="o-kop">Kopiëren met bron</button>
+  <button class="optie" id="o-fout">Meld een fout</button>
+  <button class="link" id="o-sluit">Sluiten</button>`);
+ bg.querySelector('#o-bw').onclick = () => {
+  const naam = bg.querySelector('#bwnaam').value.trim() || (d.tr + ' ' + n + ':' + v);
+  if (b) b.naam = naam; else S.bw.push({s: n, v: v, naam: naam, t: Date.now()});
+  bewaar(); bg.remove(); teken(); toast('Bladwijzer bewaard: ' + naam);
+ };
+ if (aan) bg.querySelector('#o-weg').onclick = () => { S.bw = S.bw.filter(x => !(x.s === n && x.v === v)); bewaar(); bg.remove(); teken(); toast('Bladwijzer weg'); };
+ bg.querySelector('#o-kop').onclick = () => { bg.remove(); toast('Nagebootst: gekopieerd met "Koran ' + n + ':' + v + ', tekst: Tanzil (tanzil.net)"'); };
+ bg.querySelector('#o-fout').onclick = () => { bg.remove(); meldFout(n + ':' + v); };
+ bg.querySelector('#o-sluit').onclick = () => bg.remove();
+}
+function meldFout(sleutel) { toast('Nagebootst: opent een e-mail met ' + (sleutel || 'de leesplek') + ' en de appversie. Er wordt niets verzameld.'); }
+function letterSheet() {
+ const bg = sheet(`<h3>Lezen</h3><div class="instel" style="margin:0">${rijLetter()}${rijVert()}${rijThema()}</div><button class="link" id="o-sluit">Klaar</button>`);
+ bg.querySelector('#o-sluit').onclick = () => bg.remove();
+ bg.addEventListener('click', e => { if (e.target.closest('button') && e.target.id !== 'o-sluit') setTimeout(() => { bg.querySelector('.instel').innerHTML = rijLetter() + rijVert() + rijThema(); }, 0); });
+}
+
+// ---------- inhoud ----------
+function normaal(s) { return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f\u064b-\u065f\u0670']/g, '').replace(/^al[- ]?/, '').replace(/[- ]/g, ''); }
+let ZOEK = '';
+function inhoud() {
+ const q = normaal(ZOEK);
+ const lijst = DATA.filter(d => !q || [d.tr, d.nl, d.ar, d.zoek, String(d.n)].some(x => normaal(x).includes(q) || x.split(' ').some(w => normaal(w).startsWith(q))));
+ let h = `<div class="groot">Inhoud</div><div class="uitleg">Soera's. In de app ook juz, hizb en pagina (1 tot 604).</div>`;
+ h += `<input class="zoek" id="zoek" placeholder="Zoek op naam of ga naar 112:3" value="${esc(ZOEK)}" oninput="zoek(this.value)" onkeydown="if(event.key==='Enter')gaNaar(this.value)" autocomplete="off">`;
+ h += `<div id="lijst">` + (lijst.length ? lijst.map(rij).join('') : `<p class="uitleg">Geen soera gevonden in de steekproef.</p>`);
+ h += `<div class="rij uit"><div class="n"><span>…</span></div><div class="tx"><b>111 andere soera's</b><small>In de app alle 114 soera's (Tanzil-metadata); niet in deze steekproef</small></div></div></div>`;
+ return h;
+}
+function rij(d) {
+ return `<div class="rij" onclick="open(${d.n})"><div class="n"><span>${d.n}</span></div><div class="tx"><b>${esc(d.tr)}</b> · ${esc(d.nl)}<small>${d.verzen} verzen · ${d.plaats} · juz ${d.juz}${S.soera === d.n ? ' · leesplek' : ''}</small></div><div class="arn ar" dir="rtl" lang="ar">${esc(d.ar)}</div></div>`;
+}
+function zoek(v) {
+ ZOEK = v; const el = document.getElementById('lijst');
+ const tmp = document.createElement('div'); tmp.innerHTML = inhoud(); el.innerHTML = tmp.querySelector('#lijst').innerHTML;
+}
+function gaNaar(v) {
+ const m = v.trim().match(/^(\d{1,3})\s*[:.]\s*(\d{1,3})$/);
+ if (!m) { const l = document.querySelector('#lijst .rij:not(.uit)'); if (l) l.click(); return; }
+ const n = +m[1], x = +m[2], d = soera(n);
+ if (!d) { toast(n >= 1 && n <= 114 ? 'Soera ' + n + ' zit niet in de steekproef van het prototype' : 'Er zijn 114 soera\'s'); return; }
+ if (x < 1 || x > d.verzen) { toast(d.tr + ' heeft ' + d.verzen + ' verzen'); return; }
+ ZOEK = ''; open(n, x);
+}
+
+// ---------- bladwijzers ----------
+function bladwijzers() {
+ let h = `<div class="groot">Bladwijzers</div>`;
+ if (!S.bw.length) return h + `<p class="uitleg">Nog geen bladwijzers. Tik bij het lezen op een vers, of rechtsboven op het lintje. Bladwijzers blijven op je telefoon.</p>`;
+ const l = S.bw.slice().sort((a, b) => a.s - b.s || a.v - b.v);
+ return h + `<p class="uitleg">Alleen op deze telefoon bewaard.</p>` + l.map(b => { const d = soera(b.s); return `<div class="rij"><div class="n" onclick="open(${b.s},${b.v})"><span>${b.s}</span></div><div class="tx" onclick="open(${b.s},${b.v})"><b>${esc(b.naam)}</b><small>${esc(d.tr)} ${b.s}:${b.v} · juz ${d.juz} · pagina ${d.pagina}</small></div><button class="ik" onclick="wegBw(${b.s},${b.v})" aria-label="Bladwijzer weghalen">×</button></div>`; }).join('');
+}
+function wegBw(n, v) { S.bw = S.bw.filter(b => !(b.s === n && b.v === v)); bewaar(); teken(); toast('Bladwijzer weg'); }
+
+// ---------- instellingen ----------
+function rijLetter() { return `<div class="r"><span>Lettergrootte<span class="klein">Arabisch ${S.fs} pt</span></span><div class="seg"><button onclick="letter(-1)" aria-label="Kleiner">A−</button><button onclick="letter(1)" aria-label="Groter">A+</button></div></div>`; }
+function rijVert() { return `<div class="r"><span>Vertaling onder elk vers<span class="klein">Nederlands: Keyzer, bewerkt door Japikse (publiek domein)${BRON.nl ? '' : '; in het prototype een placeholder'}</span></span><button class="schakel ${S.vert ? 'aan' : ''}" onclick="S.vert=!S.vert;bewaar();teken()" aria-label="Vertaling aan of uit"></button></div>`; }
+function rijThema() { return `<div class="r"><span>Weergave</span><div class="seg">${[['licht', 'Licht'], ['sepia', 'Sepia'], ['donker', 'Donker']].map(([k, l]) => `<button class="${S.thema === k ? 'aan' : ''}" onclick="S.thema='${k}';bewaar();teken()">${l}</button>`).join('')}</div></div>`; }
+function letter(x) { S.fs = Math.max(22, Math.min(46, S.fs + x * 4)); bewaar(); teken(); toast('Lettergrootte ' + S.fs); }
+function instellingen() {
+ if (S.sub === 'over') return over();
+ if (S.sub === 'steun') return steun();
+ return `<div class="groot">Instellingen</div>
+ <div class="instel">${rijLetter()}${rijVert()}${rijThema()}</div>
+ <div class="instel">
+  <div class="r k" onclick="sub('over')">Over deze tekst<span class="pijl">›</span></div>
+  <div class="r k" onclick="meldFout()">Meld een fout<span class="pijl">›</span></div>
+  <div class="r k" onclick="sub('steun')">Steun deze app<span class="pijl">${S.gesteund ? 'gesteund' : '›'}</span></div>
+ </div>
+ ${S.gesteund ? '<p class="uitleg" style="text-align:center">Dank je wel voor je steun.</p>' : ''}
+ <div class="instel"><div class="r" style="display:block"><span class="klein">Alles is gratis. Geen reclame, geen account, geen netwerk. Wat je bewaart (leesplek, bladwijzers, instellingen) blijft op je telefoon.</span></div></div>
+ <div class="instel">
+  <div class="r">Alleen in het prototype<span></span></div>
+  <div class="r k" onclick="S.gestart=false;bewaar();teken()">Eerste start opnieuw tonen<span class="pijl">›</span></div>
+  <div class="r k" onclick="opnieuw()">Prototype opnieuw beginnen<span class="pijl">›</span></div>
+ </div>
+ <p class="proto">Prototype · 11 november 2026 · werktitel Tartil · er wordt niets betaald of verstuurd.</p>`;
+}
+function sub(k) { S.sub = k; teken(); document.getElementById('main').scrollTop = 0; }
+function over() {
+ const kop = BRON.kop && BRON.kop.length ? esc(BRON.kop.join('\n')) : '[Tanzil-copyrightmelding: hier komt letterlijk het copyrightblok uit het Tanzil-bronbestand, met versie en datum, ongewijzigd. Het bestand staat nog niet in data/.]';
+ return `<button class="terug" onclick="sub(null)">‹ Instellingen</button><div class="groot">Over deze tekst</div>
+ <div class="instel">
+  <div class="r" style="display:block"><b>Arabische tekst</b><span class="klein">Tanzil Project, <a href="https://tanzil.net" style="color:var(--ac)">tanzil.net</a>. Uthmani-tekst, Medina-mushaf, lezing Hafs 'an 'Asim. Licentie: Creative Commons Naamsvermelding 3.0 (CC BY 3.0). De tekst is ongewijzigd overgenomen. ${BRON.ar ? 'Bestand: ' + esc(BRON.ar) + '.' : 'Versie en datum: [uit het bronbestand].'}</span></div>
+  <div class="r" style="display:block"><b>Copyrightmelding van Tanzil</b><div class="melding">${kop}</div><span class="klein">Voorwaarden van Tanzil: de tekst niet wijzigen, de bron noemen met een link naar tanzil.net, en deze melding meeleveren.</span></div>
+  <div class="r" style="display:block"><b>Lettertype</b><span class="klein">In dit prototype een systeemlettertype van je telefoon. Het Uthmani Hafs-lettertype van het King Fahd-complex is nog niet ingebed: de licentie wordt nog nagevraagd. Een systeemlettertype toont niet alle Uthmani-tekens zoals in de mushaf.</span></div>
+  <div class="r" style="display:block"><b>Vertaling</b><span class="klein">Nederlands: Salomo Keyzer, bewerkt door Nicolaas Japikse, publiek domein (Project Gutenberg, eBook 19786). ${BRON.nl ? '' : 'In het prototype nog een placeholder.'} Standaard uit.</span></div>
+  <div class="r" style="display:block"><b>Nagekeken door</b><span class="klein">[nog niet nagekeken: twee nalezers per juz, namen alleen met hun toestemming, met datum]</span></div>
+  <div class="r" style="display:block"><b>Versie</b><span class="klein">Prototype 0.1, 11 november 2026. Steekproef: soera 1, 108 en 112. Deze app is niet officieel goedgekeurd door een instantie.</span></div>
+ </div>
+ <button class="knop licht" onclick="meldFout()">Meld een fout</button>`;
+}
+function steun() {
+ return `<button class="terug" onclick="sub(null)">‹ Instellingen</button><div class="groot">Steun deze app</div>
+ <p class="uitleg">Alles blijft gratis te lezen. Je steun betaalt het nakijken van de tekst en de updates.</p>
+ <div class="instel">${[1, 2, 3].map(i => `<div class="r k" onclick="koop(${i})"><span>Eenmalige steun ${i}</span><span class="keuze">${KEUZE}</span></div>`).join('')}</div>
+ <p class="uitleg">Geen abonnement en geen reclame. Steunen ontgrendelt niets en we vragen er niet om. Gezinsdeling aan.</p>
+ <button class="link" onclick="toast(S.gesteund ? 'Je steun is al bekend op dit toestel' : 'Nagebootst: geen eerdere aankoop gevonden')">Aankoop herstellen</button>
+ <p class="proto">De drie bedragen zijn nog niet gekozen (${KEUZE}).</p>`;
+}
+function koop(i) {
+ const bg = sheet(`<div class="app"><div class="icoon">T</div><div><b>Tartil</b><br><span style="font-size:13px;color:#8E8E93">Eenmalige steun ${i} · ontgrendelt niets</span></div></div>
+ <div class="prijs"><span>Eenmalige aankoop</span><b class="keuze">${KEUZE}</b></div>
+ <button class="blauw" id="koopknop">Kopen</button>
+ <div class="klein">Nagebootst: in dit prototype wordt niets betaald.<br>In de app handelt Apple de betaling af. Gezinsdeling aan.</div>
+ <button class="link" style="color:#0A84FF" id="annuleer">Annuleer</button>`, 'ios');
+ bg.querySelector('#annuleer').onclick = () => bg.remove();
+ bg.querySelector('#koopknop').onclick = function () {
+  this.textContent = 'Bezig…'; this.disabled = true;
+  setTimeout(() => { this.textContent = '✓ Gelukt'; this.style.background = '#34C759';
+   setTimeout(() => { bg.remove(); S.gesteund = true; S.sub = null; bewaar(); teken(); toast('Dank je wel voor je steun.'); }, 700); }, 1100);
+ };
+}
+function opnieuw() { S = BEGIN(); ZOEK = ''; bewaar(); teken(); toast('Opnieuw begonnen'); }
+
+// ---------- eerste start ----------
+function welkom() {
+ let w = document.getElementById('welkom');
+ if (S.gestart) { if (w) w.remove(); return; }
+ if (!w) { w = document.createElement('div'); w.id = 'welkom'; w.className = 'welkom'; document.getElementById('app').appendChild(w); }
+ w.innerHTML = `<div class="naam">Tartil</div><div class="wt">werktitel</div>
+ <p>De Koran, rustig.<br>Zoals je mushaf, altijd bij je.</p>
+ <div class="punten">Geen reclame · geen account · niets verzameld<br>Alles gratis · werkt zonder internet</div>
+ <button class="knop" onclick="begin()">Beginnen</button>
+ <p class="proto">Geen vragen, geen account, geen meldingen.<br>Prototype: de Arabische tekst staat er als placeholder [Tanzil-tekst].</p>`;
+}
+function begin() { S.gestart = true; S.tab = 'lezen'; S.soera = S.soera || 1; bewaar(); teken(); }
+
+function teken() {
+ const app = document.getElementById('app');
+ app.dataset.thema = S.thema; document.documentElement.style.setProperty('--fs', S.fs + 'px');
+ document.body.style.background = S.thema === 'donker' ? '#0A0D0C' : '#E7E3DA';
+ const m = document.getElementById('main');
+ if (S.tab === 'lezen') m.innerHTML = lezen();
+ else if (S.tab === 'inh') m.innerHTML = inhoud();
+ else if (S.tab === 'bw') m.innerHTML = bladwijzers();
+ else m.innerHTML = instellingen();
+ kopknoppen(); tabs(); welkom();
+}
+let tx = null;
+const M = document.getElementById('main');
+M.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive: true});
+M.addEventListener('touchend', e => {
+ if (tx === null || S.tab !== 'lezen') return; const dx = e.changedTouches[0].clientX - tx; tx = null;
+ const i = idx(S.soera);
+ if (dx > 70 && DATA[i + 1]) open(DATA[i + 1].n); else if (dx < -70 && DATA[i - 1]) open(DATA[i - 1].n);
+});
+teken(); if (S.tab === 'lezen') scrollNaarVers();
+</script>
+</body>
+</html>
