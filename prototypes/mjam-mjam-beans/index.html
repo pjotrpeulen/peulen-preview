@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#FFFFFF">
+<title>Mjam Mjam Beans · klikbaar prototype</title>
+<!-- Klikbaar prototype Mjam Mjam Beans (APP-01, werknaam), 10 november 2026, volgens plan.md (§2 tot §4), de Linear-preview en de online validatie.
+     Eén bestand, geen netwerk, geen tracking. Spelers, bonen en uitslag staan alleen in het geheugen: herladen of "Nieuwe avond" wist alles.
+     localStorage alleen voor de proefdag en de (nagebootste) aankoop. Vragen zijn concept; Pjotr schrijft of keurt elke vraag. -->
+<style>
+:root{--ac:#5E8C3A;--licht:#EEF4E6;--ink:#22261F;--sub:#68705F;--lijn:#E2E6DC;--bg:#FFFFFF;--zand:#F6F7F3}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--zand);color:var(--ink);font:16px/1.45 -apple-system,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
+main,.dialoog{overflow-wrap:anywhere}
+.app{max-width:420px;min-height:100vh;margin:0 auto;background:var(--bg);position:relative}
+main{padding:16px 20px 40px}
+h1{font-size:22px;margin:16px 0 4px} h2{font-size:16px;margin:20px 0 8px}
+.kop{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sub{color:var(--sub);font-size:14px} .klein{font-size:12.5px;color:var(--sub)} .midden{text-align:center}
+.knop{display:block;width:100%;border:0;border-radius:24px;background:var(--ac);color:#fff;font:600 16px/1 inherit;padding:15px;margin-top:14px;cursor:pointer}
+.knop.licht{background:var(--licht);color:var(--ac)} .knop.rand{background:#fff;color:var(--ink);border:1px solid var(--lijn);font-weight:500}
+.knop:disabled{opacity:.4;cursor:default}
+.link{background:none;border:0;color:var(--ac);font:600 14px inherit;padding:6px 0;cursor:pointer}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0} .chip{border:1px solid var(--lijn);background:#fff;border-radius:16px;padding:7px 13px;font:14px inherit;cursor:pointer;color:var(--ink)} .chip.aan{background:var(--ac);border-color:var(--ac);color:#fff}
+.speler{display:flex;align-items:center;gap:12px;background:var(--licht);border-radius:12px;padding:9px 12px;margin-top:8px}
+.letter{flex:none;width:30px;height:30px;border-radius:50%;background:#fff;border:2px solid var(--ac);color:var(--ac);font-weight:700;display:flex;align-items:center;justify-content:center;font-size:14px}
+.speler span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis} .speler button{background:none;border:0;color:var(--sub);font-size:20px;cursor:pointer;padding:0 4px}
+.invoer{display:flex;gap:8px;margin-top:10px} .invoer input{flex:1;min-width:0;border:1px solid var(--lijn);border-radius:12px;padding:11px;font:16px inherit}
+.invoer button{flex:none;border:1px solid var(--ac);background:#fff;color:var(--ac);border-radius:12px;padding:0 14px;font:600 15px inherit;cursor:pointer}
+.pakket{display:block;width:100%;text-align:left;border:1px solid #DDD;background:#fff;border-radius:14px;padding:12px 16px;margin-top:10px;font:inherit;color:var(--ink);cursor:pointer}
+.pakket.aan{border-color:var(--ac);background:var(--licht);box-shadow:0 0 0 1px var(--ac) inset} .pakket b{font-size:17px} .pakket .klein{display:block}
+.pakket.dicht{opacity:.7} .pakket .slot{float:right;font-size:12.5px;color:var(--ac);font-weight:600}
+.vraag{background:var(--licht);border-radius:18px;padding:22px 18px;text-align:center;font-size:20px;font-weight:700;line-height:1.3;margin-top:10px}
+.beurt{color:var(--ac);font-weight:600;text-align:center;margin:16px 0 6px}
+.geef{display:flex;align-items:center;gap:12px;padding:10px 2px;border-bottom:1px solid var(--lijn);cursor:pointer;background:none;border-left:0;border-right:0;border-top:0;width:100%;font:inherit;color:var(--ink);text-align:left}
+.geef span.n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.bonen{display:flex;gap:6px} .boon{width:14px;height:20px;border-radius:50%;border:2px solid var(--ac);background:#fff} .boon.vol{background:var(--ac)}
+.over{text-align:center;font-size:14px;color:var(--sub);margin-top:10px}
+.titel{display:flex;align-items:center;gap:12px;background:var(--licht);border-radius:14px;padding:10px 14px;margin-top:8px}
+.titel>div:last-child{min-width:0} .titel .klein{display:block} .titel b{font-size:17px}
+.door{min-height:70vh;display:flex;flex-direction:column;justify-content:center;text-align:center}
+.door .groot{font-size:28px;font-weight:700;margin:6px 0}
+.vink{display:flex;gap:10px;margin:8px 0} .vink span:first-child{color:var(--ac);font-weight:700}
+.prijs{font-size:42px;font-weight:200;text-align:center;margin:6px 0 0}
+.demo{margin-top:22px;padding:12px;border:1px dashed #C9CFC0;border-radius:14px}
+.rij{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--lijn)}
+.fout{color:#A4472F;font-size:13px;min-height:18px;margin-top:4px}
+.dialoog{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:10;padding:20px}
+.dialoog>div{background:#F2F2F2;border-radius:14px;max-width:290px;width:100%;text-align:center;overflow:hidden}
+.dialoog p{margin:0;padding:16px 16px 12px;font-size:14px} .dialoog p b{display:block;font-size:16px;margin-bottom:4px}
+.dialoog .kn{display:flex;border-top:1px solid #CCC} .dialoog .kn button{flex:1;background:none;border:0;padding:12px;font:16px inherit;color:#0A64D6;cursor:pointer} .dialoog .kn button+button{border-left:1px solid #CCC;font-weight:600}
+.concept{font-size:11px;color:#8A6A1F}
+</style>
+</head>
+<body>
+<div class="app"><main id="s"></main></div><div id="dlg"></div>
+<script>
+const $=q=>document.querySelector(q),DAG=864e5;
+// Alleen de proefdag en de aankoop worden bewaard. Spelers, bonen en uitslag staan alleen in het geheugen.
+const K="mjam-proto-aankoop";
+let A=(()=>{try{return JSON.parse(localStorage.getItem(K))}catch(e){return null}})();
+const eersteKeer=!A; if(!A)A={installDag:1,gekocht:false};
+function bewaarAankoop(){try{localStorage.setItem(K,JSON.stringify({installDag:A.installDag,gekocht:A.gekocht}))}catch(e){}}
+const proefOpen=()=>A.gekocht||A.installDag<=14, dagenOver=()=>15-A.installDag;
+// Vragen: concept. Checklist per vraag: grappig voor iedereen in de kamer, ook voor wie geen bonen krijgt; geen doelwit, geen lichaam, geen geheim;
+// nooit over uiterlijk, gewicht, geld, seks, afkomst, geloof, school, cijfers, intelligentie, geaardheid of wie "het minst" iets is; geen drank.
+const PAKKETTEN=[
+ {id:"eerste",naam:"Eerste avond",gratis:true,aantal:30,vragen:[
+  ["zorg","Wie zou een kamerplant redden die eigenlijk al lang dood is?"],["zorg","Wie zou een verdwaalde eend veilig naar huis brengen?"],["zorg","Wie onthoudt de verjaardag van ieders oma?"],["zorg","Wie pakt als eerste een deken voor iemand die het koud heeft?"],
+  ["eten","Wie zou van drie restjes uit de koelkast een feestmaal maken?"],["eten","Wie weet altijd waar de lekkerste snack van de avond ligt?"],["eten","Wie zou een eigen smaak chips mogen bedenken?"],["eten","Wie zou een taart bakken voor de verjaardag van de buurkat?"],
+  ["avontuur","Wie zou zich als eerste melden voor een reis naar Mars?"],["avontuur","Wie zou zonder kaart toch precies op de goede camping uitkomen?"],["avontuur","Wie ziet een nacht in een boomhut als de perfecte vakantie?"],["avontuur","Wie heeft op een onbewoond eiland binnen een week een hotel geopend?"],
+  ["creatief","Wie zou het mooiste lied over een vaatwasser schrijven?"],["creatief","Wie bouwt van een kartonnen doos een kasteel?"],["creatief","Wie bedenkt een dans die over tien jaar iedereen doet?"],["creatief","Wie kan een spannend verhaal vertellen over een paperclip?"],
+  ["regelen","Wie zou een verhuizing plannen met kleurcodes en een draaiboek?"],["regelen","Wie regelt op een vliegveld met vertraging binnen een uur een spelletjesavond?"],["regelen","Wie heeft altijd een pleister, een pen en een oplader bij zich?"],["regelen","Wie zou de beste kapitein zijn van een piratenschip met alleen goede bedoelingen?"],
+  ["gezellig","Wie zou de gezelligste buur van de straat zijn?"],["gezellig","Wie maakt van een saaie wachtrij een feestje?"],["gezellig","Wie stuurt zomaar een kaartje om iemand op te vrolijken?"],["gezellig","Wie begint met iedereen in de lift een gesprek?"],
+  ["absurd","Wie zou een duif leren om post in de goede brievenbus te doen?"],["absurd","Wie wint een wedstrijd langzaam fietsen?"],["absurd","Wie kan een goed gesprek voeren met een robotstofzuiger?"],["absurd","Wie roept een eigen feestdag uit voor sokken?"],["absurd","Wie overtuigt een pinguïn om mee op vakantie te gaan?"],["absurd","Wie maakt van een regenachtige dinsdag de beste dag van de week?"]]},
+ {id:"borrel",naam:"Borrel",aantal:40,vragen:[["eten","Wie maakt de mooiste borrelplank van het land?"],["gezellig","Wie zou op een gewone dinsdag de beste toespraak houden?"],["regelen","Wie rondt een vergadering van een uur af in tien minuten?"],["avontuur","Wie organiseert het teamuitje naar een vuurtoren?"],["absurd","Wie geeft de koffieautomaat een naam en een verjaardag?"]]},
+ {id:"etentje",naam:"Etentje",aantal:40,vragen:[["eten","Wie kookt een driegangendiner met alleen een tosti-ijzer?"],["regelen","Wie maakt een tafelschikking waar iedereen blij van wordt?"],["creatief","Wie bedenkt een toetje dat nog niet bestaat?"],["gezellig","Wie geeft de kok een staande ovatie?"],["eten","Wie maakt per ongeluk de beste soep van het land?"]]},
+ {id:"absurd",naam:"Volkomen absurd",aantal:40,vragen:[["absurd","Wie leert een goudvis zwaaien?"],["creatief","Wie bouwt een kasteel van spaghetti?"],["zorg","Wie sluit vriendschap met een meeuw?"],["avontuur","Wie opent een snackbar op de maan?"],["absurd","Wie zingt een lied voor een verdwaalde wolk?"]]}];
+// Titels: altijd positief, nooit een aantal of plaats.
+const TITELS={zorg:["Plantenredder","Beschermengel","Warme deken","Hart van de groep"],eten:["Snackstrateeg","Restjesmagiër","Smaakmaker","Taartenbouwer"],
+ avontuur:["Ontdekkingsreiziger","Kampvuurkapitein","Wereldwandelaar","Durfal"],creatief:["Bedenker van de avond","Kartonarchitect","Verhalenverteller","Danspionier"],
+ regelen:["Draaiboekheld","Altijd voorbereid","Kapitein Regelaar","Rots in de planning"],gezellig:["Gangmaker","Buurtzonnetje","Gespreksstarter","Feest in de rij"],
+ absurd:["Duivenfluisteraar","Pinguïnvriend","Sokkenfeestbaas","Fietsfeestkoning"],
+ warm:["Stille kracht","Rustpunt van de avond","Geheim talent","Gouden gast","Trouwe teamspeler","Zonnige blik","Goede luisteraar","Vrolijke verrassing","Kalme kapitein","Lichtpuntje"]};
+// Uitleg: voor iedereen dezelfde vorm (een categorie), ook voor wie geen bonen kreeg; zo valt niemand op als laatste.
+const UITLEG={zorg:"past bij de zorgzame vragen",eten:"past bij de vragen over eten",avontuur:"past bij de avontuurlijke vragen",creatief:"past bij de creatieve vragen",regelen:"past bij de regelvragen",gezellig:"past bij de gezellige vragen",absurd:"past bij de absurde vragen"};
+// ---------- de avond: alleen in het geheugen ----------
+let AV;function nieuweAvond(){AV={scherm:eersteKeer&&!AV?"welkom":"spelers",spelers:[],pakket:"eerste",rondes:10,vragen:[],ronde:0,beurt:0,verdeling:{},bonen:{},fout:""};}
+nieuweAvond();
+const V={
+welkom(){return `<h1 style="margin-top:40px">Mjam Mjam Beans</h1><p class="sub">Een avond lang bonen geven op absurde vragen. Aan het eind krijgt iedereen een titel. Eén telefoon, geen account, één keer betalen.</p>
+ <div class="vink"><span>✓</span><span>3 tot 10 spelers, één telefoon. Werkt niet met z'n tweeën.</span></div>
+ <div class="vink"><span>✓</span><span>Geen ranglijst, geen scores, geen drankopdrachten.</span></div>
+ <div class="vink"><span>✓</span><span>14 dagen alle pakketten. Daarna € 2,99, één keer. De Eerste avond blijft altijd gratis.</span></div>
+ <div class="vink"><span>✓</span><span>Niets wordt bewaard: na de avond is alles weg.</span></div>
+ <p class="klein">Voor 18+, niet voor school.</p><button class="knop" data-a="welkomKlaar">Ik ben 18+, beginnen</button><p class="klein midden">Werknaam; vragen zijn concept.</p>`;},
+spelers(){const n=AV.spelers.length;return `<div class="kop"><h1>Wie speelt er mee?</h1><button class="link" style="font-size:20px" data-g="meer" aria-label="Instellingen">⚙</button></div><p class="sub" style="margin-top:0">Alleen voornamen, alles weg na de avond</p>
+ ${AV.spelers.map((s,i)=>`<div class="speler"><div class="letter">${s[0].toUpperCase()}</div><span>${s}</span><button data-weg="${i}" aria-label="${s} weghalen">×</button></div>`).join("")}
+ ${n<10?`<div class="invoer"><input id="nm" type="text" maxlength="15" autocomplete="off" autocapitalize="words" placeholder="Voornaam" aria-label="Voornaam"><button data-a="voegToe">Voeg toe</button></div>`:`<p class="klein">Maximaal 10 spelers.</p>`}
+ <div class="fout" id="fout">${AV.fout}</div>
+ <p class="klein midden">Voor 18+ · niet voor school<br>3 tot 10 spelers, één telefoon</p>
+ <button class="knop" data-g="pakket" ${n<3?"disabled":""}>${n<3?`Nog ${3-n} ${3-n===1?"speler":"spelers"} nodig`:"Kies vragen ›"}</button>
+ ${n===0?`<p class="midden"><button class="link" data-a="voorbeeld">Vul vijf voorbeeldnamen in</button></p>`:""}`;},
+pakket(){return `<p><button class="link" data-g="spelers">‹ Spelers</button></p><h1 class="midden">Kies een pakket</h1><p class="sub midden" style="margin-top:0">Alle vragen zijn positief of absurd</p>
+ ${PAKKETTEN.map(p=>{const dicht=!p.gratis&&!proefOpen();return `<button class="pakket ${AV.pakket===p.id?"aan":""} ${dicht?"dicht":""}" data-pakket="${p.id}"><b>${p.naam}</b>${dicht?`<span class="slot">€ 2,99</span>`:""}<span class="klein">${p.gratis?"30 vragen · altijd gratis":`${p.aantal} vragen${A.gekocht?"":proefOpen()?" · in je proef":""} <span class="concept">(in het prototype ${p.vragen.length} voorbeelden)</span>`}</span></button>`;}).join("")}
+ <h2>Hoeveel vragen vanavond?</h2><div class="chips">${[5,10,15].map(x=>`<button class="chip ${AV.rondes===x?"aan":""}" data-rondes="${x}">${x}</button>`).join("")}</div>
+ <p class="klein midden">${A.gekocht?"Alle pakketten zijn van jou. Dank je.":proefOpen()?`Nog ${dagenOver()} ${dagenOver()===1?"dag":"dagen"} alles open.<br>Daarna € 2,99, één keer, alle pakketten. Geen abonnement.`:"Alle pakketten: € 2,99, één keer. Geen abonnement.<br>De Eerste avond blijft altijd gratis."}</p>
+ <button class="knop" data-a="start">Start de avond ›</button>`;},
+door(){const s=AV.spelers[AV.beurt];return `<div class="door"><p class="sub">Vraag ${AV.ronde+1} van ${AV.vragen.length}</p><p class="sub" style="margin:0">Geef de telefoon aan</p><p class="groot">${s}</p><p class="klein">Niemand ziet wie wat gaf.</p><button class="knop" data-a="ikBen">Ik ben ${s} ›</button></div>`;},
+vraag(){const v=AV.vragen[AV.ronde],gever=AV.spelers[AV.beurt],gegeven=Object.values(AV.verdeling).reduce((a,b)=>a+b,0),over=3-gegeven;
+ const volgende=AV.beurt+1<AV.spelers.length?AV.spelers[AV.beurt+1]:null;
+ return `<div class="kop"><span class="sub">Vraag ${AV.ronde+1} van ${AV.vragen.length}</span><button class="link" data-a="menu">Menu</button></div>
+ <div class="vraag">${v[1]}</div>
+ <p class="beurt">${gever} geeft bonen (alleen optellen)</p>
+ ${AV.spelers.map((s,i)=>i===AV.beurt?"":`<button class="geef" data-boon="${i}" ${over===0?'aria-disabled="true"':""}><div class="letter">${s[0].toUpperCase()}</div><span class="n">${s}</span><span class="bonen" aria-label="${AV.verdeling[i]||0} bonen">${[0,1,2].map(b=>`<i class="boon ${b<(AV.verdeling[i]||0)?"vol":""}"></i>`).join("")}</span></button>`).join("")}
+ <p class="over">${over===0?"Alle drie de bonen zijn verdeeld.":`Tik op een naam. Nog ${over} ${over===1?"boon":"bonen"} (mag ook minder).`}${gegeven>0?` · <button class="link" data-a="opnieuwVerdelen">opnieuw verdelen</button>`:""}</p>
+ <p class="klein midden">Niemand ziet wie wat gaf.</p>
+ <button class="knop" data-a="klaarBeurt">${volgende?`Telefoon naar ${volgende} ›`:AV.ronde+1<AV.vragen.length?"Volgende vraag ›":"Naar de uitslag ›"}</button>`;},
+tussen(){return `<div class="door"><p class="sub">Iedereen heeft bonen gegeven.</p><p class="groot">Volgende vraag</p><p class="klein">Leg de telefoon even in het midden.</p><button class="knop" data-a="volgendeVraag">Laat de vraag zien ›</button></div>`;},
+uitslag(){const T=titels();return `<h1 class="midden" style="margin-top:28px">Einde van de avond</h1><p class="sub midden" style="margin-top:0">Iedereen krijgt een titel</p>
+ ${AV.spelers.map((s,i)=>`<div class="titel"><div class="letter">${s[0].toUpperCase()}</div><div><span class="klein">${s}</span><b>${T[i].titel}</b><span class="klein">${UITLEG[T[i].cat]}</span></div></div>`).join("")}
+ <p class="klein midden" style="margin-top:14px">Geen ranglijst, geen scores.<br>Alles wordt gewist na de avond.</p>
+ <button class="knop" data-a="nieuweAvond">Nieuwe avond</button>
+ ${!proefOpen()&&!A.gekocht?`<p class="midden"><button class="link" data-g="koop">Meer vragen: alle pakketten € 2,99</button></p>`:""}`;},
+koop(){return `<p><button class="link" data-a="terug">‹ Terug</button></p><h1 class="midden" style="margin-top:20px">${A.installDag>14&&!A.gekocht?"Je 14 dagen zijn voorbij":"Alle pakketten, voor altijd"}</h1>
+ <p class="prijs">€ 2,99</p><p class="midden sub" style="margin-top:0">één keer · geen abonnement</p>
+ <div class="kaart" style="background:var(--licht);border-radius:16px;padding:12px 16px;margin-top:12px"><div class="vink"><span>✓</span><span>Borrel, Etentje en Volkomen absurd (elk ongeveer 40 vragen)</span></div><div class="vink"><span>✓</span><span>Nieuwe pakketten later als gratis update of losse aankoop; geen abonnement</span></div><div class="vink"><span>✓</span><span>Gezinsdeling aan</span></div></div>
+ <p class="klein midden">Alle pakketten: € 2,99, één keer. Geen abonnement. De Eerste avond (30 vragen) blijft altijd gratis. Niets wordt vanzelf afgeschreven. Wat je koopt, blijft van jou.</p>
+ <button class="knop" data-a="koop">Koop voor € 2,99</button><p class="midden"><button class="link" data-a="herstel">Aankoop herstellen</button> · <button class="link" data-a="terug">Niet nu</button></p>`;},
+meer(){return `<p><button class="link" data-a="terug">‹ Terug</button></p><h1>Instellingen</h1>
+ <div class="rij"><span>Taal</span><span class="sub">Nederlands</span></div>
+ <div class="rij"><span>Mjam Mjam Beans</span><span class="sub">${A.gekocht?"gekocht, dank je":proefOpen()?"proef: nog "+dagenOver()+" dagen":"Eerste avond gratis"}</span></div>
+ ${A.gekocht?"":`<div class="rij"><span>Alle pakketten</span><button class="link" data-g="koop">€ 2,99 ›</button></div>`}
+ <div class="rij"><span>Aankoop herstellen</span><button class="link" data-a="herstel">Herstel</button></div>
+ <h2>Privacy</h2><p class="klein" style="margin:0">Niets wordt bewaard: namen, bonen en titels verdwijnen na de avond, ook als je de app sluit. Geen account, geen server, geen reclame. Alle vragen komen uit de app.</p>
+ <p class="klein">Voor 18+, niet voor school.</p>
+ <div class="demo"><b class="klein">Alleen in dit prototype</b>
+  <div class="rij"><span class="klein">Proefdag</span><span class="chips" style="margin:0">${[1,11,15].map(x=>`<button class="chip ${A.installDag===x?"aan":""}" data-proef="${x}">dag ${x}</button>`).join("")}</span></div>
+  <div class="rij"><span class="klein">Gekocht</span><span class="chips" style="margin:0">${[[true,"ja"],[false,"nee"]].map(([v,l])=>`<button class="chip ${A.gekocht===v?"aan":""}" data-gekocht="${v}">${l}</button>`).join("")}</span></div>
+  <p class="klein" style="margin:8px 0 0">Bewaard in deze browser: alleen proefdag en aankoop. Herladen wist de avond.</p>
+  <button class="knop rand" data-a="wisAankoop">Proef en aankoop terugzetten</button></div>`;}
+};
+let vorig="spelers";
+function teken(){$("#s").innerHTML=V[AV.scherm]();koppel();}
+function ga(x){if(x==="koop"||x==="meer")vorig=AV.scherm;AV.scherm=x;teken();scrollTo(0,0);}
+function dialoog(kop,tekst,ja,nee,fn){$("#dlg").innerHTML=`<div class="dialoog"><div><p><b>${kop}</b>${tekst}</p><div class="kn">${nee?`<button data-d="0">${nee}</button>`:""}<button data-d="1">${ja}</button></div></div></div>`;$("#dlg").querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{$("#dlg").innerHTML="";fn(b.dataset.d==="1");});}
+function keuzes(kop,tekst,opties){$("#dlg").innerHTML=`<div class="dialoog"><div><p><b>${kop}</b>${tekst}</p>${opties.map(([l],i)=>`<div class="kn"><button data-k="${i}">${l}</button></div>`).join("")}</div></div>`;$("#dlg").querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{$("#dlg").innerHTML="";opties[+b.dataset.k][1]();});}
+// Titel-algoritme: bonen per vraag tellen per categorie; ieder krijgt een andere, altijd positieve titel. Geen aantallen in beeld.
+function titels(){const gebruikt=new Set(),uit=[];
+ const tel={};AV.vragen.slice(0,Math.max(1,Math.min(AV.ronde+1,AV.vragen.length))).forEach(v=>tel[v[0]]=(tel[v[0]]||0)+1);
+ const gespeeld=Object.keys(UITLEG).filter(c=>tel[c]).sort((a,b)=>tel[b]-tel[a]).concat(Object.keys(UITLEG).filter(c=>!tel[c]));
+ const volgorde=AV.spelers.map((_,i)=>i).sort((a,b)=>Object.values(AV.bonen[b]||{}).reduce((x,y)=>x+y,0)-Object.values(AV.bonen[a]||{}).reduce((x,y)=>x+y,0));
+ for(const i of volgorde){const per=AV.bonen[i]||{};const cats=Object.keys(per).filter(c=>per[c]>0).sort((a,b)=>per[b]-per[a]);let r=null;
+  for(const c of cats){const t=TITELS[c].find(x=>!gebruikt.has(x));if(t){r={titel:t,cat:c};break;}}
+  // Geen bonen (of alle titels van de eigen categorieën al op): een titel uit de meest gespeelde categorieën van vanavond, in dezelfde vorm als de anderen.
+  if(!r){for(const c of gespeeld){const t=TITELS[c].find(x=>!gebruikt.has(x));if(t){r={titel:t,cat:c};break;}}}
+  if(!r){const c=Object.keys(UITLEG).find(c=>TITELS[c].some(x=>!gebruikt.has(x)));r=c?{titel:TITELS[c].find(x=>!gebruikt.has(x)),cat:c}:{titel:TITELS.warm.find(x=>!gebruikt.has(x)),cat:gespeeld[0]||"gezellig"};}
+  gebruikt.add(r.titel);uit[i]=r;}
+ return uit;}
+function schud(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const ACT={
+ welkomKlaar(){bewaarAankoop();ga("spelers");},
+ voegToe(){const v=($("#nm").value||"").trim().replace(/\s+/g," ");AV.fout="";
+  if(!v)AV.fout="Typ een voornaam.";else if(!/^[A-Za-zÀ-ÿ' -]{1,15}$/.test(v))AV.fout="Alleen een voornaam, met letters.";
+  else if(AV.spelers.some(s=>s.toLowerCase()===v.toLowerCase()))AV.fout="Die naam staat er al. Voeg bijvoorbeeld een letter toe.";
+  else AV.spelers.push(v[0].toUpperCase()+v.slice(1));
+  teken();const i=$("#nm");if(i&&i.focus)i.focus();},
+ voorbeeld(){AV.spelers=["Anna","Bram","Chris","Dewi","Eva"];AV.fout="";teken();},
+ start(){const p=PAKKETTEN.find(x=>x.id===AV.pakket);if(!p.gratis&&!proefOpen())return ga("koop");
+  const pool=schud(p.vragen);AV.vragen=pool.slice(0,Math.min(AV.rondes,pool.length));AV.ronde=0;AV.beurt=0;AV.verdeling={};AV.bonen={};ga("door");},
+ ikBen(){ga("vraag");},
+ opnieuwVerdelen(){AV.verdeling={};teken();},
+ klaarBeurt(){const cat=AV.vragen[AV.ronde][0];for(const [i,n] of Object.entries(AV.verdeling)){AV.bonen[i]=AV.bonen[i]||{};AV.bonen[i][cat]=(AV.bonen[i][cat]||0)+n;}
+  AV.verdeling={};AV.beurt++;
+  if(AV.beurt<AV.spelers.length)return ga("door");
+  AV.beurt=0;AV.ronde++;if(AV.ronde<AV.vragen.length)return ga("tussen");ga("uitslag");},
+ volgendeVraag(){ga("door");},
+ menu(){keuzes("Menu","Sla deze vraag over voor de hele groep, of rond de avond nu af.",[["Verder spelen",()=>{}],["Vraag overslaan",()=>{AV.verdeling={};AV.vragen.splice(AV.ronde,1);AV.beurt=0;if(AV.ronde<AV.vragen.length)ga("door");else ga("uitslag");}],["Avond afronden",()=>{AV.verdeling={};ga("uitslag");}]]);},
+ nieuweAvond(){dialoog("Nieuwe avond?","Alle namen, bonen en titels van deze avond worden gewist. Terughalen kan niet.","Wis en begin","Annuleer",ok=>{if(ok){nieuweAvond();AV.scherm="spelers";teken();scrollTo(0,0);}});},
+ koop(){dialoog("Prototype","Er wordt niet betaald. Aankoop van € 2,99 nabootsen?","Koop","Annuleer",ok=>{if(ok){A.gekocht=true;bewaarAankoop();ga(vorig==="uitslag"?"uitslag":"pakket");}});},
+ herstel(){dialoog("Aankoop herstellen","Prototype: in de echte app vraagt dit de App Store om je eerdere aankoop. Hier gebeurt niets.","OK",null,()=>{});},
+ terug(){ga(["koop","meer"].includes(vorig)?"spelers":vorig);},
+ wisAankoop(){dialoog("Terugzetten?","Proefdag en aankoop in dit prototype gaan terug naar het begin.","Zet terug","Annuleer",ok=>{if(ok){try{localStorage.removeItem(K)}catch(e){}A={installDag:1,gekocht:false};teken();}});}};
+function koppel(){
+ document.querySelectorAll("#s [data-a]").forEach(e=>e.onclick=()=>ACT[e.dataset.a]());
+ document.querySelectorAll("#s [data-g]").forEach(e=>e.onclick=()=>ga(e.dataset.g));
+ document.querySelectorAll("#s [data-weg]").forEach(e=>e.onclick=()=>{AV.spelers.splice(+e.dataset.weg,1);AV.fout="";teken();});
+ const nm=$("#nm");if(nm&&nm.addEventListener)nm.addEventListener("keydown",ev=>{if(ev.key==="Enter")ACT.voegToe();});
+ document.querySelectorAll("#s [data-pakket]").forEach(e=>e.onclick=()=>{const p=PAKKETTEN.find(x=>x.id===e.dataset.pakket);if(!p.gratis&&!proefOpen())return ga("koop");AV.pakket=p.id;teken();});
+ document.querySelectorAll("#s [data-rondes]").forEach(e=>e.onclick=()=>{AV.rondes=+e.dataset.rondes;teken();});
+ document.querySelectorAll("#s [data-boon]").forEach(e=>e.onclick=()=>{const i=+e.dataset.boon;const gegeven=Object.values(AV.verdeling).reduce((a,b)=>a+b,0);if(gegeven>=3)return;AV.verdeling[i]=(AV.verdeling[i]||0)+1;if(navigator.vibrate)navigator.vibrate(15);teken();});
+ document.querySelectorAll("#s [data-proef]").forEach(e=>e.onclick=()=>{A.installDag=+e.dataset.proef;bewaarAankoop();teken();});
+ document.querySelectorAll("#s [data-gekocht]").forEach(e=>e.onclick=()=>{A.gekocht=e.dataset.gekocht==="true";bewaarAankoop();teken();});
+}
+teken();
+</script>
+</body>
+</html>
