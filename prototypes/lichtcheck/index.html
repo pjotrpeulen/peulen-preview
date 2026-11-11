@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#FFFFFF">
+<title>Lichtcheck · klikbaar prototype</title>
+<!-- Klikbaar prototype Lichtcheck (APP-17, werktitel), 10 november 2026, volgens plan.md (§3, §5, §6), de Linear-preview (issues 5 tot 15) en de online validatie.
+     Eén bestand, geen netwerk, geen tracking. De camera wordt NIET gebruikt: de meting is gesimuleerd (zie het demopaneel bij ⚙).
+     Richtwaarden zijn concept (openbare bronnen, afgerond) en nog te controleren. Aankoop nagebootst: er wordt niets afgeschreven. -->
+<style>
+:root{--ac:#B07A1E;--licht:#F6EEDD;--ink:#26221C;--sub:#6F675C;--lijn:#E7E2D8;--bg:#FFFFFF;--zand:#F8F6F1;--rood:#B5462F;--groen:#4E8A4E}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--zand);color:var(--ink);font:16px/1.45 -apple-system,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
+main,.sheet,.dialoog,nav{overflow-wrap:anywhere}
+.app{max-width:420px;min-height:100vh;margin:0 auto;background:var(--bg);position:relative}
+main{padding:16px 20px 110px}
+h1{font-size:22px;margin:16px 0 4px} h2{font-size:16px;margin:20px 0 8px}
+.kop{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sub{color:var(--sub);font-size:14px} .klein{font-size:12.5px;color:var(--sub)} .midden{text-align:center}
+.knop{display:block;width:100%;border:0;border-radius:24px;background:var(--ac);color:#fff;font:600 16px/1 inherit;padding:14px;margin-top:14px;cursor:pointer}
+.knop.licht{background:var(--licht);color:var(--ac)} .knop.rand{background:#fff;color:var(--ink);border:1px solid var(--lijn);font-weight:500}
+.knop:disabled{opacity:.45}
+.link{background:none;border:0;color:var(--ac);font:600 14px inherit;padding:6px 0;cursor:pointer}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0} .chip{border:1px solid var(--lijn);background:#fff;border-radius:16px;padding:7px 12px;font:14px inherit;cursor:pointer;color:var(--ink)} .chip.aan{background:var(--ac);border-color:var(--ac);color:#fff}
+.tegels{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.tegel{border:1px solid var(--lijn);background:#fff;border-radius:16px;padding:14px 12px;text-align:left;font:inherit;color:var(--ink);cursor:pointer;min-height:84px}
+.tegel b{display:block;font-size:16px} .tegel span{font-size:12.5px;color:var(--sub)} .tegel.breed{grid-column:1/-1} .tegel.aan{border-color:var(--ac);background:var(--licht)}
+.kaart{background:var(--licht);border-radius:16px;padding:14px 16px;margin-top:12px}
+.let{background:#FFF7EC;border:1px solid #E2B66A;border-radius:14px;padding:12px 14px;margin-top:12px;font-size:14px}
+.getal{font-size:46px;font-weight:300;text-align:center;margin:0;line-height:1.1} .eenheid{text-align:center;color:var(--sub);font-size:14px;margin:0}
+.balk{position:relative;height:14px;border-radius:7px;background:#EFEDE8;margin:30px 0 6px}
+.balk .zone{position:absolute;top:0;bottom:0;background:var(--licht);border:1.5px solid var(--ac);border-radius:7px}
+.balk .wijzer{position:absolute;top:-5px;width:24px;height:24px;margin-left:-12px;border-radius:50%;background:var(--ac);border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.balk .band{position:absolute;top:4px;height:6px;background:var(--ac);opacity:.35;border-radius:3px}
+.schaal{display:flex;justify-content:space-between;font-size:11.5px;color:var(--sub)}
+.rij{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--lijn)}
+.rij label{flex:1} .rij input,.rij select{width:120px;max-width:45%;border:1px solid var(--lijn);border-radius:10px;padding:9px;font:15px inherit;background:#fff;text-align:right}
+.vink{display:flex;gap:10px;margin:8px 0} .vink span:first-child{color:var(--ac);font-weight:700}
+.prijs{font-size:42px;font-weight:200;text-align:center;margin:6px 0 0}
+.demo{margin-top:22px;padding:12px;border:1px dashed #CFC6B4;border-radius:14px}
+.voortgang{height:8px;border-radius:4px;background:#EFEDE8;overflow:hidden;margin:18px 0 6px} .voortgang i{display:block;height:100%;width:0;background:var(--ac);transition:width .1s linear}
+.slot{opacity:.55}
+.oordeel{font-size:18px;font-weight:700;margin:0}
+.uitk{font-size:22px;font-weight:700;margin:6px 0}
+.vergelijk{display:flex;gap:10px;margin-top:8px} .vergelijk div{flex:1;background:#fff;border:1px solid var(--lijn);border-radius:12px;padding:10px;text-align:center}
+.vergelijk b{display:block;font-size:22px;font-weight:400}
+.concept{font-size:11px;color:#A0661A}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:#fff;border-top:1px solid var(--lijn);display:flex;padding:10px 0 calc(14px + env(safe-area-inset-bottom));z-index:3}
+nav button{flex:1;background:none;border:0;color:var(--sub);font:500 14px inherit;padding:8px;cursor:pointer} nav button.aan{color:var(--ac);font-weight:700}
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:flex-end;justify-content:center;z-index:9}
+.sheet{background:#fff;width:100%;max-width:420px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:14px 20px 30px}
+.greep{width:40px;height:5px;border-radius:3px;background:var(--lijn);margin:0 auto 10px}
+.dialoog{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:10;padding:20px}
+.dialoog>div{background:#F2F2F2;border-radius:14px;max-width:290px;width:100%;text-align:center;overflow:hidden}
+.dialoog p{margin:0;padding:16px 16px 12px;font-size:14px} .dialoog p b{display:block;font-size:16px;margin-bottom:4px}
+.dialoog .kn{display:flex;border-top:1px solid #CCC} .dialoog .kn button{flex:1;background:none;border:0;padding:12px;font:16px inherit;color:#0A64D6;cursor:pointer} .dialoog .kn button+button{border-left:1px solid #CCC;font-weight:600}
+svg{max-width:100%;height:auto}
+</style>
+</head>
+<body>
+<div class="app"><main id="s"></main>
+<nav id="nav" hidden><button data-t="meten">Meten</button><button data-t="ruimtes">Ruimtes</button><button data-t="lampen">Lampen</button></nav></div>
+<div id="sheet"></div><div id="dlg"></div>
+<script>
+const K="lichtcheck-proto-v1",$=q=>document.querySelector(q);
+// Richtwaarden: concept, uit openbare bronnen afgerond en in eigen woorden (niet uit de betaalde norm). Nog te controleren.
+const RUIMTES={
+ woonkamer:{naam:"Woonkamer",vlak:"de bank of leeshoek",kort:"leeshoek",min:100,max:300,hoogte:0.75,nu:80,na:220,kleur:"2700 K (warm wit)",tip:"Een staande lamp bij de leesstoel helpt vaak meer dan extra spots."},
+ keuken:{naam:"Keuken",vlak:"het aanrecht",kort:"aanrecht",min:300,max:500,hoogte:0.90,nu:48,na:380,kleur:"3000 tot 4000 K (helder wit)",tip:"Spots recht boven de voorkant van het aanrecht, niet boven je hoofd, voorkomen schaduw."},
+ badkamer:{naam:"Badkamer",vlak:"de spiegel",kort:"spiegel",min:300,max:500,hoogte:1.10,nu:170,na:420,kleur:"3000 tot 4000 K (helder wit)",tip:"Licht naast of boven de spiegel geeft minder schaduw op je gezicht dan een spot recht boven je."},
+ bureau:{naam:"Bureau",vlak:"het bureau",kort:"werkplek",min:500,max:750,hoogte:0.75,nu:320,na:600,kleur:"4000 K (helder wit)",tip:"Voor een bureau werkt een bureaulamp vaak beter dan spots in het plafond."},
+ gang:{naam:"Gang en trap",vlak:"de trap",kort:"trap",min:100,max:200,hoogte:0,nu:60,na:150,kleur:"2700 tot 3000 K",tip:"Op de trap telt vooral dat elke trede licht krijgt; licht van opzij geeft minder schaduw."}};
+const VOLG=["keuken","woonkamer","badkamer","bureau","gang"];
+const TOESTEL={kal:{naam:"iPhone 15 (gekalibreerd)",band:20,fout:1.04},zonder:{naam:"iPhone SE, 2e generatie (geen kalibratie)",band:40,fout:1.28}};
+let S=(()=>{try{return JSON.parse(localStorage.getItem(K))}catch(e){return null}})()||{start:true,scherm:"start",ruimte:"keuken",toestel:"kal",gekocht:false,situatie:"nu",flikker:"duidelijk",camera:false,laatste:null,bewaard:{},lamp:{lumen:396,hoek:120,fitting:"GU5.3",plafond:2.55,lengte:3.0}};
+function bewaar(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
+const R=()=>RUIMTES[S.ruimte];
+const nl=(x,d=0)=>x.toLocaleString("nl-NL",{minimumFractionDigits:d,maximumFractionDigits:d});
+function rond(x){return x<100?Math.round(x/5)*5:x<1000?Math.round(x/10)*10:Math.round(x/50)*50;}
+function ga(x){S.scherm=x;bewaar();teken();scrollTo(0,0);}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>ga(b.dataset.t==="meten"?(S.laatste?"oordeel":"kies"):b.dataset.t));
+const TAB={kies:"meten",voorbereiden:"meten",meten:"meten",oordeel:"meten",ruimtes:"ruimtes",lampen:"lampen",flikker:"lampen",koop:"",meer:""};
+function teken(){$("#nav").hidden=S.scherm==="start";document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("aan",b.dataset.t===TAB[S.scherm]));$("#s").innerHTML=V[S.scherm]();koppel();}
+// ---------- rekenregel uit plan.md §6 ----------
+// candela = lumen / ruimtehoek van de bundel; ruimtehoek = 2π(1 − cos(hoek/2)); lux recht onder de lamp = candela / afstand².
+function ruimtehoek(hoek){return 2*Math.PI*(1-Math.cos(Math.min(hoek,360)/2*Math.PI/180));}
+const candela=(lm,hoek)=>lm/ruimtehoek(hoek), lux=(lm,hoek,d)=>candela(lm,hoek)/(d*d);
+function afstand(){const r=R();return Math.max(0.3,(+S.lamp.plafond||2.5)-r.hoogte);}
+function advies(){const r=R(),d=afstand(),L=S.lamp;const rondOp=x=>Math.ceil(x/50)*50;
+ // Rekent met de bovenkant van de richtwaarde: tussen twee spots is het minder licht dan recht eronder.
+ let keuze=null;for(const h of [60,36,24]){const lm=r.max*d*d*ruimtehoek(h);if(lm<=650){keuze={hoek:h,lm:rondOp(lm)};break;}}
+ if(!keuze)keuze={hoek:24,lm:rondOp(r.max*d*d*ruimtehoek(24))};
+ const breedte=2*d*Math.tan(keuze.hoek/2*Math.PI/180);const spots=Math.max(1,Math.ceil((+L.lengte||1)/(breedte*0.9)));
+ return {d,nu:lux(L.lumen,L.hoek,d),cdNu:candela(L.lumen,L.hoek),hoek:keuze.hoek,lm:keuze.lm,na:lux(keuze.lm,keuze.hoek,d),cdNa:candela(keuze.lm,keuze.hoek),breedte,spots};}
+// ---------- oordeel ----------
+function oordeel(v,r=R()){if(v<r.min*0.5){const n=Math.round(r.min/Math.max(v,1));return ["Te donker",n>10?`Minder dan een tiende van wat prettig is voor ${r.vlak}.`:`Ongeveer ${["","","de helft","een derde","een kwart","een vijfde","een zesde","een zevende","een achtste","een negende","een tiende"][n]} van wat prettig is voor ${r.vlak}.`,"var(--rood)"];}
+ if(v<r.min)return ["Wat aan de donkere kant","Bijna genoeg; iets meer licht maakt het prettiger.","#A0661A"];
+ if(v<=r.max)return ["Goed","Precies in het prettige gebied.","var(--groen)"];
+ if(v<=r.max*2.5)return ["Ruim voldoende","Meer dan genoeg licht.","var(--groen)"];
+ return ["Heel veel licht","Waarschijnlijk daglicht; meet straks nog eens met alleen je lampen aan.","var(--groen)"];}
+const pos=v=>Math.min(100,v/1000*100);
+const V={
+start(){return `<h1 style="margin-top:34px">Lichtcheck</h1><p class="sub">Is je licht genoeg? Meet, check en kies de juiste lamp.</p>
+ <h2>Welke ruimte wil je checken?</h2>${tegels()}
+ <p class="klein" style="margin-top:16px">Meten en het oordeel zijn gratis. Geen account, geen meldingen. Metingen blijven op je telefoon.</p>`;},
+kies(){return `<div class="kop"><h1>Meten</h1><button class="link" style="font-size:20px" data-g="meer" aria-label="Instellingen">⚙</button></div><p class="sub">Welke ruimte wil je checken?</p>${tegels()}`;},
+voorbereiden(){return `<p><button class="link" data-g="kies">‹ Ruimtes</button></p><h1 class="midden">Eerst een papiertje</h1>
+ <svg viewBox="0 0 300 170" role="img" aria-label="Telefoon met een stukje papier over de camera"><rect x="95" y="10" width="110" height="150" rx="18" fill="#2C2A27"/><rect x="110" y="24" width="38" height="38" rx="9" fill="#555"/><circle cx="122" cy="36" r="6" fill="#111"/><circle cx="137" cy="50" r="6" fill="#111"/><rect x="104" y="18" width="52" height="52" rx="4" fill="#FFFFFF" stroke="#CFC6B4" transform="rotate(-6 130 44)"/><rect x="99" y="38" width="20" height="8" fill="#F3E3B5" opacity=".9" transform="rotate(-6 130 44)"/><rect x="141" y="38" width="20" height="8" fill="#F3E3B5" opacity=".9" transform="rotate(-6 130 44)"/><text x="215" y="48" font-size="12" fill="#6F675C">printpapier</text><text x="215" y="63" font-size="12" fill="#6F675C">met plakband</text></svg>
+ <p>Plak een stukje gewoon printpapier over de camera aan de achterkant. Zonder papier zit de meting er 3 tot 4 keer naast.</p>
+ <div class="vink"><span>✓</span><span>Lampen moeten 5 minuten aan staan.</span></div>
+ <div class="vink"><span>✓</span><span>Meet ${R().vlak}: leg je telefoon met het scherm naar beneden.</span></div>
+ <button class="knop" data-a="klaar">Klaar</button>`;},
+meten(){const r=R();return `<h1 class="midden" style="margin-top:30px">${r.naam} · ${r.kort}</h1>
+ <p class="midden">Leg je telefoon met het scherm naar beneden op ${r.vlak}.</p>
+ <svg viewBox="0 0 300 120" aria-hidden="true"><rect x="40" y="88" width="220" height="10" rx="3" fill="#D9CDB3"/><rect x="95" y="74" width="110" height="14" rx="5" fill="#2C2A27"/><rect x="104" y="70" width="22" height="5" fill="#fff" stroke="#CFC6B4"/><g stroke="#B07A1E" stroke-width="2" opacity=".55"><line x1="115" y1="12" x2="115" y2="62"/><line x1="85" y1="20" x2="105" y2="62"/><line x1="145" y1="20" x2="125" y2="62"/></g><circle cx="115" cy="8" r="6" fill="#F3D27A"/></svg>
+ <div class="voortgang"><i id="vg"></i></div><p class="klein midden" id="vt">Meet drie seconden…</p>
+ <p class="klein midden">De camera meet alleen licht; er wordt geen foto gemaakt of bewaard.</p>
+ <p class="klein midden">Prototype: dit is een gesimuleerde meting (zie ⚙, demopaneel).</p>`;},
+oordeel(){const r=R(),m=S.laatste,[o,uit,kl]=oordeel(m.lux),t=TOESTEL[m.toestel];const lo=rond(m.lux*(1-t.band/100)),hi=rond(m.lux*(1+t.band/100));
+ return `<div class="kop"><button class="link" data-g="kies">‹ Ruimtes</button><button class="link" style="font-size:20px" data-g="meer" aria-label="Instellingen">⚙</button></div>
+ <p class="midden" style="margin:4px 0 6px;font-weight:600">${r.naam} · ${r.kort}</p>
+ <p class="getal" aria-label="ongeveer ${m.lux} lux, plus of min ${t.band} procent">≈ ${nl(m.lux)}</p><p class="eenheid">lux · ± ${t.band}% (${nl(lo)} tot ${nl(hi)})</p>
+ <div class="balk" aria-hidden="true"><div class="zone" style="left:${pos(r.min)}%;width:${pos(r.max)-pos(r.min)}%"></div><div class="band" style="left:${pos(lo)}%;width:${Math.max(1,pos(hi)-pos(lo))}%"></div><div class="wijzer" style="left:${pos(m.lux)}%"></div></div>
+ <div class="schaal"><span>te donker</span><span style="color:var(--ac);font-weight:600">${r.min} tot ${r.max}</span><span>ruim voldoende</span></div>
+ <div class="kaart"><p class="oordeel" style="color:${kl}">${o}</p><p style="margin:4px 0 0">Je ${r.kort}: ongeveer ${nl(m.lux)} lux (± ${t.band}%). Voor ${r.vlak} is ${r.min} tot ${r.max} lux prettig. ${uit}</p></div>
+ ${m.toestel==="zonder"?`<div class="let">Voor jouw iPhone hebben we nog geen kalibratie; de meting kan meer afwijken (± 40%).</div>`:""}
+ <p class="midden"><button class="link" data-a="waarom">Waarom?</button></p>
+ <button class="knop" data-a="watdoen">${o==="Goed"||o.startsWith("Ruim")||o.startsWith("Heel")?"Lampadvies bekijken":"Wat kan ik doen?"}</button>
+ <button class="knop licht" data-a="bewaarMeting">${S.gekocht?(S.bewaard[S.ruimte]&&S.bewaard[S.ruimte].some(x=>x.t===m.t)?"Bewaard ✓":"Bewaren"):"Bewaren en vergelijken"}</button>
+ <p class="midden"><button class="link" data-a="opnieuw">Opnieuw meten</button> · <button class="link" data-g="kies">Andere ruimte</button></p>`;},
+ruimtes(){const lijst=VOLG.filter(k=>S.bewaard[k]&&S.bewaard[k].length);
+ if(!S.gekocht)return `<h1>Ruimtes</h1><p class="sub">Bewaar per ruimte je metingen en vergelijk voor en na het vervangen van een lamp.</p>
+  <div class="kaart slot"><b>Keuken · aanrecht</b><div class="vergelijk"><div><span class="klein">voor</span><b>≈ 50</b><span class="klein">lux</span></div><div><span class="klein">na</span><b>≈ 380</b><span class="klein">lux</span></div></div></div>
+  <p class="klein midden">Voorbeeld. Bewaren hoort bij de aankoop; meten en het oordeel blijven gratis.</p><button class="knop" data-g="koop">Bekijk wat je krijgt</button>`;
+ return `<h1>Ruimtes</h1><p class="sub">Je bewaarde metingen. Alles blijft op je telefoon.</p>
+ ${lijst.map(k=>{const r=RUIMTES[k],m=S.bewaard[k],eerst=m[0],laatst=m[m.length-1];return `<div class="kaart"><div class="kop"><b>${r.naam} · ${r.kort}</b><span class="klein">${m.length} ${m.length===1?"meting":"metingen"}</span></div>
+  ${m.length>1?`<div class="vergelijk"><div><span class="klein">voor · ${dat(eerst.t)}</span><b>≈ ${nl(eerst.lux)}</b><span class="klein">lux</span></div><div><span class="klein">na · ${dat(laatst.t)}</span><b>≈ ${nl(laatst.lux)}</b><span class="klein">lux</span></div></div><p class="klein" style="margin:8px 0 0">Van ${oordeel(eerst.lux,r)[0].toLowerCase()} naar ${oordeel(laatst.lux,r)[0].toLowerCase()} (richtwaarde ${r.min} tot ${r.max}).</p>`:`<p style="margin:6px 0 0">≈ ${nl(eerst.lux)} lux · ${dat(eerst.t)}</p><p class="klein" style="margin:4px 0 0">Meet na het vervangen opnieuw en vergelijk.</p>`}
+  <button class="link" data-meet="${k}">Opnieuw meten ›</button></div>`;}).join("")||`<p class="sub">Nog niets bewaard. Meet een ruimte en tik op "Bewaren".</p>`}
+ <p class="klein">Geen teller en geen herinneringen. Metingen ouder dan de laatste vijf per ruimte vallen weg.</p>`;},
+lampen(){const r=R(),L=S.lamp;
+ if(!S.gekocht)return `<h1>Lampadvies</h1><p class="sub">Welke lamp lost het op? Vul in wat er op de verpakking staat; de app rekent uit wat je nodig hebt.</p>
+  <div class="kaart slot"><b>Met 36° en 450 lumen</b><br><span style="color:var(--ac);font-weight:600">≈ 540 lux recht onder de spot</span><br><span class="klein">Voorbeeld: keuken, afstand 1,65 m</span></div>
+  <div class="vink"><span>✓</span><span>Lampadvies: bundelhoek, lumen, aantal spots en kleur</span></div><div class="vink"><span>✓</span><span>Rekenhulp, ook zonder meting (als je nog moet verbouwen)</span></div><div class="vink"><span>✓</span><span>Flikkertest voor led op een oude transformator of dimmer</span></div>
+  <button class="knop" data-g="koop">Lampadvies, rekenhulp en flikkertest: € 3,99</button><p class="klein midden">Eén keer. Geen abonnement. Meten en oordeel blijven gratis.</p>`;
+ const a=advies();
+ return `<div class="kop"><h1>Lampadvies</h1><button class="link" style="font-size:20px" data-g="meer" aria-label="Instellingen">⚙</button></div>
+ <div class="chips">${VOLG.map(k=>`<button class="chip ${S.ruimte===k?"aan":""}" data-ruimte="${k}">${RUIMTES[k].naam}</button>`).join("")}</div>
+ <h2>Wat staat er op de verpakking van je lamp?</h2>
+ <div class="rij"><label for="lm">Lichtstroom (lumen)</label><input id="lm" type="number" inputmode="numeric" min="10" max="5000" value="${L.lumen}" data-veld="lumen"></div>
+ <div class="rij"><label for="hk">Bundelhoek (graden)</label><input id="hk" type="number" inputmode="numeric" min="10" max="360" value="${L.hoek}" data-veld="hoek"></div>
+ <div class="rij"><label for="ft">Fitting</label><select id="ft" data-veld="fitting">${["GU5.3","GU10","E27","E14"].map(f=>`<option ${L.fitting===f?"selected":""}>${f}</option>`).join("")}</select></div>
+ <div class="rij"><label for="pf">Plafondhoogte (m)</label><input id="pf" type="number" inputmode="decimal" step="0.05" min="1.8" max="5" value="${L.plafond}" data-veld="plafond"></div>
+ <div class="rij"><label for="lg">Lengte van ${r.vlak} (m)</label><input id="lg" type="number" inputmode="decimal" step="0.1" min="0.5" max="20" value="${L.lengte}" data-veld="lengte"></div>
+ <p class="klein">Afstand van lamp tot ${r.vlak}: ${nl(a.d,2)} m (plafond min ${nl(r.hoogte,2)} m). Bij E27 en E14 straalt de lamp alle kanten op; vul dan 360 graden in.</p>
+ <div class="kaart"><b>Nu</b><br>${nl(L.lumen)} lm bij ${nl(L.hoek)}° is ongeveer ${nl(a.cdNu)} candela; op ${nl(a.d,2)} m ongeveer <b>${nl(rond(a.nu))} lux</b> recht onder de lamp.${S.laatste&&S.laatste.ruimte===S.ruimte?`<br><span class="klein">Gemeten: ≈ ${nl(S.laatste.lux)} lux.</span>`:""}</div>
+ <div class="kaart"><b>Advies voor ${r.vlak} (${r.min} tot ${r.max} lux)</b>
+  <div class="vink"><span>✓</span><span>Bundelhoek ${a.hoek}°${L.hoek>a.hoek+10?` (nu ${nl(L.hoek)}°: te breed, het licht valt vooral op muren en plafond)`:""}</span></div>
+  <div class="vink"><span>✓</span><span>Minstens ${nl(a.lm)} lumen per spot</span></div>
+  <div class="vink"><span>✓</span><span>${a.spots} ${a.spots===1?"spot":"spots"} over ${nl(+L.lengte,1)} m (elke spot verlicht ongeveer ${nl(a.breedte,1)} m)</span></div>
+  <div class="vink"><span>✓</span><span>Kleur: ${r.kleur}</span></div>
+  <p style="margin:8px 0 0">Dan krijgt ${r.vlak} ongeveer <b style="color:var(--ac)">${nl(rond(a.na))} lux</b> recht onder de spot (${nl(a.cdNa)} candela). Tussen de spots is het minder; daarom rekent de app met de bovenkant van de richtwaarde.</p></div>
+ ${L.fitting==="GU5.3"?`<div class="let"><b>Let op bij GU5.3 (12 volt):</b> past de led bij je transformator? Een oude transformator of dimmer laat led vaak flikkeren. Kies een lamp "geschikt voor elektronische transformator", of laat de transformator vervangen. <button class="link" data-g="flikker">Doe de flikkertest ›</button></div>`:`<p class="midden"><button class="link" data-g="flikker">Flikkertest ›</button></p>`}
+ <p class="klein">${r.tip}</p>
+ <p class="klein">Rekenregel: candela = lumen gedeeld door de ruimtehoek van de bundel; lux recht onder de lamp = candela gedeeld door de afstand in het kwadraat. Een schatting; geen merken, geen winkels. <span class="concept">Richtwaarden concept, nog te controleren.</span></p>`;},
+flikker(){if(!S.gekocht)return V.lampen();return `<p><button class="link" data-g="lampen">‹ Lampadvies</button></p><h1>Flikkertest</h1>
+ <p class="sub">Richt de camera op de lamp. Het papiertje mag eraf. De test duurt vijf seconden.</p>
+ <svg viewBox="0 0 300 90" id="golf" aria-hidden="true"><rect width="300" height="90" rx="12" fill="#F6EEDD"/><polyline id="lijn" fill="none" stroke="#B07A1E" stroke-width="2" points=""/></svg>
+ <div class="voortgang"><i id="vg"></i></div><p class="klein midden" id="vt">Tik op Start.</p>
+ <div id="fu"></div><button class="knop" data-a="flikkerStart" id="fs">Start de flikkertest</button>
+ <p class="klein">Ziet de test niets, dan kan een lamp toch heel snel flikkeren: een telefoon ziet niet alles. Geen uitspraken over gezondheid. Prototype: de uitkomst kies je in het demopaneel (⚙).</p>`;},
+koop(){return `<h1 class="midden" style="margin-top:34px">Welke lamp lost het op?</h1>
+ <p class="prijs">€ 3,99</p><p class="midden sub" style="margin-top:0">één keer · geen abonnement</p>
+ <div class="kaart"><div class="vink"><span>✓</span><span>Lampadvies: bundelhoek, lumen, aantal spots en kleur</span></div><div class="vink"><span>✓</span><span>Rekenhulp, ook zonder meting</span></div><div class="vink"><span>✓</span><span>Flikkertest</span></div><div class="vink"><span>✓</span><span>Ruimtes bewaren en voor en na vergelijken</span></div><div class="vink"><span>✓</span><span>Gezinsdeling: het hele gezin doet mee</span></div></div>
+ <p class="klein midden">Lampadvies, rekenhulp en flikkertest: € 3,99, één keer. Geen abonnement. Meten en het oordeel blijven altijd gratis, voor alle ruimtes. Niets wordt vanzelf afgeschreven. Wat je koopt, blijft van jou.</p>
+ <button class="knop" data-a="koop">Koop voor € 3,99</button><p class="midden"><button class="link" data-a="herstel">Aankoop herstellen</button> · <button class="link" data-a="nietNu">Niet nu</button></p>`;},
+meer(){return `<p><button class="link" data-a="terug">‹ Terug</button></p><h1>Instellingen</h1>
+ <h2>Over de meting</h2><p class="klein" style="margin:0">Een telefoon meet licht via de camera, met een papiertje als witte koepel. Met kalibratie zit je meestal binnen 20%; daarom staat er altijd een bandbreedte naast het getal. Wil je het precies weten of moet het officieel? Koop een luxmeter of vraag een meting.</p>
+ <div class="rij"><span>Dit toestel</span><span class="sub" style="text-align:right">${TOESTEL[S.toestel].naam}<br>± ${TOESTEL[S.toestel].band}%</span></div>
+ <div class="rij"><span>Lichtcheck</span><span class="sub">${S.gekocht?"gekocht, dank je":"meten en oordeel gratis"}</span></div>
+ ${S.gekocht?"":`<div class="rij"><span>Lampadvies en flikkertest</span><button class="link" data-g="koop">€ 3,99 ›</button></div>`}
+ <div class="rij"><span>Aankoop herstellen</span><button class="link" data-a="herstel">Herstel</button></div>
+ <h2>Privacy</h2><p class="klein" style="margin:0">Geen account, geen reclame, geen analyse. De camera meet alleen licht; er wordt geen foto gemaakt of bewaard. Metingen blijven op je telefoon.</p>
+ <div class="demo"><b class="klein">Alleen in dit prototype</b>
+  <div class="rij"><span class="klein">Toestel</span><span class="chips" style="margin:0;justify-content:flex-end">${[["kal","met kalibratie"],["zonder","zonder kalibratie"]].map(([v,l])=>`<button class="chip ${S.toestel===v?"aan":""}" data-toestel="${v}">${l}</button>`).join("")}</span></div>
+  <div class="rij"><span class="klein">Gekocht</span><span class="chips" style="margin:0">${[[true,"ja"],[false,"nee"]].map(([v,l])=>`<button class="chip ${S.gekocht===v?"aan":""}" data-gekocht="${v}">${l}</button>`).join("")}</span></div>
+  <div class="rij"><span class="klein">Licht in de ruimte</span><span class="chips" style="margin:0;justify-content:flex-end">${[["nu","oude lampen"],["na","nieuwe lampen"],["dag","daglicht"]].map(([v,l])=>`<button class="chip ${S.situatie===v?"aan":""}" data-situatie="${v}">${l}</button>`).join("")}</span></div>
+  <div class="rij"><span class="klein">Flikkertest</span><span class="chips" style="margin:0;justify-content:flex-end">${[["geen","geen"],["licht","licht"],["duidelijk","duidelijk"]].map(([v,l])=>`<button class="chip ${S.flikker===v?"aan":""}" data-flikker="${v}">${l}</button>`).join("")}</span></div>
+  <button class="knop rand" data-a="wis">Alles wissen en opnieuw beginnen</button></div>`;}
+};
+function tegels(){return `<div class="tegels">${VOLG.map((k,i)=>{const r=RUIMTES[k];return `<button class="tegel ${i===4?"breed":""}" data-meet="${k}"><b>${r.naam}</b><span>${k==="keuken"?"aanrecht":k==="badkamer"?"spiegel":k==="woonkamer"?"bank of leeshoek":k==="bureau"?"werkplek":"treden"} · ${r.min} tot ${r.max} lux</span></button>`;}).join("")}</div>`;}
+const dat=t=>new Date(t).toLocaleDateString("nl-NL",{day:"numeric",month:"short"});
+// ---------- gesimuleerde meting ----------
+let timer=null;
+function waarheid(){const r=R();return S.situatie==="dag"?1400:S.situatie==="na"?r.na:r.nu;}
+function meet(){const echt=waarheid(),fout=TOESTEL[S.toestel].fout,mon=[];let i=0;const N=30;
+ clearInterval(timer);timer=setInterval(()=>{i++;mon.push(echt*fout*(1+(Math.random()-.5)*.12)*(Math.random()<.08?1.6:1));const vg=$("#vg");if(vg)vg.style.width=(i/N*100)+"%";const vt=$("#vt");if(vt)vt.textContent=i<N?"Meet drie seconden… ≈ "+nl(rond(mon[mon.length-1]))+" lux":"Klaar";
+  if(i>=N){clearInterval(timer);const s=[...mon].sort((a,b)=>a-b);const med=s[Math.floor(s.length/2)]; // uitschieters weg: de mediaan
+   if(navigator.vibrate)navigator.vibrate(30);S.laatste={ruimte:S.ruimte,lux:rond(med),toestel:S.toestel,t:Date.now()};setTimeout(()=>ga("oordeel"),350);}},100);}
+function dialoog(kop,tekst,ja,nee,fn){$("#dlg").innerHTML=`<div class="dialoog"><div><p><b>${kop}</b>${tekst}</p><div class="kn"><button data-d="0">${nee}</button><button data-d="1">${ja}</button></div></div></div>`;$("#dlg").querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{$("#dlg").innerHTML="";fn(b.dataset.d==="1");});}
+function sheet(h){$("#sheet").innerHTML=`<div class="sheet-bg"><div class="sheet"><div class="greep"></div>${h}<button class="knop rand" data-sluit="1">Sluiten</button></div></div>`;$("#sheet .sheet-bg").onclick=e=>{if(e.target.classList.contains("sheet-bg")||e.target.dataset.sluit)sluit();};}
+function sluit(){$("#sheet").innerHTML="";}
+let vorig="kies",bewaarNaKoop=false; // bewaarNaKoop: na het kopen de meting alsnog bewaren
+const ACT={
+ klaar(){if(S.camera){ga("meten");meet();return;}dialoog("“Lichtcheck” wil toegang tot de camera","De camera meet alleen licht; er wordt geen foto gemaakt of bewaard.","OK","Sta niet toe",ok=>{if(!ok){sheet(`<h2 style="margin-top:0">Zonder camera kan de app niet meten</h2><p>Je kunt dit later aanzetten in Instellingen › Lichtcheck › Camera. De rekenhulp werkt wel zonder meting.</p>`);return;}S.camera=true;bewaar();ga("meten");meet();});},
+ opnieuw(){ga("meten");meet();},
+ waarom(){const r=R();sheet(`<h2 style="margin-top:0">Waarom?</h2><p>Lux is hoeveel licht er op een vlak valt, hier op ${r.vlak}. Hoe fel een lamp lijkt, zegt daar weinig over.</p><p>Vaak tellen de bundelhoek en de hoogte meer dan het aantal watt of lumen: een brede bundel van 120 graden verspreidt het licht over muren en plafond; een smalle bundel van 36 graden zet het op je ${r.kort}.</p><p>Voor ${r.vlak} is ${r.min} tot ${r.max} lux prettig. <span class="concept">Richtwaarde concept, uit openbare bronnen afgerond.</span></p><p><b>Wil je weten welke lamp het oplost?</b></p><button class="knop" data-g2="lampen">Naar het lampadvies</button>`);$("#sheet [data-g2]").onclick=()=>{sluit();ga("lampen");};},
+ watdoen(){ga("lampen");},
+ bewaarMeting(){if(!S.gekocht){vorig="oordeel";bewaarNaKoop=true;return ga("koop");}const m=S.laatste;const l=S.bewaard[S.ruimte]=S.bewaard[S.ruimte]||[];if(!l.some(x=>x.t===m.t)){l.push({lux:m.lux,t:m.t});while(l.length>5)l.shift();}bewaar();teken();
+  sheet(`<h2 style="margin-top:0">${R().naam} bewaard</h2><p>Meet na het vervangen opnieuw en vergelijk.</p><p class="klein">Geen herinnering; je bepaalt zelf wanneer.</p>`);},
+ koop(){dialoog("Prototype","Er wordt niet betaald. Aankoop van € 3,99 nabootsen?","Koop","Annuleer",ok=>{if(ok){S.gekocht=true;bewaar();if(bewaarNaKoop&&vorig==="oordeel"&&S.laatste){bewaarNaKoop=false;ga("oordeel");ACT.bewaarMeting();return;}bewaarNaKoop=false;ga(vorig==="ruimtes"?"ruimtes":"lampen");}});},
+ herstel(){dialoog("Aankoop herstellen","Prototype: in de echte app vraagt dit de App Store om je eerdere aankoop. Hier gebeurt niets.","OK","Sluit",()=>{});},
+ nietNu(){bewaarNaKoop=false;ga(S.laatste?"oordeel":"kies");},
+ terug(){ga(vorig==="meer"||vorig==="koop"?"kies":vorig);},
+ flikkerStart(){const soort=S.flikker,N=50;let i=0;$("#fs").disabled=true;$("#fu").innerHTML="";const pts=[];
+  clearInterval(timer);timer=setInterval(()=>{i++;const vg=$("#vg");if(!vg)return clearInterval(timer);vg.style.width=(i/N*100)+"%";$("#vt").textContent=i<N?"Kijkt naar de lamp…":"Klaar";
+   const a=soort==="duidelijk"?28:soort==="licht"?9:1.5;pts.length=0;for(let x=0;x<=300;x+=3){pts.push(x+","+(45+a*Math.sin((x+i*7)/300*2*Math.PI*6)+(Math.random()-.5)*3).toFixed(1));}$("#lijn").setAttribute("points",pts.join(" "));
+   if(i>=N){clearInterval(timer);$("#fs").disabled=false;$("#fs").textContent="Opnieuw testen";
+    const U={geen:["Geen zichtbaar flikkeren","var(--groen)","De camera ziet geen flikkeren bij deze lamp."],
+     licht:["Licht flikkeren","#A0661A","Deze lamp flikkert een beetje (100 keer per seconde). Vaak ligt dat aan een dimmer of een transformator die niet goed bij led past. Merk je er niets van, dan is het geen probleem."],
+     duidelijk:["Deze lamp flikkert (100 keer per seconde)","var(--rood)","Vaak ligt dat aan een oude transformator of dimmer."]}[soort];
+    $("#fu").innerHTML=`<div class="kaart"><p class="uitk" style="color:${U[1]}">${U[0]}</p><p style="margin:0">${U[2]}</p>${soort!=="geen"?`<p style="margin:8px 0 0"><b>Wat je kunt doen:</b></p><ul style="margin:4px 0 0 -18px"><li>Kijk of er een dimmer of oude 12V-transformator in de kring zit.</li><li>Kies een led "geschikt voor elektronische transformator", of een dimbare led die bij je dimmer past.</li><li>Of laat de transformator vervangen door een led-driver.</li></ul>`:""}</div>`;}},100);}
+ ,wis(){dialoog("Alles wissen?","Alle metingen en instellingen in dit prototype worden gewist.","Wis","Annuleer",ok=>{if(ok){try{localStorage.removeItem(K)}catch(e){}location.reload();}});}};
+function koppel(){
+ document.querySelectorAll("#s [data-a]").forEach(e=>e.onclick=()=>ACT[e.dataset.a]());
+ document.querySelectorAll("#s [data-g]").forEach(e=>e.onclick=()=>{bewaarNaKoop=false;if(e.dataset.g==="koop"||e.dataset.g==="meer")vorig=S.scherm;ga(e.dataset.g);});
+ document.querySelectorAll("#s [data-meet]").forEach(e=>e.onclick=()=>{S.ruimte=e.dataset.meet;S.start=false;ga("voorbereiden");});
+ document.querySelectorAll("#s [data-ruimte]").forEach(e=>e.onclick=()=>{S.ruimte=e.dataset.ruimte;bewaar();teken();});
+ document.querySelectorAll("#s [data-veld]").forEach(e=>e.onchange=()=>{const v=e.dataset.veld;S.lamp[v]=v==="fitting"?e.value:Math.max(+e.min||0,Math.min(+e.max||1e4,parseFloat(String(e.value).replace(",","."))||S.lamp[v]));if(v==="fitting"&&(e.value==="E27"||e.value==="E14"))S.lamp.hoek=360;if(v==="fitting"&&e.value.startsWith("GU")&&S.lamp.hoek===360)S.lamp.hoek=120;bewaar();teken();});
+ document.querySelectorAll("#s [data-toestel]").forEach(e=>e.onclick=()=>{S.toestel=e.dataset.toestel;bewaar();teken();});
+ document.querySelectorAll("#s [data-gekocht]").forEach(e=>e.onclick=()=>{S.gekocht=e.dataset.gekocht==="true";bewaar();teken();});
+ document.querySelectorAll("#s [data-situatie]").forEach(e=>e.onclick=()=>{S.situatie=e.dataset.situatie;bewaar();teken();});
+ document.querySelectorAll("#s [data-flikker]").forEach(e=>e.onclick=()=>{S.flikker=e.dataset.flikker;bewaar();teken();});
+}
+if(S.start)S.scherm="start";else if(S.scherm==="meten")S.scherm=S.laatste?"oordeel":"kies";
+if(S.scherm==="oordeel"&&!S.laatste)S.scherm="kies";
+teken();
+</script>
+</body>
+</html>
