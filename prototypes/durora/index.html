@@ -158,6 +158,7 @@ tijden(){const m=METHODEN[S.methode], T=tijden(datumVan(nu()));return `<h1>Tijde
   <h2>Imsak-marge</h2><p class="klein">Hoeveel minuten vóór fajr je stopt met eten.</p><div class="chips">${[0,5,10,15].map(x=>`<button class="chip ${S.marge===x?"aan":""}" data-marge="${x}">${x} min</button>`).join("")}</div>
   <div class="kaart"><div class="klein">Vandaag (${T.bron})</div>imsak ${fmt(T.imsak)} · iftar ${fmt(T.iftar)}</div>
   <div class="optie" data-g="eerstedag"><span>Eerste dag van de Ramadan</span><b>${new Date(S.eersteDag+"T12:00:00Z").toLocaleDateString("nl-NL",{day:"numeric",month:"long",timeZone:"UTC"})} ›</b></div>
+  <div class="optie" data-a="csv"><span>Exporteer je logboek (CSV)<small>Altijd gratis, ook na de proef</small></span><b>Exporteer ›</b></div>
   <div class="optie" data-g="koop"><span>Durora</span><b>${S.gekocht?"gekocht":open()?"proef: nog "+(15-S.installDag)+" dagen":"proef voorbij"} ›</b></div>
   <p class="klein">Durora rekent tijden uit en houdt je logboek bij. Het geeft geen religieuze uitspraken: welke tijden je volgt, kies je zelf.</p>
   <div class="demo"><b class="klein">Alleen in dit prototype</b>
@@ -183,6 +184,7 @@ const A={
  melding(){S.melding=!S.melding;bewaar();teken();},
  inhalen(){const d=Object.keys(S.log).find(k=>S.log[k]==="m");if(d){S.log[d]="i";bewaar();teken();}},
  tabel(){S.tabel=$("#tabel").value;bewaar();teken();},
+ csv(){const W={g:"gevast",m:"in te halen",i:"ingehaald"};const r="dag,datum,status\n"+Object.keys(S.log).map(Number).sort((a,b)=>a-b).map(d=>`${d},${plusDag(S.eersteDag,d-1)},${W[S.log[d]]||""}`).join("\n");alert("Prototype: de export (altijd gratis, ook na de proef) zou dit bestand maken:\n\n"+r.split("\n").slice(0,5).join("\n")+"\n…");},
  koop(){if(confirm("Dit is een prototype. Er wordt niet betaald. Aankoop nabootsen?")){S.gekocht=true;bewaar();ga("logboek");}},
  herstel(){alert("Prototype: in de echte app vraagt dit de App Store om je eerdere aankoop. Hier gebeurt niets.");},
  wis(){if(confirm("Alles in dit prototype wissen?")){try{localStorage.removeItem(K)}catch(e){}location.reload();}}
