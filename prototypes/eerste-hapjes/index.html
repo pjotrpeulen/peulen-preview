@@ -57,9 +57,13 @@ const CAT={Groente:["Wortel","Pompoen","Broccoli","Spinazie","Courgette","Zoete 
 const catVan=n=>Object.keys(CAT).find(c=>CAT[c].includes(n))||"Groente";
 function voorbeeld(){const n=Date.now();const h=(naam,k,o,dagen)=>({naam,cat:catVan(naam),keer:k,oordeel:o,laatst:n-dagen*DAG});
  return [h("Wortel",6,"lekker",0),h("Pompoen",4,"lekker",1),h("Broccoli",2,"twijfel",2),h("Peer",8,"lekker",0),h("Avocado",1,"niet",3),h("Pindakaas",3,"lekker",1),h("Havermout",5,"lekker",0)];}
-let S=(()=>{try{return JSON.parse(localStorage.getItem(K))}catch(e){return null}})()||{start:true,naam:"Noa",geboren:new Date(Date.now()-198*DAG).toISOString().slice(0,10),eczeem:"nee",lijst:voorbeeld(),notities:[{datum:Date.now()-DAG,tekst:"Avocado: vies gezicht, verder niets."}],pinda:{klaar:3,laatst:Date.now()-2*DAG},ei:{klaar:1,laatst:Date.now()-DAG},herinnering:true,partner:null,installDag:1,gekocht:false,scherm:"start",filter:"Alles"};
+// logboek (11 november, groen punt 67): per hapje datum, vorm en notitie, voor de CSV-export
+function voorbeeldLog(){const n=Date.now();const g=(dagen,naam,oordeel,vorm,notitie)=>({datum:n-dagen*DAG,naam,cat:catVan(naam),oordeel,vorm,notitie:notitie||""});
+ return [g(3,"Avocado","niet","puree","vies gezicht, verder niets"),g(2,"Broccoli","twijfel","stukjes"),g(1,"Pompoen","lekker","puree"),g(1,"Pindakaas","lekker","puree","dun door de pap"),g(0,"Wortel","lekker","stukjes"),g(0,"Peer","lekker","vingerfood"),g(0,"Havermout","lekker","puree")];}
+let S=(()=>{try{return JSON.parse(localStorage.getItem(K))}catch(e){return null}})()||{start:true,naam:"Noa",geboren:new Date(Date.now()-198*DAG).toISOString().slice(0,10),eczeem:"nee",lijst:voorbeeld(),notities:[{datum:Date.now()-DAG,tekst:"Avocado: vies gezicht, verder niets."}],pinda:{klaar:3,laatst:Date.now()-2*DAG},ei:{klaar:1,laatst:Date.now()-DAG},herinnering:false,partner:null,installDag:1,gekocht:false,scherm:"start",filter:"Alles"};
 function bewaar(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
 const open=()=>S.gekocht||S.installDag<=14;
+if(!S.log)S.log=voorbeeldLog(); // herinnering staat standaard uit (issue 10); oude bewaarde staat houdt zijn keuze
 if(!S.variant)S.variant="basis"; // prijsvariant (10 november): "basis" = na de proef blijven bekijken en toevoegen gratis (advies); "oud" = alleen bekijken
 const magToevoegen=()=>open()||S.variant==="basis";
 function leeftijd(){const d=Math.floor((Date.now()-new Date(S.geboren))/DAG);const m=Math.floor(d/30.44),w=Math.floor((d-m*30.44)/7);return {m,w,d};}
@@ -70,7 +74,7 @@ function ga(x){S.scherm=x;bewaar();teken();scrollTo(0,0);}
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>ga(b.dataset.t));
 function teken(){$("#nav").hidden=S.scherm==="start";document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("aan",b.dataset.t===S.scherm));$("#s").innerHTML=V[S.scherm]();koppel();}
 const stippen=k=>[...Array(10)].map((_,i)=>`<span class="stip ${i<k?"vol":""}"></span>`).join("");
-const PINDA=[["dag 1","¼ tl"],["dag 2","1 tl"],["dag 3","3 tl"],["wekelijks","3 tl"]], EI=[["dag 1","1 tl"],["dag 2","1 el"],["dag 3","2 el"],["wekelijks","½ ei"]];
+const PINDA=[["dag 1","½ tl"],["dag 2","1 tl"],["dag 3","3 tl"],["wekelijks","3 tl"]], EI=[["dag 1","1 tl"],["dag 2","1 el"],["dag 3","2 el"],["wekelijks","½ ei"]];
 const V={
 start(){return `<h1 style="margin-top:40px">Eerste hapjes</h1><p class="sub">Bijhouden wat je kindje proeft, met het pinda- en ei-schema erbij. Nederlands, rustig, één keer betalen.</p>
  <h2>Hoe heet je kindje?</h2><input type="text" id="nm" value="${S.naam}">
@@ -89,7 +93,7 @@ lijst(){const l=leeftijd();const L=S.lijst.filter(x=>S.filter==="Alles"||x.cat==
  <p class="klein">Een kindje went soms pas na 10 keer proeven aan een smaak. Twijfel of niet is gewoon: probeer het een andere dag nog eens.</p>
  <button class="knop" data-a="nieuw">+ Hapje</button>
  <p class="klein midden">${S.partner?"Gedeeld met "+S.partner+" · via iCloud":`<button class="link" data-a="delen">Deel met je partner</button>`}</p>`;},
-pinda(){if(S.eczeem!=="nee")return `<h1>Pinda en ei</h1><div class="waarschuw"><b>Overleg eerst met je arts of het consultatiebureau.</b><br>Je gaf aan dat ${S.naam} eczeem of een voedselallergie heeft, of dat je het niet zeker weet. Dan begin je niet zelf met het schema.<br><br>Benauwd na een hapje: bel 112.</div><p class="klein">Is dit veranderd? Pas het aan bij ⚙.</p><button class="knop rand" data-g="meer">Naar instellingen</button>`;
+pinda(){if(S.eczeem!=="nee")return `<h1>Pinda en ei</h1><div class="waarschuw"><b>Overleg met je arts of diëtist.</b><br>Bij ernstig eczeem of een allergie is het juist belangrijk om vroeg te beginnen, vóór 6 maanden. Begin het schema pas na dat overleg.<br><span class="concept">Voorstel, nog na te lezen.</span><br><br>Benauwd na een hapje: bel 112.</div><p class="klein">Is dit veranderd? Pas het aan bij ⚙.</p><button class="knop rand" data-g="meer">Naar instellingen</button>`;
  const w=tot8(); const kaart=(naam,sch,stappen,sleutel)=>`<div class="kaart"><div class="kop"><b>${naam}</b><span class="klein" style="color:var(--ac);font-weight:600">volgende: ${volgende(sch)}</span></div>
   <div class="stappen">${stappen.map(([d,h],i)=>`<button data-stap="${sleutel}:${i}"><i class="${i<sch.klaar?"af":""}">${i<sch.klaar?"✓":i+1}</i>${d}<br><span class="klein">${h}</span></button>`).join("")}</div></div>`;
  return `<h1 class="midden">Pinda en ei</h1><p class="midden" style="color:var(--ac);font-weight:600;margin:0">${w>0?"Vóór 8 maanden · nog "+w+" weken":"Na 8 maanden: blijf het wekelijks geven"}</p>
@@ -107,7 +111,9 @@ meer(){return `<h1>Instellingen</h1>
  <div class="rij"><span>Kindje</span><span class="sub">${S.naam}, ${leeftijd().m} maanden</span></div>
  <div class="rij"><span>Eczeem of allergie</span><span class="chips" style="margin:0">${["nee","ja","weet ik niet"].map(x=>`<button class="chip ${S.eczeem===x?"aan":""}" data-ecz="${x}">${x}</button>`).join("")}</span></div>
  <div class="rij"><span>Delen met je partner</span>${S.partner?`<span class="sub">${S.partner}</span>`:`<button class="link" data-a="delen">Deel</button>`}</div>
- <div class="rij"><span>Overzicht voor het consultatiebureau</span><button class="link" data-a="naarOverzicht">Open</button></div>
+ <div class="rij"><span>Overzicht voor het consultatiebureau</span><button class="link" data-a="naarOverzicht">${open()?"Open":"na aankoop"}</button></div>
+ <div class="rij"><span>Exporteren (CSV)</span><button class="link" data-a="csv">Exporteer</button></div>
+ <p class="klein">De CSV-export is altijd gratis, ook na de proef: per hapje de datum, het voedingsmiddel, de groep, het oordeel, de vorm en de notitie.</p>
  <div class="rij"><span>Eerste hapjes</span><span class="sub">${S.gekocht?"gekocht, dank je":open()?"proef: nog "+(15-S.installDag)+" dagen":"proef voorbij"}</span></div>
  ${S.gekocht?"":`<div class="rij"><span>Eenmalig kopen</span><button class="link" data-g="koop">€ 3,99 ›</button></div>`}
  <p class="klein">Deze app geeft geen medisch advies en herkent geen allergie. Twijfel je? Vraag het op het consultatiebureau of aan je huisarts. Benauwd: bel 112.</p>
@@ -140,7 +146,7 @@ function koppelIn(r){
  r.querySelectorAll("[data-oo]").forEach(e=>e.onclick=()=>{H.oordeel=e.dataset.oo;r.querySelectorAll("[data-oo]").forEach(b=>b.classList.toggle("aan",b===e));});
  r.querySelectorAll("[data-vv]").forEach(e=>e.onclick=()=>{H.vorm=e.dataset.vv;r.querySelectorAll("[data-vv]").forEach(b=>b.classList.toggle("aan",b===e));});
  r.querySelectorAll("[data-tips]").forEach(e=>e.onclick=()=>alert("Tips (concept, na te lezen):\n\n• Rode vlekjes rond de mond verdwijnen vaak vanzelf. Houd het in de gaten en noteer het.\n• Bultjes, zwelling of overgeven na een hapje: neem contact op met je huisarts.\n• Benauwd, hoesten of slap: bel 112.\n\nDeze app geeft geen medisch advies."));
- r.querySelectorAll("[data-bewaar]").forEach(e=>e.onclick=()=>{const naam=H.naam||($("#hn")&&$("#hn").value.trim());if(!naam)return;let x=S.lijst.find(i=>i.naam.toLowerCase()===naam.toLowerCase());if(!x){x={naam:naam[0].toUpperCase()+naam.slice(1),cat:catVan(naam),keer:0};S.lijst.push(x);}x.keer++;x.oordeel=H.oordeel;x.laatst=Date.now();const nt=$("#nt").value.trim();if(nt)S.notities.push({datum:Date.now(),tekst:x.naam+": "+nt});bewaar();sluit();});
+ r.querySelectorAll("[data-bewaar]").forEach(e=>e.onclick=()=>{const naam=H.naam||($("#hn")&&$("#hn").value.trim());if(!naam)return;let x=S.lijst.find(i=>i.naam.toLowerCase()===naam.toLowerCase());if(!x){x={naam:naam[0].toUpperCase()+naam.slice(1),cat:catVan(naam),keer:0};S.lijst.push(x);}x.keer++;x.oordeel=H.oordeel;x.laatst=Date.now();const nt=$("#nt").value.trim();if(nt)S.notities.push({datum:Date.now(),tekst:x.naam+": "+nt});S.log.push({datum:Date.now(),naam:x.naam,cat:x.cat,oordeel:H.oordeel,vorm:H.vorm,notitie:nt});bewaar();sluit();});
  r.querySelectorAll("[data-sluit]").forEach(e=>e.onclick=sluit);
  r.querySelectorAll("[data-deel]").forEach(e=>e.onclick=()=>{S.partner=$("#pn").value.trim()||"je partner";bewaar();sluit();});
 }
@@ -157,7 +163,8 @@ const ACT={
    <h4>Notities</h4>${S.notities.map(n=>new Date(n.datum).toLocaleDateString("nl-NL",{day:"numeric",month:"short"})+": "+n.tekst).join("<br>")||"geen"}
    <p style="color:#888;margin-top:12px">Bijgehouden door de ouders met de app Eerste hapjes. Geen medisch advies.</p></div></div>
    <button class="knop" data-sluit="1">Delen (via het deelmenu van je telefoon)</button>`);},
- csv(){alert("Prototype: de export zou dit bestand maken:\n\nvoedingsmiddel,groep,keer,oordeel\n"+S.lijst.slice(0,3).map(x=>`${x.naam},${x.cat},${x.keer},${x.oordeel}`).join("\n")+"\n…");},
+ csv(){const q=v=>{v=String(v??"");return /[",;\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};const L=[...S.log].sort((a,b)=>b.datum-a.datum);
+  alert("Prototype: de export zou dit bestand maken (gratis, ook na de proef):\n\ndatum,voedingsmiddel,groep,oordeel,vorm,notitie\n"+L.slice(0,5).map(x=>[new Date(x.datum).toISOString().slice(0,10),x.naam,x.cat,x.oordeel,x.vorm,x.notitie].map(q).join(",")).join("\n")+(L.length>5?"\n… ("+L.length+" regels)":""));},
  koop(){if(confirm("Dit is een prototype. Er wordt niet betaald. Aankoop nabootsen?")){S.gekocht=true;bewaar();ga("lijst");}},
  herstel(){alert("Prototype: in de echte app vraagt dit de App Store om je eerdere aankoop. Hier gebeurt niets.");},
  wis(){if(confirm("Alles in dit prototype wissen?")){try{localStorage.removeItem(K)}catch(e){}location.reload();}}};
