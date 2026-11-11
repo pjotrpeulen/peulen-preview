@@ -8,7 +8,9 @@
 <title>Adem en Stil · klikbaar prototype</title>
 <!-- Klikbaar prototype rust-app Adem en Stil (APP-07 met APP-06), 9 november 2026, volgens plan.md en de mockup.
      Eén bestand, geen netwerk, geen tracking. Trilling via navigator.vibrate (Android; op iPhone alleen de visuele puls).
-     Gegevens alleen in deze browser. Kopen is nagebootst: er wordt niets afgeschreven. -->
+     Gegevens alleen in deze browser. Kopen is nagebootst: er wordt niets afgeschreven.
+     10 november (groen punt 63, online validatie): andere trilling bij in (lang) en uit (korte tikjes), tempo meten optioneel (zonder tikken: 12 per minuut),
+     bij een tik zin, zachte bel of alleen trilling (de stem kan uit), en een neutrale telling: de vergelijking met de vorige keer alleen op verzoek. -->
 <style>
 :root{--bg:#2B2F36;--kaart:rgba(255,255,255,.07);--rand:rgba(255,255,255,.15);--wit:#FFFFFF;--zacht:#DDDDDD;--dim:#9A9DA6;--ac:#5B6FA8;--acl:#E6E8F2}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
@@ -51,8 +53,10 @@ nav button{flex:1;background:none;border:0;color:var(--dim);font:500 14px inheri
 <nav id="nav" hidden><button data-t="adem">Oefenen</button><button data-t="uitleg">Waarom</button><button data-t="meer">Meer</button></nav></div>
 <div id="laag"></div>
 <script>
+const BOOM_BESTAAT=false; // RA-13: de Boom-knop blijft verborgen tot de Boom-app bestaat (review 27, punt 74)
 const K="rustapp-proto-v1", $=q=>document.querySelector(q);
-let S=(()=>{try{return JSON.parse(localStorage.getItem(K))}catch(e){return null}})()||{gezien:false,stand:"adem",scherm:"veilig",duurAdem:5,duurStil:10,zucht:false,installDag:1,gekocht:false,snel:1,sessies:[{datum:Date.now()-7*864e5,keer:4,gem:90},{datum:Date.now()-3*864e5,keer:6,gem:62}]};
+let S=(()=>{try{return JSON.parse(localStorage.getItem(K))}catch(e){return null}})()||{gezien:false,stand:"adem",scherm:"veilig",duurAdem:5,duurStil:10,zucht:false,meten:true,bijTik:"zin",installDag:1,gekocht:false,snel:1,sessies:[{datum:Date.now()-7*864e5,keer:4,gem:90},{datum:Date.now()-3*864e5,keer:6,gem:62}]};
+if(S.meten===undefined)S.meten=true; if(!S.bijTik)S.bijTik="zin";
 function bewaar(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
 // ---------- demo-klok ----------
 let klok={echt:performance.now(),virt:0,snel:S.snel||1};
@@ -76,27 +80,30 @@ veilig(){return `<h1 style="margin-top:50px">Voor je begint</h1>
  <button class="knop" data-a="begrepen">Begrepen</button>`;},
 adem(){const zuchtSlot=!open();return standen("adem")+`
  <div class="bol" id="bol"><div class="o1"></div><div class="o2"></div><div class="kern" id="kern"><b>Houd vast</b><small>als je inademt</small></div></div>
- <p class="midden zacht" style="margin:4px 0">Houd de cirkel vast als je inademt, laat los als je uitademt.<br>Eerst volgt de app jou; daarna neemt hij je mee naar rustiger.</p>
+ <p class="midden zacht" style="margin:4px 0">${S.meten?"Houd de cirkel vast als je inademt, laat los als je uitademt.<br>Eerst volgt de app jou; daarna neemt hij je mee naar rustiger.":"Zonder tikken: de app begint op 12 per minuut<br>en neemt je mee naar rustiger."}</p>
+ <div class="chips" style="margin-top:8px"><button class="chip ${S.meten?"aan":""}" data-meten="1">eerst je tempo meten</button><button class="chip ${S.meten?"":"aan"}" data-meten="0">zonder tikken</button></div>
  <div class="chips" style="margin-top:12px">${[2,5,10].map(m=>`<button class="chip ${S.duurAdem===m&&!S.zucht?"aan":""}" data-duur="${m}">${m} min</button>`).join("")}<button class="chip ${S.zucht?"aan":""} ${zuchtSlot?"slot":""}" data-a="zucht">zucht ${zuchtSlot?"🔒":""}</button></div>
  <button class="knop" data-a="startAdem">Begin</button>
- <p class="klein midden">Ogen dicht mag: het scherm wordt zwart en de telefoon trilt bij elke wissel.</p>`;},
+ <p class="klein midden">Ogen dicht mag: het scherm wordt zwart. Inademen is een lange zachte trilling, uitademen korte tikjes.</p>`;},
 stil(){return standen("stil")+`
  <p class="groot midden" style="margin:34px 0 0">${S.duurStil}:00</p><p class="klein midden" style="margin:0">minuten stilte</p>
  <div class="chips" style="margin-top:16px">${[5,10,15,20].map(m=>`<button class="chip ${S.duurStil===m?"aan":""}" data-stilduur="${m}">${m}</button>`).join("")}</div>
- <div class="kaart midden" style="margin-top:20px"><b>Tik ergens</b><div class="zacht">als je merkt dat je bent afgedwaald.</div><div class="klein" style="margin-top:8px">Het hele scherm is de knop. Je hoort één korte zin, dan is het weer stil.</div></div>
+ <div class="kaart midden" style="margin-top:20px"><b>Tik ergens</b><div class="zacht">als je merkt dat je bent afgedwaald.</div><div class="klein" style="margin-top:8px">Het hele scherm is de knop. ${tikTekst()}</div></div>
+ <p class="klein midden" style="margin:12px 0 4px">Bij een tik</p>
+ <div class="chips">${[["zin","één zin"],["bel","zachte bel"],["trilling","alleen trilling"]].map(([k,l])=>`<button class="chip ${bijTik()===k?"aan":""} ${k==="zin"&&!open()?"slot":""}" data-biitik="${k}">${l}${k==="zin"&&!open()?" 🔒":""}</button>`).join("")}</div>
  <button class="knop" data-a="startStil">Begin de stilte</button>
  <button class="knop rand ${open()?"":"slot"}" data-a="ademDanStil">Adem, dan stil (2 min + ${S.duurStil}) ${open()?"":"🔒"}</button>
  <p class="klein midden">Merken is de oefening, geen fout.</p>`;},
 klaarA(){const r=S.laatsteAdem||{start:14,eind:6};return `<p class="klein midden" style="margin-top:40px">Klaar</p>
  <h1 class="midden">Je begon op ${r.start}, je eindigde op ${r.eind}</h1><p class="midden zacht">ademhalingen per minuut</p>
- <div class="kaart midden"><div class="klein">Je uitademing was op het eind</div><div style="font-size:26px;font-weight:300">${r.uit||6} seconden</div><div class="klein">langer dan je inademing; dat is wat rust geeft</div></div>
+ <div class="kaart midden"><div class="klein">Je uitademing duurde op het eind</div><div style="font-size:26px;font-weight:300">${r.uit||6} seconden</div><div class="klein">${(r.uit||6)-(r.in||4)} langer dan je inademing; dat is wat rust geeft</div></div>
  <button class="knop" data-a="naarStil">Nu een paar minuten stil?</button><button class="knop rand" data-g="adem">Klaar voor nu</button>
  <p class="klein midden">Geen reeks, geen score. Morgen mag ook.</p>`;},
 klaarS(){const r=S.laatsteStil||{keer:7,gem:48};const vorige=S.sessies.length>1?S.sessies[S.sessies.length-2]:null;return `<p class="klein midden" style="margin-top:40px">Klaar</p>
  <h1 class="midden" style="font-weight:400;font-size:28px">Je merkte ${r.keer} keer</h1><p class="midden zacht" style="margin-top:0">dat je was afgedwaald, en kwam terug.</p>
- ${r.keer?`<div class="kaart"><div class="klein">Tijd tot je het merkte</div><div style="font-size:22px">gemiddeld ${r.gem} seconden</div>${open()?(vorige?`<div class="klein">vorige keer: ${vorige.keer} keer, gemiddeld na ${vorige.gem} seconden</div>`:""):`<div class="klein">Je merkmomenten over weken zijn onderdeel van de aankoop.</div>`}</div>`:`<div class="kaart zacht">Geen tik? Ook goed. Soms merk je pas achteraf dat je weg was; dat telt ook.</div>`}
+ ${r.keer?`<div class="kaart"><div class="klein">Tijd tot je het merkte</div><div style="font-size:22px">gemiddeld ${r.gem} seconden</div>${open()?(vorige?(S.toonVorige?`<div class="klein">vorige keer: ${vorige.keer} keer, gemiddeld na ${vorige.gem} seconden</div>`:`<button class="link" data-a="vergelijk">Vergelijk met vorige keer ›</button>`):""):`<div class="klein">Je merkmomenten over weken zijn onderdeel van de aankoop.</div>`}</div>`:`<div class="kaart zacht">Geen tik? Ook goed. Soms merk je pas achteraf dat je weg was; dat telt ook.</div>`}
  <p class="midden zacht" style="margin-top:18px">Elke tik is merken.<br>Dat is precies wat je traint.</p>
- <button class="knop rand" data-a="boom">Wil je hier iets over kwijt?</button><p class="klein midden" style="margin-top:4px">opent de Boom-app (als je die hebt)</p>
+ ${BOOM_BESTAAT?`<button class="knop rand" data-a="boom">Wil je hier iets over kwijt?</button><p class="klein midden" style="margin-top:4px">opent de Boom-app (als je die hebt)</p>`:""}
  <p class="klein midden">Geen reeks, geen score. Morgen mag ook.</p>`;},
 uitleg(){return `<h1>Waarom tikken werkt</h1>
  <div class="stap"><span>1</span><div><b>Dwalen</b><div class="klein">je gedachten gaan hun eigen gang</div></div></div>
@@ -130,19 +137,23 @@ function startAdem(){
  $("#laag").innerHTML=`<div class="stilvlak" id="av" style="cursor:default"><div class="bol" id="bol2"><div class="o1"></div><div class="o2"></div><div class="kern" id="kern2"><b id="kt">Houd vast</b><small id="ks">als je inademt</small></div></div>
   <p class="zacht" id="at" style="margin:6px 0">Eerst volgt de app jou</p><p class="groot" id="ap" style="font-size:30px;margin:0"></p>
   <div class="balk" style="width:220px"><div id="ab" style="width:0"></div></div>
-  <p class="klein" style="margin-top:18px"><button class="link" id="ogen">Ogen dicht (scherm zwart)</button> · <button class="link" id="stopA">Stop</button></p></div>`;
+  <p class="klein" style="margin-top:18px"><button class="link" id="ogen">Ogen dicht (scherm zwart)</button> · <button class="link" id="stopA">Stop</button></p>
+  <p class="klein" style="margin-top:0"><button class="link" id="zonder">Liever niet tikken? Begin op 12 ›</button></p></div>`;
  const bol=$("#bol2"); const neer=e=>{e.preventDefault();A.houd=nu();}; const op=e=>{e.preventDefault();if(A.fase==="meten"&&A.houd){A.tikken.push(nu());}A.houd=null;};
  bol.addEventListener("pointerdown",neer);bol.addEventListener("pointerup",op);bol.addEventListener("pointerleave",op);
  $("#stopA").onclick=e=>{e.stopPropagation();eindAdem(true);};
+ $("#zonder").onclick=e=>{e.stopPropagation();A.zonder=true;$("#zonder").parentNode.remove();};
+ if(!S.meten){A.zonder=true;$("#zonder").parentNode.remove();}
  $("#ogen").onclick=e=>{e.stopPropagation();document.body.classList.toggle("zwart");$("#av").style.opacity=document.body.classList.contains("zwart")?".08":"1";};
  A.timer=setInterval(ademTik,50);
 }
-function wissel(inadem){A.inadem=inadem;trillen(inadem?60:[30,60,30]);const k=$("#kern2");k.classList.remove("puls");void k.offsetWidth;k.classList.add("puls");}
+function wissel(inadem){A.inadem=inadem;trillen(inadem?400:[25,70,25,70,25]); // in: lange zachte trilling, uit: korte tikjes
+ const k=$("#kern2");k.classList.remove("puls");void k.offsetWidth;k.classList.add("puls");}
 function ademTik(){
  const t=nu(), k=$("#kern2"); if(!k){clearInterval(A.timer);return;}
  if(A.fase==="meten"){ // tempo meten uit de eerste ademhalingen (loslaten tot loslaten); na 20 s zonder tikken: 12 per minuut
   k.style.transform=`scale(${A.houd?1.25:0.85})`; $("#kt").textContent=A.houd?"Adem in":"Houd vast"; $("#ks").textContent=A.houd?"laat los als je uitademt":"als je inademt";
-  if(A.tikken.length>=4||t-A.start>20000){const iv=A.tikken.slice(1).map((x,i)=>x-A.tikken[i]);A.P0=iv.length?Math.min(9000,Math.max(3000,iv.reduce((a,b)=>a+b,0)/iv.length)):5000;A.P=A.P0;A.fase="leiden";A.cyclusStart=t;A.fstart=t;wissel(true);}
+  if(A.tikken.length>=4||A.zonder||t-A.start>20000){const iv=A.zonder?[]:A.tikken.slice(1).map((x,i)=>x-A.tikken[i]);A.P0=iv.length?Math.min(9000,Math.max(3000,iv.reduce((a,b)=>a+b,0)/iv.length)):5000;A.P=A.P0;A.fase="leiden";A.cyclusStart=t;A.fstart=t;wissel(true);}
   $("#ap").textContent=A.tikken.length?A.tikken.length+" van 4 ademhalingen":"";return;}
  // leiden: periode schuift in 3/5 van de sessie van eigen tempo naar 10 s (6 per minuut); uit = 60%
  const verlopen=t-A.fstart, rest=A.duur-(t-A.start); if(rest<=0)return eindAdem(false);
@@ -155,7 +166,7 @@ function ademTik(){
  const per=Math.round(60000/P); $("#at").textContent=`Je begon op ${Math.round(60000/A.P0)} per minuut`; $("#ap").textContent=`nu ${per} · straks 6`;
  $("#ab").style.width=(100*(t-A.start)/A.duur).toFixed(1)+"%";
 }
-function eindAdem(gestopt){clearInterval(A.timer);document.body.classList.remove("zwart");const P=A.P||5000;S.laatsteAdem={start:Math.round(60000/(A.P0||5000)),eind:Math.round(60000/(A.fase==="leiden"?A.P0+(A.doel-A.P0)*Math.min(1,(nu()-A.fstart)/(A.duur*0.6)):P)),uit:Math.round((A.fase==="leiden"?A.doel:P)*(S.zucht?0.7:0.6)/1000)};bewaar();$("#laag").innerHTML="";if(A.danStil){A=null;return startStil();}A=null;ga("klaarA");}
+function eindAdem(gestopt){clearInterval(A.timer);document.body.classList.remove("zwart");const P=A.P||5000;S.laatsteAdem={start:Math.round(60000/(A.P0||5000)),eind:Math.round(60000/(A.fase==="leiden"?A.P0+(A.doel-A.P0)*Math.min(1,(nu()-A.fstart)/(A.duur*0.6)):P)),uit:Math.round((A.fase==="leiden"?A.doel:P)*(S.zucht?0.7:0.6)/1000),in:Math.round((A.fase==="leiden"?A.doel:P)*(S.zucht?0.3:0.4)/1000)};bewaar();$("#laag").innerHTML="";if(A.danStil){A=null;return startStil();}A=null;ga("klaarA");}
 // ---------- Stil-sessie ----------
 let T=null;
 function bel(){try{const c=new (window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator(),g=c.createGain();o.frequency.value=528;g.gain.setValueAtTime(0.0001,c.currentTime);g.gain.exponentialRampToValueAtTime(0.25,c.currentTime+0.02);g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+2.5);o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+2.6);}catch(e){}}
@@ -170,13 +181,17 @@ function startStil(){
  T.timer=setInterval(()=>{const r=T.duur-(nu()-T.start);if(r<=0)return eindStil();$("#st").textContent=mmss(r);},200);
 }
 const ZINNEN=["Gemerkt. Terug naar je adem.","Mooi gemerkt. Terug.","Gemerkt. Adem in, adem uit."];
-function tik(){const t=nu();T.tikken.push(t);trillen(30);const z=$("#zin");z.style.opacity=1;z.textContent="“"+ZINNEN[T.tikken.length%ZINNEN.length]+"”";clearTimeout(T.zt);T.zt=setTimeout(()=>{z.style.opacity=0;},3500);}
-function eindStil(){if(!T)return;clearInterval(T.timer);bel();const iv=T.tikken.map((x,i)=>x-(i?T.tikken[i-1]:T.start));const gem=iv.length?Math.round(iv.reduce((a,b)=>a+b,0)/iv.length/1000):0;S.laatsteStil={keer:T.tikken.length,gem};S.sessies.push({datum:Date.now(),keer:T.tikken.length,gem});bewaar();T=null;$("#laag").innerHTML="";ga("klaarS");}
+const bijTik=()=>S.bijTik==="zin"&&!open()?"bel":S.bijTik; // de zinnen horen na de proef bij de aankoop
+const tikTekst=()=>({zin:"Je hoort één korte zin, dan is het weer stil.",bel:"Je hoort een zachte bel, dan is het weer stil.",trilling:"Je voelt een korte trilling, verder niets."})[bijTik()];
+function zachteBel(){try{const c=new (window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator(),g=c.createGain();o.frequency.value=660;g.gain.setValueAtTime(0.0001,c.currentTime);g.gain.exponentialRampToValueAtTime(0.08,c.currentTime+0.02);g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+1.2);o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+1.3);}catch(e){}}
+function tik(){const t=nu();T.tikken.push(t);trillen(30);const w=bijTik();if(w==="bel")zachteBel();if(w!=="zin")return;const z=$("#zin");z.style.opacity=1;z.textContent="“"+ZINNEN[T.tikken.length%ZINNEN.length]+"”";clearTimeout(T.zt);T.zt=setTimeout(()=>{z.style.opacity=0;},3500);}
+function eindStil(){if(!T)return;clearInterval(T.timer);bel();const iv=T.tikken.map((x,i)=>x-(i?T.tikken[i-1]:T.start));const gem=iv.length?Math.round(iv.reduce((a,b)=>a+b,0)/iv.length/1000):0;S.laatsteStil={keer:T.tikken.length,gem};S.toonVorige=false;S.sessies.push({datum:Date.now(),keer:T.tikken.length,gem});bewaar();T=null;$("#laag").innerHTML="";ga("klaarS");}
 // ---------- koppelen ----------
 const ACT={begrepen(){S.gezien=true;ga(S.stand);},startAdem,startStil,
  zucht(){if(!open())return ga("koop");S.zucht=!S.zucht;bewaar();teken();},
  ademDanStil(){if(!open())return ga("koop");S.zucht=false;const d=S.duurAdem;S.duurAdem=2;startAdem();A.danStil=true;S.duurAdem=d;},
  naarStil(){S.stand="stil";ga("stil");},
+ vergelijk(){S.toonVorige=true;bewaar();teken();},
  boom(){alert("Prototype: hier opent de Boom-app, als die op je telefoon staat. Anders gebeurt er niets.");},
  koop(){if(confirm("Dit is een prototype. Er wordt niet betaald. Aankoop nabootsen?")){S.gekocht=true;bewaar();ga(S.stand);}},
  herstel(){alert("Prototype: in de echte app vraagt dit de App Store om je eerdere aankoop. Hier gebeurt niets.");},
@@ -186,6 +201,8 @@ function koppel(){
  document.querySelectorAll("[data-g]").forEach(e=>e.onclick=()=>ga(e.dataset.g));
  document.querySelectorAll("[data-stand]").forEach(e=>e.onclick=()=>{S.stand=e.dataset.stand;ga(S.stand);});
  document.querySelectorAll("[data-duur]").forEach(e=>e.onclick=()=>{S.duurAdem=+e.dataset.duur;S.zucht=false;bewaar();teken();});
+ document.querySelectorAll("[data-meten]").forEach(e=>e.onclick=()=>{S.meten=e.dataset.meten==="1";bewaar();teken();});
+ document.querySelectorAll("[data-biitik]").forEach(e=>e.onclick=()=>{if(e.dataset.biitik==="zin"&&!open())return ga("koop");S.bijTik=e.dataset.biitik;bewaar();teken();});
  document.querySelectorAll("[data-stilduur]").forEach(e=>e.onclick=()=>{S.duurStil=+e.dataset.stilduur;bewaar();teken();});
  document.querySelectorAll("[data-snel]").forEach(e=>e.onclick=()=>{zetSnel(+e.dataset.snel);teken();});
  document.querySelectorAll("[data-proef]").forEach(e=>e.onclick=()=>{S.installDag=+e.dataset.proef;bewaar();teken();});
