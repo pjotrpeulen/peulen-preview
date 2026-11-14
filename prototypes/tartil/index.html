@@ -111,7 +111,7 @@ nav.tabs button.aan{color:var(--ac)}
  <div class="toast" id="toast" role="status"></div>
 </div>
 <script>
-const DATA = [{"n":1,"tr":"al-Fatiha","ar":"الفاتحة","nl":"De opening","verzen":7,"plaats":"Mekkaans","juz":1,"pagina":1,"basmala_kop":false,"zoek":"fatiha fatihah faatiha fatiha opening","vz":[{"v":1,"ar":null,"nl":null},{"v":2,"ar":null,"nl":null},{"v":3,"ar":null,"nl":null},{"v":4,"ar":null,"nl":null},{"v":5,"ar":null,"nl":null},{"v":6,"ar":null,"nl":null},{"v":7,"ar":null,"nl":null}]},{"n":108,"tr":"al-Kawthar","ar":"الكوثر","nl":"De overvloed","verzen":3,"plaats":"Mekkaans","juz":30,"pagina":602,"basmala_kop":true,"zoek":"kawthar kauthar kausar kevser kawsar overvloed","vz":[{"v":1,"ar":null,"nl":null},{"v":2,"ar":null,"nl":null},{"v":3,"ar":null,"nl":null}]},{"n":112,"tr":"al-Ikhlas","ar":"الإخلاص","nl":"De oprechtheid","verzen":4,"plaats":"Mekkaans","juz":30,"pagina":604,"basmala_kop":true,"zoek":"ikhlas ichlas ihlas iklas oprechtheid zuiverheid","vz":[{"v":1,"ar":null,"nl":null},{"v":2,"ar":null,"nl":null},{"v":3,"ar":null,"nl":null},{"v":4,"ar":null,"nl":null}]}];
+const DATA = [{"n":1,"tr":"al-Fatiha","ar":"الفاتحة","nl":"De opening","verzen":7,"plaats":"Mekkaans","juz":1,"pagina":1,"zoek":"fatiha fatihah faatiha fatiha opening","basmala":null,"vz":[{"v":1,"ar":null,"nl":null},{"v":2,"ar":null,"nl":null},{"v":3,"ar":null,"nl":null},{"v":4,"ar":null,"nl":null},{"v":5,"ar":null,"nl":null},{"v":6,"ar":null,"nl":null},{"v":7,"ar":null,"nl":null}]},{"n":108,"tr":"al-Kawthar","ar":"الكوثر","nl":"De overvloed","verzen":3,"plaats":"Mekkaans","juz":30,"pagina":602,"zoek":"kawthar kauthar kausar kevser kawsar overvloed","basmala":"ph","vz":[{"v":1,"ar":null,"nl":null},{"v":2,"ar":null,"nl":null},{"v":3,"ar":null,"nl":null}]},{"n":112,"tr":"al-Ikhlas","ar":"الإخلاص","nl":"De oprechtheid","verzen":4,"plaats":"Mekkaans","juz":30,"pagina":604,"zoek":"ikhlas ichlas ihlas iklas oprechtheid zuiverheid","basmala":"ph","vz":[{"v":1,"ar":null,"nl":null},{"v":2,"ar":null,"nl":null},{"v":3,"ar":null,"nl":null},{"v":4,"ar":null,"nl":null}]}];
 const BRON = {"ar":null,"nl":null,"kop":[]};
 const KEUZE = '[KEUZE PJOTR]';
 const IC = {
@@ -157,7 +157,8 @@ function lezen() {
  const d = soera(S.soera) || DATA[0], i = idx(d.n);
  let h = `<div class="blad"><div class="bladkop"><span>juz ${d.juz} · pagina ${d.pagina}</span><span>${esc(d.tr)}</span></div>`;
  h += `<div class="soerakop"><div class="arn ar" dir="rtl" lang="ar">سورة ${esc(d.ar)}</div><div class="info">Soera ${d.n} · ${esc(d.tr)} · ${esc(d.nl)} · ${d.verzen} verzen · ${d.plaats}</div></div>`;
- if (d.basmala_kop) h += `<div class="basmala" dir="rtl" lang="ar"><span class="ph" dir="ltr" style="font-size:13px">[Tanzil-tekst: basmala boven de soera, geen vers]</span></div>`;
+ if (d.basmala === 'ph') h += `<div class="basmala" dir="rtl" lang="ar"><span class="ph" dir="ltr" style="font-size:13px">[Tanzil-tekst: basmala boven de soera, geen vers]</span></div>`;
+ else if (d.basmala) h += `<div class="basmala ar" dir="rtl" lang="ar" style="font-size:var(--fs);line-height:2.1">${esc(d.basmala)}</div>`;
  h += `<div dir="rtl" lang="ar" class="ar">`;
  d.vz.forEach(x => {
   h += `<div class="vers ${x.v === S.vers ? 'plek' : ''}" id="v-${d.n}-${x.v}" onclick="versMenu(${d.n},${x.v})" role="button" aria-label="Soera ${esc(d.tr)}, vers ${x.v}">${arTekst(d, x)}<span class="vm">${arNr(x.v)}</span>${heeftBw(d.n, x.v) ? '<span class="lint" aria-label="bladwijzer">&#9646;</span>' : ''}</div>`;
