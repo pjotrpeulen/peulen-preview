@@ -12,11 +12,12 @@
      10 november (groen punt 63, online validatie): andere trilling bij in (lang) en uit (korte tikjes), tempo meten optioneel (zonder tikken: 12 per minuut),
      bij een tik zin, zachte bel of alleen trilling (de stem kan uit), en een neutrale telling: de vergelijking met de vorige keer alleen op verzoek. -->
 <style>
+[hidden]{display:none!important} /* 14 nov: de menubalk verborg zich niet op het startscherm (nav had display:flex) */
 :root{--bg:#2B2F36;--kaart:rgba(255,255,255,.07);--rand:rgba(255,255,255,.15);--wit:#FFFFFF;--zacht:#DDDDDD;--dim:#9A9DA6;--ac:#4D5F96;--acl:#E6E8F2}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 html,body{margin:0;background:var(--bg);color:var(--wit);font:16px/1.45 -apple-system,"SF Pro Text","Helvetica Neue",Arial,sans-serif;min-height:100%}
 body.zwart{--bg:#000}
-.app{max-width:420px;min-height:100vh;margin:0 auto;position:relative}
+.app{max-width:440px;min-height:100vh;margin:0 auto;position:relative}
 main{padding:18px 22px 110px}
 .standen{display:flex;margin:10px auto 0;width:180px;background:rgba(255,255,255,.12);border-radius:20px;padding:3px}
 .standen button{flex:1;border:0;background:none;color:var(--zacht);font:600 14px inherit;padding:7px;border-radius:16px;cursor:pointer}
@@ -39,7 +40,7 @@ h1{font-size:24px;font-weight:600;margin:20px 0 8px} h2{font-size:17px;margin:20
 .stilvlak{position:fixed;inset:0;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center;cursor:pointer;background:var(--bg)}
 .stilvlak .vak{border:1px solid var(--rand);border-radius:28px;padding:34px 22px;width:100%;max-width:340px;background:rgba(255,255,255,.04)}
 .zin{min-height:52px;margin-top:16px;color:var(--zacht);font-size:15px;transition:opacity .6s}
-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:rgba(43,47,54,.97);border-top:1px solid var(--rand);display:flex;padding:10px 0 calc(14px + env(safe-area-inset-bottom));z-index:3}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;background:rgba(43,47,54,.97);border-top:1px solid var(--rand);display:flex;padding:10px 0 calc(14px + env(safe-area-inset-bottom));z-index:3}
 nav button{flex:1;background:none;border:0;color:var(--dim);font:500 14px inherit;padding:8px;cursor:pointer} nav button.aan{color:#fff;font-weight:700}
 .stap{display:flex;gap:12px;align-items:flex-start;margin:14px 0} .stap span{width:26px;height:26px;border-radius:50%;background:var(--ac);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex:none}
 .slot{opacity:.45} .demo{margin-top:24px;padding:14px;border:1px dashed var(--rand);border-radius:16px}
