@@ -10,11 +10,12 @@
      Eén bestand, geen netwerk, geen tracking. De camera wordt NIET gebruikt: de meting is gesimuleerd (zie het demopaneel bij ⚙).
      Richtwaarden zijn concept (openbare bronnen, afgerond) en nog te controleren. Aankoop nagebootst: er wordt niets afgeschreven. -->
 <style>
+[hidden]{display:none!important} /* 14 nov: de menubalk verborg zich niet op het startscherm (nav had display:flex) */
 :root{--ac:#8A5F15;--licht:#F6EEDD;--ink:#26221C;--sub:#6F675C;--lijn:#E7E2D8;--bg:#FFFFFF;--zand:#F8F6F1;--rood:#B5462F;--groen:#3E6E3E}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--zand);color:var(--ink);font:16px/1.45 -apple-system,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
 main,.sheet,.dialoog,nav{overflow-wrap:anywhere}
-.app{max-width:420px;min-height:100vh;margin:0 auto;background:var(--bg);position:relative}
+.app{max-width:440px;min-height:100vh;margin:0 auto;background:var(--bg);position:relative}
 main{padding:16px 20px 110px}
 h1{font-size:22px;margin:16px 0 4px} h2{font-size:16px;margin:20px 0 8px}
 .kop{display:flex;justify-content:space-between;align-items:center;gap:8px}
@@ -47,10 +48,10 @@ h1{font-size:22px;margin:16px 0 4px} h2{font-size:16px;margin:20px 0 8px}
 .vergelijk{display:flex;gap:10px;margin-top:8px} .vergelijk div{flex:1;background:#fff;border:1px solid var(--lijn);border-radius:12px;padding:10px;text-align:center}
 .vergelijk b{display:block;font-size:22px;font-weight:400}
 .concept{font-size:11px;color:#A0661A}
-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:#fff;border-top:1px solid var(--lijn);display:flex;padding:10px 0 calc(14px + env(safe-area-inset-bottom));z-index:3}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;background:#fff;border-top:1px solid var(--lijn);display:flex;padding:10px 0 calc(14px + env(safe-area-inset-bottom));z-index:3}
 nav button{flex:1;background:none;border:0;color:var(--sub);font:500 14px inherit;padding:8px;cursor:pointer} nav button.aan{color:var(--ac);font-weight:700}
 .sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:flex-end;justify-content:center;z-index:9}
-.sheet{background:#fff;width:100%;max-width:420px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:14px 20px 30px}
+.sheet{background:#fff;width:100%;max-width:440px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:14px 20px 30px}
 .greep{width:40px;height:5px;border-radius:3px;background:var(--lijn);margin:0 auto 10px}
 .dialoog{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:10;padding:20px}
 .dialoog>div{background:#F2F2F2;border-radius:14px;max-width:290px;width:100%;text-align:center;overflow:hidden}
