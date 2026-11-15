@@ -9,11 +9,12 @@
 <!-- Klikbaar prototype Stilvast 1.0 (APP-12), 8 november 2026. Design A+B, terracotta. Eén bestand, geen netwerk, geen tracking.
      Gegevens alleen in deze browser (localStorage). Betalen is nagebootst: er wordt nooit iets afgeschreven. -->
 <style>
+[hidden]{display:none!important} /* 14 nov: de menubalk verborg zich niet op het startscherm (nav had display:flex) */
 :root{--bg:#FAF5EE;--ink:#2B2420;--zacht:#75685B;--lijn:#ECE2D6;--kaart:#FFFFFF;--ac:#A3533A;--acl:#EFD3C6;--opac:#FFFFFF}
 body.nacht{--bg:#221B17;--ink:#F1E7DA;--zacht:#A8988A;--lijn:#3A2F28;--kaart:#2E2520;--ac:#E08C6B;--acl:#5A4136;--opac:#221B17}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 -apple-system,"SF Pro Text","Helvetica Neue",Arial,sans-serif;transition:background .3s}
-.app{max-width:420px;min-height:100vh;margin:0 auto;position:relative}
+.app{max-width:440px;min-height:100vh;margin:0 auto;position:relative}
 main{padding:18px 22px 120px}
 .kop{display:flex;justify-content:space-between;align-items:baseline;margin-top:6px}
 .merk{color:var(--ac);font-weight:700}
@@ -32,7 +33,7 @@ h2{font-weight:500;font-size:17px;margin:24px 0 10px}
 .raster button{background:var(--kaart);border:0;border-radius:22px;padding:16px 0;font:200 30px inherit;color:var(--ink);cursor:pointer}
 .raster button small{display:block;font-size:12px;font-weight:400;color:var(--zacht)}
 .raster button.aan{background:var(--ac);color:var(--opac)} .raster button.aan small{color:var(--opac)}
-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:var(--bg);border-top:1px solid var(--lijn);display:flex;padding:10px 0 calc(14px + env(safe-area-inset-bottom))}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;background:var(--bg);border-top:1px solid var(--lijn);display:flex;padding:10px 0 calc(14px + env(safe-area-inset-bottom))}
 nav button{flex:1;background:none;border:0;color:var(--zacht);font:500 14px inherit;padding:8px;cursor:pointer}
 nav button.aan{color:var(--ac);font-weight:700}
 .balken{display:flex;align-items:flex-end;gap:12px;height:110px;margin:14px 6px 4px;position:relative}
@@ -45,7 +46,7 @@ nav button.aan{color:var(--ac);font-weight:700}
 .slot{position:relative} .slot .waas{filter:blur(4px);opacity:.5;pointer-events:none}
 .slot .over{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
 .sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:flex-end;justify-content:center;z-index:9}
-.sheet{background:var(--bg);width:100%;max-width:420px;border-radius:24px 24px 0 0;padding:14px 22px 34px}
+.sheet{background:var(--bg);width:100%;max-width:440px;border-radius:24px 24px 0 0;padding:14px 22px 34px}
 .greep{width:40px;height:5px;border-radius:3px;background:var(--lijn);margin:0 auto 12px}
 input[type=datetime-local],input[type=number]{width:100%;border:1px solid var(--lijn);background:var(--kaart);color:var(--ink);border-radius:14px;padding:12px;font:16px inherit}
 .rij{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--lijn)}
@@ -55,6 +56,18 @@ input[type=datetime-local],input[type=number]{width:100%;border:1px solid var(--
 .demo b{font-size:13px}
 .vink{display:flex;gap:10px;align-items:flex-start;margin:12px 0}
 .vink span:first-child{color:var(--ac);font-weight:700}
+/* toegangsscherm (14 nov, punt 97): nagebootst, alleen in het prototype */
+.ts{min-height:calc(100vh - 140px);display:flex;flex-direction:column}
+.ts .datum{margin-top:44px;text-align:center;font-size:18px;font-weight:500;color:var(--ink);opacity:.85}
+.ts .tijd{text-align:center;font-size:88px;font-weight:200;line-height:1;margin-top:2px;letter-spacing:-2px}
+.ts .la{margin-top:auto;background:var(--kaart);border-radius:24px;padding:16px 18px}
+.ts .la .boven{display:flex;justify-content:space-between;font-size:13px}
+.ts .la .rij2{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.ts .la .stand{font-size:26px;font-weight:300}
+.ts .la .knopje{border:0;border-radius:18px;background:var(--ac);color:var(--opac);font:600 15px inherit;padding:10px 18px;cursor:pointer}
+.ts .la .balk{height:5px;border-radius:3px;background:var(--lijn);margin-top:12px;overflow:hidden}
+.ts .la .balk i{display:block;height:100%;background:var(--ac)}
+.ts .noot{text-align:center;font-size:12px;color:var(--zacht);margin-top:16px}
 .prijs{font-size:44px;font-weight:200;text-align:center;margin:10px 0 0}
 </style>
 </head>
@@ -88,13 +101,13 @@ function dagNaam(t){const d=new Date(t),v=new Date(nu());const x=Math.round((new
 function proefOver(){return Math.max(0,15-S.installDag);}
 function open(){return S.gekocht||S.installDag<=14;}
 function lokaal(t){const d=new Date(t);return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+"T"+pad(d.getHours())+":"+pad(d.getMinutes());}
-function nacht(){if(S.thema==="licht")return false;if(S.thema==="nacht")return true;const h=new Date(nu()).getHours();return h>=21||h<6;}
+function nacht(){if(S.scherm==="toegang")return true;if(S.thema==="licht")return false;if(S.thema==="nacht")return true;const h=new Date(nu()).getHours();return h>=21||h<6;}
 // ---------- navigatie ----------
 function ga(x){S.scherm=x;bewaar();teken();scrollTo(0,0);}
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>ga(b.dataset.t));
 function teken(){
   document.body.classList.toggle("nacht",nacht());
-  $("#nav").hidden=["welkom","doel"].includes(S.scherm)&&S.eerste;
+  $("#nav").hidden=(["welkom","doel"].includes(S.scherm)&&S.eerste)||S.scherm==="toegang";
   document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("aan",b.dataset.t===S.scherm||(S.scherm==="doel"&&b.dataset.t==="timer")));
   $("#s").innerHTML=(V[S.scherm]||V.timer)(); koppel();
 }
@@ -156,6 +169,7 @@ meer(){return `<h1 style="font-size:20px">Meer</h1>
    <div class="rij"><span class="klein">Tijd versnellen</span><span class="chips">${[1,60,600,3600].map(x=>`<button class="chip ${S.snel===x?"aan":""}" data-snel="${x}">${x===1?"echt":x+"×"}</button>`).join("")}</span></div>
    <div class="rij"><span class="klein">Spring vooruit</span><span class="chips"><button class="chip" data-spring="1">+1 uur</button><button class="chip" data-spring="4">+4 uur</button></span></div>
    <div class="rij"><span class="klein">Proefdag</span><span class="chips">${[1,13,15].map(x=>`<button class="chip ${S.installDag===x?"aan":""}" data-proef="${x}">dag ${x}</button>`).join("")}</span></div>
+   <div class="rij"><span class="klein">Toegangsscherm</span><button class="chip" data-g="toegang">Bekijk de live-activiteit</button></div>
    <div class="rij"><span class="klein">Welkom terug</span><button class="chip" data-a="weg">Doe alsof je 3 weken weg was</button></div>
    <button class="knop rand" data-a="wis">Alles wissen en opnieuw beginnen</button></div>`;},
 koop(){return `<p class="midden" style="margin-top:30px"><span class="merk">Stilvast</span></p>
@@ -165,6 +179,13 @@ koop(){return `<p class="midden" style="margin-top:30px"><span class="merk">Stil
   <p class="klein midden">Timen blijft altijd gratis. Er wordt nooit iets vanzelf afgeschreven. Exporteren blijft altijd gratis. Wat je koopt, blijft van jou.</p>
   <button class="knop" data-a="koop">Koop voor € 4,99</button>
   <p class="midden"><button class="link" data-a="herstel">Aankoop herstellen</button> · <button class="link" data-g="timer">Niet nu</button></p>`;},
+toegang(){const t=nu(),d=new Date(t),v=S.vast,W=["zondag","maandag","dinsdag","woensdag","donderdag","vrijdag","zaterdag"],M=["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"];
+ const datum=W[d.getDay()]+" "+d.getDate()+" "+M[d.getMonth()];
+ const doelMs=S.doel*U, ver=v?t-v.start:0, frac=v?Math.min(1,ver/doelMs):0;
+ const la=v?`<div class="boven"><b style="color:var(--ac)">Stilvast</b><span class="zacht">${S.doel}:${Math.max(0,24-S.doel)}</span></div><div class="rij2"><div><div class="stand">Je vast · ${duur(ver)}</div><div class="klein">doel om ${klokTijd(v.start+doelMs)}</div></div><button class="knopje" data-a="toegangStop">Stop</button></div><div class="balk"><i style="width:${(frac*100).toFixed(1)}%"></i></div>`
+  :`<div class="boven"><b style="color:var(--ac)">Stilvast</b><span class="zacht">${S.doel}:${Math.max(0,24-S.doel)}</span></div><div class="rij2"><div><div class="stand">Je eet nu</div><div class="klein">doel ${S.doel} uur</div></div><button class="knopje" data-a="toegangStart">Start</button></div>`;
+ return `<div class="ts"><div class="datum">${datum}</div><div class="tijd">${klokTijd(t)}</div><div class="la">${la}</div>
+  <p class="noot">Nagebootst in het prototype: in de app tekent iOS dit scherm.<br><button class="link" data-g="timer">Terug naar de app</button></p></div>`;},
 terug(){const l=[...S.lijst].sort((a,b)=>b.eind-a.eind)[0];return `<h1 class="midden" style="margin-top:60px">Welkom terug</h1>
   <p class="midden zacht">Fijn dat je er weer bent. Er is niets ingehaald nodig.</p>
   <div class="kaart midden" style="margin-top:20px"><small class="zacht">Je laatste vasten</small><div style="font-size:30px;font-weight:200">${l?duur(l.eind-l.start):"-"}</div><small class="zacht">${l?dagNaam(l.eind):""} · doel ${S.doel} uur</small></div>
@@ -190,6 +211,8 @@ const A={
  koop(){if(confirm("Dit is een prototype. Er wordt niet betaald. Aankoop nabootsen?")){S.gekocht=true;bewaar();ga("gesch");}},
  herstel(){alert("Prototype: in de echte app vraagt dit de App Store om je eerdere aankoop. Hier gebeurt niets.");},
  weg(){S.lijst.forEach(x=>{x.start-=21*DAG;x.eind-=21*DAG});S.vast=null;bewaar();ga("terug");},
+ toegangStop(){ga("timer");A.stop();},
+ toegangStart(){A.start();ga("toegang");},
  wis(){if(confirm("Alles in dit prototype wissen?")){try{localStorage.removeItem(K)}catch(e){}location.reload();}}
 };
 function pas(i){const x=S.lijst[i];sheet(`<h2>Vasten aanpassen</h2><p class="klein">Start</p><input type="datetime-local" id="pa" value="${lokaal(x.start)}"><p class="klein">Einde</p><input type="datetime-local" id="pe" value="${lokaal(x.eind)}">
