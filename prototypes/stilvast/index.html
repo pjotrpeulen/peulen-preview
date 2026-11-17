@@ -21,20 +21,20 @@ main{padding:18px 22px 120px}
 .zacht{color:var(--zacht)} .klein{font-size:13px;color:var(--zacht)} .midden{text-align:center}
 h1{font-weight:400;font-size:24px;margin:22px 0 6px}
 h2{font-weight:500;font-size:17px;margin:24px 0 10px}
-.knop{display:block;width:100%;border:0;border-radius:26px;background:var(--ac);color:var(--opac);font:500 17px/1 inherit;padding:16px;margin-top:20px;cursor:pointer}
+.knop{display:block;width:100%;border:0;border-radius:26px;background:var(--ac);color:var(--opac);font:inherit;font-weight:500;font-size:17px;line-height:1;padding:16px;margin-top:20px;cursor:pointer}
 .knop.rand{background:transparent;color:var(--ink);border:1px solid var(--lijn)}
-.link{background:none;border:0;color:var(--ac);font:500 15px inherit;padding:8px 0;cursor:pointer}
+.link{background:none;border:0;color:var(--ac);font:inherit;font-weight:500;font-size:15px;padding:8px 0;cursor:pointer}
 .kaart{background:var(--kaart);border-radius:18px;padding:14px 16px}
 .duo{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
 .duo .kaart small{display:block;color:var(--zacht);font-size:12px}
 .ring{display:block;margin:10px auto 0}
 .groot{font-size:58px;font-weight:200;letter-spacing:-1px}
 .raster{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
-.raster button{background:var(--kaart);border:0;border-radius:22px;padding:16px 0;font:200 30px inherit;color:var(--ink);cursor:pointer}
+.raster button{background:var(--kaart);border:0;border-radius:22px;padding:16px 0;font:inherit;font-weight:200;font-size:30px;color:var(--ink);cursor:pointer}
 .raster button small{display:block;font-size:12px;font-weight:400;color:var(--zacht)}
 .raster button.aan{background:var(--ac);color:var(--opac)} .raster button.aan small{color:var(--opac)}
 nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;background:var(--bg);border-top:1px solid var(--lijn);display:flex;padding:10px 0 calc(14px + env(safe-area-inset-bottom))}
-nav button{flex:1;background:none;border:0;color:var(--zacht);font:500 14px inherit;padding:8px;cursor:pointer}
+nav button{flex:1;background:none;border:0;color:var(--zacht);font:inherit;font-weight:500;font-size:14px;padding:8px;cursor:pointer}
 nav button.aan{color:var(--ac);font-weight:700}
 .balken{display:flex;align-items:flex-end;gap:12px;height:110px;margin:14px 6px 4px;position:relative}
 .balken div{flex:1;border-radius:6px;background:var(--acl)} .balken div.vol{background:var(--ac)}
@@ -48,9 +48,18 @@ nav button.aan{color:var(--ac);font-weight:700}
 .sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:flex-end;justify-content:center;z-index:9}
 .sheet{background:var(--bg);width:100%;max-width:440px;border-radius:24px 24px 0 0;padding:14px 22px 34px}
 .greep{width:40px;height:5px;border-radius:3px;background:var(--lijn);margin:0 auto 12px}
-input[type=datetime-local],input[type=number]{width:100%;border:1px solid var(--lijn);background:var(--kaart);color:var(--ink);border-radius:14px;padding:12px;font:16px inherit}
+/* 17 nov (punt 120): eigen tijdkiezer in app-stijl in plaats van het datumveld van de browser */
+.kiezer{background:var(--kaart);border:1px solid var(--zacht);border-radius:14px;padding:10px 12px;margin:6px 0 4px}
+.kiezer .k1{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.kiezer output{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
+.kiezer .k2{display:flex;gap:6px;margin-top:8px}
+.kiezer button{border:1px solid var(--lijn);background:var(--bg);color:var(--ink);border-radius:10px;min-width:44px;min-height:44px;padding:0 10px;font:inherit;font-size:15px;cursor:pointer}
+.kiezer .k2 button{flex:1}
+.kiezer .k1 button{font-size:24px;line-height:1}
+.fout{color:var(--ac);font-size:14px;font-weight:600;margin:8px 0 0}
+input[type=number]{width:100%;border:1px solid var(--zacht);background:var(--kaart);color:var(--ink);border-radius:14px;padding:12px;font:inherit;font-size:16px}
 .rij{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--lijn)}
-.chips{display:flex;gap:6px;flex-wrap:wrap} .chip{border:1px solid var(--lijn);background:var(--kaart);color:var(--ink);border-radius:14px;padding:6px 11px;font:13px inherit;cursor:pointer}
+.chips{display:flex;gap:6px;flex-wrap:wrap} .chip{border:1px solid var(--lijn);background:var(--kaart);color:var(--ink);border-radius:14px;padding:6px 11px;font:inherit;font-size:13px;cursor:pointer}
 .chip.aan{background:var(--ac);border-color:var(--ac);color:var(--opac)}
 .demo{margin-top:26px;padding:14px;border:1px dashed var(--lijn);border-radius:16px}
 .demo b{font-size:13px}
@@ -64,7 +73,7 @@ input[type=datetime-local],input[type=number]{width:100%;border:1px solid var(--
 .ts .la .boven{display:flex;justify-content:space-between;font-size:13px}
 .ts .la .rij2{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
 .ts .la .stand{font-size:26px;font-weight:300}
-.ts .la .knopje{border:0;border-radius:18px;background:var(--ac);color:var(--opac);font:600 15px inherit;padding:10px 18px;cursor:pointer}
+.ts .la .knopje{border:0;border-radius:18px;background:var(--ac);color:var(--opac);font:inherit;font-weight:600;font-size:15px;padding:10px 18px;cursor:pointer}
 .ts .la .balk{height:5px;border-radius:3px;background:var(--lijn);margin-top:12px;overflow:hidden}
 .ts .la .balk i{display:block;height:100%;background:var(--ac)}
 .ts .noot{text-align:center;font-size:12px;color:var(--zacht);margin-top:16px}
@@ -100,6 +109,12 @@ const DG=["zo","ma","di","wo","do","vr","za"], MD=["jan","feb","mrt","apr","mei"
 function dagNaam(t){const d=new Date(t),v=new Date(nu());const x=Math.round((new Date(v.toDateString())-new Date(d.toDateString()))/DAG);return x===0?"vandaag":x===1?"gisteren":DG[d.getDay()]+" "+d.getDate()+" "+MD[d.getMonth()];}
 function proefOver(){return Math.max(0,15-S.installDag);}
 function open(){return S.gekocht||S.installDag<=14;}
+function kiesTekst(t){const d=new Date(t);return DG[d.getDay()]+" "+d.getDate()+" "+MD[d.getMonth()]+" · "+pad(d.getHours())+":"+pad(d.getMinutes());}
+function kiezer(id,t,naam){return `<div class="kiezer" id="${id}" data-t="${t}" role="group" aria-label="${naam||"Datum en tijd"}"><div class="k1"><button type="button" data-d="-1" aria-label="Een dag eerder">‹</button><output aria-live="polite">${kiesTekst(t)}</output><button type="button" data-d="1" aria-label="Een dag later">›</button></div><div class="k2"><button type="button" data-k="-60" aria-label="Een uur eerder">−1 u</button><button type="button" data-k="-15" aria-label="Kwartier eerder">−15 m</button><button type="button" data-k="15" aria-label="Kwartier later">+15 m</button><button type="button" data-k="60" aria-label="Een uur later">+1 u</button></div></div>`;}
+// review 120: een dag eerder of later via de kalender (klopt ook bij de wissel van zomertijd), minuten en uren als echte tijd
+function kiezersAan(){document.querySelectorAll("#sheet .kiezer").forEach(k=>{const zet=t=>{k.dataset.t=t;k.querySelector("output").textContent=kiesTekst(t);const f=document.querySelector("#sheet .fout");if(f)f.remove();};k.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>zet(+k.dataset.t+(+b.dataset.k)*60000));k.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{const d=new Date(+k.dataset.t);d.setDate(d.getDate()+(+b.dataset.d));zet(d.getTime());});});}
+function overlapTekst(o){const z=new Date(o.start).toDateString()===new Date(o.eind).toDateString();return "Dit overlapt met je vasten van "+kiesTekst(o.start).replace(" · "," ")+" tot "+(z?kiesTekst(o.eind).split(" · ")[1]:kiesTekst(o.eind).replace(" · "," "))+".";}
+function fout(tekst,na){let f=document.querySelector("#sheet .fout");if(!f){f=document.createElement("p");f.className="fout";f.setAttribute("role","alert");document.querySelector(na).after(f);}f.textContent=tekst;}
 function lokaal(t){const d=new Date(t);return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+"T"+pad(d.getHours())+":"+pad(d.getMinutes());}
 function nacht(){if(S.scherm==="toegang")return true;if(S.thema==="licht")return false;if(S.thema==="nacht")return true;const h=new Date(nu()).getHours();return h>=21||h<6;}
 // ---------- navigatie ----------
@@ -193,7 +208,7 @@ terug(){const l=[...S.lijst].sort((a,b)=>b.eind-a.eind)[0];return `<h1 class="mi
   <p class="klein midden">Geen reeks die is gebroken. Je oude geschiedenis blijft gewoon staan.</p>`;}
 };
 // ---------- acties ----------
-function sheet(h){$("#sheet").innerHTML=`<div class="sheet-bg"><div class="sheet"><div class="greep"></div>${h}</div></div>`;$("#sheet .sheet-bg").onclick=e=>{if(e.target.classList.contains("sheet-bg"))sluit();};$("#sheet").querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>A[b.dataset.s]());}
+function sheet(h){$("#sheet").innerHTML=`<div class="sheet-bg"><div class="sheet"><div class="greep"></div>${h}</div></div>`;$("#sheet .sheet-bg").onclick=e=>{if(e.target.classList.contains("sheet-bg"))sluit();};$("#sheet").querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>A[b.dataset.s]());kiezersAan();}
 function sluit(){$("#sheet").innerHTML="";teken();}
 const A={
  begin(){ga("doel");},
@@ -205,8 +220,8 @@ const A={
  stopOk(){S.lijst.push({start:S.vast.start,eind:nu()});S.vast=null;bewaar();sluit();},
  stopPas(){S.lijst.push({start:S.vast.start,eind:nu()});S.vast=null;bewaar();pas(S.lijst.length-1);},
  annuleer(){sluit();},
- pasStart(){sheet(`<h2>Starttijd aanpassen</h2><p class="klein">Vergeten te starten? Zet de tijd terug.</p><input type="datetime-local" id="ps" value="${lokaal(S.vast.start)}"><button class="knop" data-s="pasStartOk">Bewaar</button>`);},
- pasStartOk(){const v=new Date($("#ps").value).getTime();if(v&&v<nu()){S.vast.start=v;bewaar();}sluit();},
+ pasStart(){sheet(`<h2>Starttijd aanpassen</h2><p class="klein">Vergeten te starten? Zet de tijd terug.</p>${kiezer("ps",S.vast.start,"Starttijd")}<button class="knop" data-s="pasStartOk">Bewaar</button>`);},
+ pasStartOk(){const v=+$("#ps").dataset.t;if(!(v<nu())){fout("De start kan niet in de toekomst liggen.","#ps");return;}const o=S.lijst.find(y=>v<y.eind);if(o){fout(overlapTekst(o),"#ps");return;}S.vast.start=v;bewaar();sluit();},
  csv(){const r="start,eind,uren\n"+S.lijst.map(x=>`${new Date(x.start).toISOString()},${new Date(x.eind).toISOString()},${((x.eind-x.start)/U).toFixed(2)}`).join("\n");alert("Prototype: de export zou dit bestand maken:\n\n"+r.split("\n").slice(0,4).join("\n")+"\n…");},
  koop(){if(confirm("Dit is een prototype. Er wordt niet betaald. Aankoop nabootsen?")){S.gekocht=true;bewaar();ga("gesch");}},
  herstel(){alert("Prototype: in de echte app vraagt dit de App Store om je eerdere aankoop. Hier gebeurt niets.");},
@@ -215,8 +230,8 @@ const A={
  toegangStart(){A.start();ga("toegang");},
  wis(){if(confirm("Alles in dit prototype wissen?")){try{localStorage.removeItem(K)}catch(e){}location.reload();}}
 };
-function pas(i){const x=S.lijst[i];sheet(`<h2>Vasten aanpassen</h2><p class="klein">Start</p><input type="datetime-local" id="pa" value="${lokaal(x.start)}"><p class="klein">Einde</p><input type="datetime-local" id="pe" value="${lokaal(x.eind)}">
-  <button class="knop" data-s="pasOk">Bewaar</button><p class="midden"><button class="link" data-s="pasWeg">Wissen</button></p>`);A.pasOk=()=>{const a=new Date($("#pa").value).getTime(),b=new Date($("#pe").value).getTime();if(a&&b&&b>a){x.start=a;x.eind=b;bewaar();}sluit();};
+function pas(i){const x=S.lijst[i];sheet(`<h2>Vasten aanpassen</h2><p class="klein">Start</p>${kiezer("pa",x.start,"Start")}<p class="klein">Einde</p>${kiezer("pe",x.eind,"Einde")}
+  <button class="knop" data-s="pasOk">Bewaar</button><p class="midden"><button class="link" data-s="pasWeg">Wissen</button></p>`);A.pasOk=()=>{const a=+$("#pa").dataset.t,b=+$("#pe").dataset.t;if(!(b>a)){fout("Het einde moet na de start liggen.","#pe");return;}if(b>nu()){fout("Het einde kan niet in de toekomst liggen.","#pe");return;}const o=S.lijst.find((y,j)=>j!==i&&a<y.eind&&b>y.start);if(o){fout(overlapTekst(o),"#pe");return;}if(S.vast&&b>S.vast.start){fout("Dit overlapt met het vasten dat nu loopt (gestart "+kiesTekst(S.vast.start).replace(" · "," ")+").","#pe");return;}x.start=a;x.eind=b;bewaar();sluit();};
   A.pasWeg=()=>{const oud=S.lijst.splice(i,1)[0];bewaar();sluit();sheet(`<p class="midden">Vasten gewist.</p><button class="knop rand" data-s="terugzet">Ongedaan maken</button>`);A.terugzet=()=>{S.lijst.splice(i,0,oud);bewaar();sluit();};};}
 function koppel(){
  document.querySelectorAll("[data-a]").forEach(e=>e.onclick=()=>A[e.dataset.a]());
@@ -233,5 +248,111 @@ if(!S.eerste){const l=[...S.lijst].sort((a,b)=>b.eind-a.eind)[0]; if(!S.vast&&l&
 teken();
 setInterval(()=>{if(S.scherm==="timer"&&S.vast&&!$("#sheet").innerHTML)teken();},1000);
 </script>
+<!-- taal-en:start (12-vasten-timer/prototypes/taal-en, maak_en.py) -->
+<script>
+/* Engelse stand voor de prototypes van Stilvast en Durora (punt 179, 17 november 2026, Algemeen-sessie).
+   Aan met ?taal=en in de adresregel (niet bewaard). Vertaalt de tekst op het scherm, aria-label, title en placeholder
+   met een vaste woordenlijst (W) en patronen (P); datums en tijden via DG en MD. Nederlands blijft de bron; dit is alleen
+   voor de Engelse winkel- en websitebeelden. Wordt door maak_en.py in index.html gezet tussen taal-en:start en taal-en:end. */
+(() => {
+  // alleen via de adresregel (niet bewaard): zo blijft elk ander prototype en elke NL-opname Nederlands
+  if (new URLSearchParams(location.search).get('taal') !== 'en') return;
+  document.documentElement.lang = 'en';
+  const W = {"Je vast": "Fasting", "nog 1:48": "1:48 to go", "Gestart": "Started", "gisteren 20:00": "yesterday 20:00", "Doel": "Goal", "Geen reeks. Morgen mag ook.": "No streak. Tomorrow is fine too.", "Vasten": "Fast", "Geschiedenis": "History", "Meer": "More", "Je proef van 14 dagen": "Your 14-day trial", "is voorbij": "has ended", "één keer · geen abonnement": "once · no subscription", "Geschiedenis per dag, week, maand": "History by day, week, month", "Live-activiteit (toegangsscherm)": "Live Activity (Lock Screen)", "Exporteren blijft altijd gratis.": "Export always stays free.", "Gezinsdeling: je gezin doet mee": "Family Sharing: your family joins in", "Timen blijft altijd gratis. Er wordt nooit": "Timing always stays free. Nothing is ever", "iets vanzelf afgeschreven. Wat je koopt,": "charged automatically. What you buy", "blijft van jou.": "stays yours.", "Koop voor € 4,99": "Buy for € 4.99", "Aankoop herstellen · Niet nu": "Restore purchase · Not now", "van Peulen": "by Peulen", "Een vastentimer": "A fasting timer", "die gewoon klopt.": "that simply works.", "Twee tikken per dag: starten na het eten,": "Two taps a day: start after dinner,", "stoppen bij je eerste maaltijd.": "stop at your first meal.", "Timen blijft altijd gratis.": "Timing always stays free.", "14 dagen alles open, daarna € 4,99,": "Everything open for 14 days, then", "één keer. Niets vanzelf afgeschreven.": "pay once. Nothing charged automatically.", "Geen account; alles op je telefoon.": "No account; everything on your phone.", "Vast niet zonder overleg met je arts als je": "Talk to your doctor before fasting if you", "zwanger bent, borstvoeding geeft, een eetstoornis": "are pregnant, breastfeeding, have (had) an", "hebt (gehad), diabetes hebt of medicijnen gebruikt.": "eating disorder, diabetes or take medication.", "Begin": "Start", "Vasten aanpassen": "Edit fast", "Vergeten te stoppen? Zet het achteraf goed.": "Forgot to stop? Fix it afterwards.", "Start": "Start", "do 4 feb · 19:30": "Thu 4 Feb · 19:30", "Einde": "End", "vr 5 feb · 10:00": "Fri 5 Feb · 10:00", "Was 19:30 → 12:05 (16:35)": "Was 19:30 → 12:05 (16:35)", "Wordt 19:30 → 10:00 (14:30)": "Becomes 19:30 → 10:00 (14:30)", "Bewaar": "Save", "Wissen (met ongedaan maken)": "Delete (with undo)", "Welkom terug": "Welcome back", "Fijn dat je er weer bent.": "Good to see you again.", "Er is niets in te halen.": "There is nothing to catch up on.", "Je laatste vasten": "Your last fast", "3 weken geleden · doel 16 uur": "3 weeks ago · goal 16 hours", "Start vasten": "Start fast", "Ander doel kiezen": "Choose another goal", "Geen reeks die is gebroken.": "No streak that was broken.", "Je geschiedenis blijft gewoon staan.": "Your history simply stays.", "Ramadan · dag 12": "Ramadan · day 12", "nog tot iftar": "until iftar", "Suhoor eindigt morgen om 06:10": "Suhoor ends tomorrow at 06:10", "Melding 30 minuten vooraf": "Notification 30 minutes before", "Gisteren gevast?": "Fasted yesterday?", "Voor je logboek": "For your log", "Ja": "Yes", "Nee": "No", "Tijden: Diyanet · Utrecht": "Times: Diyanet · Utrecht", "Geen reclame · niets verzameld": "No ads · nothing collected", "Vandaag": "Today", "Logboek": "Log", "Tijden": "Times", "nog eten · tot imsak 06:10": "still eat · until imsak 06:10", "Melding om 05:40": "Notification at 05:40", "30 minuten voor imsak": "30 minutes before imsak", "Scherm blijft donker en rustig": "Screen stays dark and calm", "Ramadan 1448 · februari en maart 2027": "Ramadan 1448 · February and March 2027", "m": "M", "d": "T", "w": "W", "v": "F", "z": "S", "Nog in te halen": "Still to make up", "1 dag": "1 day", "Inhalen": "Make up", "gevast": "fasted", "in te halen": "to make up", "vandaag": "today", "Alleen op deze telefoon": "Only on this phone", "Plaats": "Place", "Methode": "Method", "De tijden die Diyanet publiceert": "The times Diyanet publishes", "Eigen moskee": "Own mosque", "De tabel van je moskee, geplakt": "Your mosque's timetable, pasted", "18 graden": "18 degrees", "Fajr bij 18° onder de horizon": "Fajr at 18° below the horizon", "15 en 12 graden": "15 and 12 degrees", "Latere fajr, voor korte nachten": "Later fajr, for short nights", "Imsak-marge": "Imsak margin", "Vandaag (Diyanet)": "Today (Diyanet)", "Geen religieuze uitspraken: jij kiest.": "No religious rulings: you choose.", "één keer · geen abonnement · geen reclame": "once · no subscription · no ads", "Logboek met in te halen dagen": "Log with days to make up", "Aftellen, widget en meldingen blijven": "Countdown, widget and notifications stay", "altijd gratis. Wat je koopt, blijft van jou.": "always free. What you buy stays yours.", "Waar ben je?": "Where are you?", "Zonder locatietoestemming: kies je stad.": "No location permission: pick your city.", "Den Haag": "The Hague", "Gebruik mijn locatie (blijft op je telefoon)": "Use my location (stays on your phone)", "dinsdag 5 januari": "Tuesday 5 January", "doel om 12:00": "goal at 12:00", "1:14 gevast": "1:14 fasted", "Twee tikken: starten na het eten, stoppen bij het ontbijt.": "Two taps: start after dinner, stop at breakfast.", "Je vast · 1:14": "Fasting · 1:14", "€ 4,99": "€ 4.99", "18°, iftar 6 min na zonsondergang": "18°, iftar 6 min after sunset", "Zoals veel moskeeën; iftar +2 min": "Like many mosques; iftar +2 min", "16, 15 of 13,5 graden": "16, 15 or 13.5 degrees", "Latere fajr, zoals sommige moskeeën": "Later fajr, like some mosques", "Suhoor eindigt morgen om 05:52": "Suhoor ends tomorrow at 05:52", "nog eten · tot imsak 05:52": "still eat · until imsak 05:52", "Melding om 05:22": "Notification at 05:22", "Niet nu": "Not now", "Aankoop herstellen": "Restore purchase", "Bekijk de aankoop": "See the purchase", "Alleen in dit prototype": "Only in this prototype", "Alles wissen en opnieuw beginnen": "Clear everything and start over", "Proefdag": "Trial day", "Proefdag:": "Trial day:", "Tijd versnellen": "Speed up time", "Tijd versnellen:": "Speed up time:", "Bevestig": "Confirm", "Terug": "Back", "Stop": "Stop", "Wissen": "Delete", "Ongedaan maken": "Undo", "Meldingen": "Notifications", "Weergave": "Appearance", "echt": "real", "licht": "light", "nacht": "night", "auto": "auto", "Exporteer": "Export", "Exporteer ›": "Export ›", "uit": "off", "aan": "on", "Een dag eerder": "One day earlier", "Een dag later": "One day later", "Een uur eerder": "One hour earlier", "Een uur later": "One hour later", "Kwartier eerder": "Quarter of an hour earlier", "Kwartier later": "Quarter of an hour later", "een dag eerder": "one day earlier", "een dag later": "one day later", "Datum en tijd": "Date and time", "Starttijd": "Start time", "De start kan niet in de toekomst liggen.": "The start can't be in the future.", "Het einde moet na de start liggen.": "The end must be after the start.", "Het einde kan niet in de toekomst liggen.": "The end can't be in the future.", "Live-activiteit op je toegangsscherm": "Live Activity on your Lock Screen", "Toegangsscherm": "Lock Screen", "Nagebootst in het prototype: in de app tekent iOS dit scherm.": "Simulated in the prototype: in the app, iOS draws this screen.", "Terug naar de app": "Back to the app", "Spring vooruit": "Jump ahead", "Spring vooruit:": "Jump ahead:", "+1 uur": "+1 hour", "+4 uur": "+4 hours", "dag": "day", "Dag": "Day", "leeg": "empty", "Stilvast": "Stilvast", "Stilvast · klikbaar prototype": "Stilvast · clickable prototype", "Hoe lang wil je vasten?": "How long do you want to fast?", "Later altijd aan te passen": "You can always change this later", "Eigen duur": "Custom length", "Eigen duur…": "Custom length…", "Tussen 1 uur en 7 dagen (168 uur).": "Between 1 hour and 7 days (168 hours).", "Ander doel": "Other goal", "Je eet nu": "You're eating", "Toch doorgaan": "Keep going", "Tijden aanpassen": "Edit times", "Starttijd aanpassen": "Edit start time", "Vergeten te starten? Zet de tijd terug.": "Forgot to start? Set the time back.", "Vasten gewist.": "Fast deleted.", "Deze week": "This week", "Ook goed. Morgen mag ook.": "That's fine too. Tomorrow is fine too.", "Je geschiedenis staat klaar": "Your history is ready", "Je geschiedenis per dag, week en maand": "Your history by day, week and month", "Eenmalig kopen": "One-time purchase", "Proef voorbij": "Trial over", "Alles van Stilvast, voor altijd": "All of Stilvast, for good", "Je proef van 14 dagen is voorbij": "Your 14-day trial has ended", "Alleen timen blijft altijd gratis": "Timing alone always stays free", "Na 14 dagen is de geschiedenis onderdeel van de aankoop. Timen blijft gratis, en er gaat niets verloren.": "After 14 days, history is part of the purchase. Timing stays free, and nothing is lost.", "Timen blijft altijd gratis. Er wordt nooit iets vanzelf afgeschreven. Exporteren blijft altijd gratis. Wat je koopt, blijft van jou.": "Timing always stays free. Nothing is ever charged automatically. Export always stays free. What you buy stays yours.", "14 dagen alles open, daarna één keer € 4,99. Er wordt nooit iets vanzelf afgeschreven.": "Everything open for 14 days, then € 4.99, once. Nothing is ever charged automatically.", "Een vastentimer die gewoon klopt.": "A fasting timer that simply works.", "Twee tikken per dag: starten na het eten, stoppen bij je eerste maaltijd.": "Two taps a day: start after dinner, stop at your first meal.", "Geen account. Je gegevens blijven op je telefoon.": "No account. Your data stays on your phone.", "Geen reeks, geen gemiste dagen": "No streak, no missed days", "Vast niet zonder overleg met je arts als je zwanger bent, borstvoeding geeft, een eetstoornis hebt of hebt gehad, diabetes hebt of medicijnen gebruikt.": "Talk to your doctor before fasting if you are pregnant, breastfeeding, have or have had an eating disorder, have diabetes or take medication.", "Fijn dat je er weer bent. Er is niets ingehaald nodig.": "Good to see you again. There is nothing to catch up on.", "Geen reeks die is gebroken. Je oude geschiedenis blijft gewoon staan.": "No streak that was broken. Your old history simply stays.", "Doe alsof je 3 weken weg was": "Pretend you were away for 3 weeks", "Bekijk de live-activiteit": "See the Live Activity", "Exporteer als CSV": "Export as CSV", "alleen \"doel bereikt\"": "only \"goal reached\"", "Starttijd aanpassen ›": "Edit start time ›", "Je vast ·": "Fasting ·"}, P = [["^nog (\\d+:\\d\\d)$", "$1 to go"], ["^vandaag (\\d\\d:\\d\\d)$", "today $1"], ["^gisteren (\\d\\d:\\d\\d)$", "yesterday $1"], ["^gisteren$", "yesterday"], ["^vandaag$", "today"], ["^(\\d+) keer · gem\\. (\\d+:\\d\\d)$", "$1 times · avg. $2"], ["^(\\d+) uur$", "$1 hours"], ["^(\\d+) uur ›$", "$1 hours ›"], ["^1 uur$", "1 hour"], ["^doel om (\\d\\d:\\d\\d)$", "goal at $1"], ["^· doel (\\d\\d:\\d\\d)$", "· goal $1"], ["^(\\d+) uur vasten$", "$1-hour fast"], ["^Je vast · (\\d+:\\d\\d)$", "Fasting · $1"], ["^dag (\\d+)$", "day $1"], ["^Proefdag (\\d+)$", "Trial day $1"], ["^Ramadan · dag (\\d+)$", "Ramadan · day $1"], ["^Ramadan (\\d+) · (.*)$", "Ramadan $1 · $2"], ["^nog tot iftar(.*)$", "until iftar$1"], ["^nog eten · tot imsak (\\d\\d:\\d\\d)$", "still eat · until imsak $1"], ["^Suhoor eindigt morgen om (\\d\\d:\\d\\d)$", "Suhoor ends tomorrow at $1"], ["^Suhoor eindigt vandaag om (\\d\\d:\\d\\d)$", "Suhoor ends today at $1"], ["^Tijden: (.*) · (.*)$", "Times: $1 · $2"], ["^Vandaag \\((.*)\\)$", "Today ($1)"], ["^(\\d+) dagen tot de Ramadan$", "$1 days until Ramadan"], ["^(\\d+) dag$", "$1 day"], ["^(\\d+) dagen$", "$1 days"], ["^(\\d+) min$", "$1 min"], ["^Duroraproef: nog (\\d+) dagen ›$", "Durora trial: $1 days left ›"], ["^Stilvastproef: nog (\\d+) dagen ›$", "Stilvast trial: $1 days left ›"], ["^Melding om (\\d\\d:\\d\\d)$", "Notification at $1"], ["^Dit overlapt met je vasten van (.*) tot (.*)\\.$", "This overlaps with your fast from $1 to $2."], ["^Dit overlapt met het vasten dat nu loopt \\(gestart (.*)\\)\\.$", "This overlaps with the fast that is running now (started $1)."], ["^(\\d+) van (\\d+)$", "$1 of $2"], ["^(\\d+):(\\d\\d) gevast$", "$1:$2 fasted"]].map(([a, b]) => [new RegExp(a), b]);
+  const DG = { zo: 'Sun', ma: 'Mon', di: 'Tue', wo: 'Wed', do: 'Thu', vr: 'Fri', za: 'Sat' };
+  const MD = { jan: 'Jan', feb: 'Feb', mrt: 'Mar', apr: 'Apr', mei: 'May', jun: 'Jun', jul: 'Jul', aug: 'Aug', sep: 'Sep', okt: 'Oct', nov: 'Nov', dec: 'Dec' };
+  const DATUM = /\b(zo|ma|di|wo|do|vr|za) (\d{1,2}) (jan|feb|mrt|apr|mei|jun|jul|aug|sep|okt|nov|dec)\b/g;
+  const KAAL = /\b(\d{1,2}) (jan|feb|mrt|apr|mei|jun|jul|aug|sep|okt|nov|dec)\b/g;
+  function t(s) {
+    const k = s.trim(); if (!k) return s;
+    let r = W[k];
+    if (r === undefined) for (const [re, v] of P) if (re.test(k)) { r = k.replace(re, v); break; }
+    if (r === undefined) r = k;
+    r = r.replace(DATUM, (m, a, b, c) => DG[a] + ' ' + b + ' ' + MD[c]).replace(KAAL, (m, b, c) => b + ' ' + MD[c]).replace(/€ (\d+),(\d\d)/g, '€ $1.$2');
+    return r === k ? s : s.replace(k, r);
+  }
+  function loop(root) {
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentElement && /^(SCRIPT|STYLE)$/.test(n.parentElement.tagName) ? 2 : 1 });
+    for (let n; (n = w.nextNode());) { const v = t(n.nodeValue); if (v !== n.nodeValue) n.nodeValue = v; }
+    (root.querySelectorAll ? root : document).querySelectorAll('[aria-label],[title],[placeholder]').forEach(e => {
+      for (const a of ['aria-label', 'title', 'placeholder']) if (e.hasAttribute(a)) { const v = t(e.getAttribute(a)); if (v !== e.getAttribute(a)) e.setAttribute(a, v); }
+    });
+  }
+  document.title = t(document.title);
+  const go = () => { loop(document.body); new MutationObserver(ms => { for (const m of ms) { if (m.type === 'characterData') { const v = t(m.target.nodeValue); if (v !== m.target.nodeValue) m.target.nodeValue = v; } else m.addedNodes.forEach(n => n.nodeType === 3 ? (n.nodeValue = t(n.nodeValue)) : n.nodeType === 1 && loop(n)); } }).observe(document.body, { childList: true, subtree: true, characterData: true }); };
+  if (document.body) go(); else addEventListener('DOMContentLoaded', go);
+})();
+
+</script>
+<!-- taal-en:end -->
+<!-- toeg:start (00-werkmodel/toegankelijk/toeg.js) -->
+<script>
+/* Toegankelijkheid voor de prototypes (punt 132, 15 november 2026, Algemeen-sessie).
+   Wordt door 00-preview-site/bouw_preview.py vóór </body> in elk prototype op de preview gezet (tussen toeg:start en toeg:end).
+   Wat het doet, zonder iets aan het uiterlijk te veranderen behalve een zichtbare focusrand:
+   - tabknoppen in <nav>: aria-current="page" op de actieve;
+   - knoppengroepen (twee of meer knoppen naast elkaar, één met de klasse aan/actief/active/gekozen): aria-pressed;
+   - schakelaars (klasse met schakel, switch of toggle): role="switch" en aria-checked;
+   - klikbare div's, li's, span's en b's (ook met een onclick die in script is gezet, zoals Durora): role="button", tabindex 0, Enter en spatie klikken;
+   - vellen (.sheet): role="dialog", aria-modal, focus op het eerste bedieningselement, Escape sluit.
+   Het echte gedrag in de app bouwt Kasper in SwiftUI; dit is alleen voor de proef met schermlezer en toetsenbord. */
+(() => {
+  if (window.__toeg) return; window.__toeg = true;
+  const st = document.createElement('style');
+  // tweekleurige focusrand (review 132, B2): donkere rand met een witte binnenrand, zichtbaar op licht, donker en gevuld
+  st.textContent = ':focus-visible{outline:3px solid #111!important;outline-offset:2px!important;box-shadow:0 0 0 2px #fff!important}';
+  document.head.appendChild(st);
+  const AAN = /(^|\s)(aan|actief|active|gekozen|sel|selected)(\s|$)/;
+  function pas() {
+    document.querySelectorAll('nav button, nav a').forEach(b => {
+      if (AAN.test(b.className)) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    // keuzeknoppen: alleen knoppen met dezelfde basisklasse als de gekozen knop (review 132, B5)
+    const basis = b => (b.className || '').split(/\s+/).filter(c => c && !AAN.test(' ' + c + ' ')).sort().join(' ');
+    document.querySelectorAll('button').forEach(b => {
+      if (b.closest('nav') || !b.parentElement) return;
+      const aan = [...b.parentElement.children].filter(x => x.tagName === 'BUTTON' && AAN.test(x.className));
+      const groep = aan.length && [...b.parentElement.children].filter(x => x.tagName === 'BUTTON' && basis(x) === basis(aan[0])).length >= 2;
+      if (groep && basis(b) === basis(aan[0])) b.setAttribute('aria-pressed', AAN.test(b.className));
+      else if (b.dataset.toegPressed !== 'eigen' && b.hasAttribute('aria-pressed') && b.dataset.toeg === '1') b.removeAttribute('aria-pressed');
+      if (b.hasAttribute('aria-pressed')) b.dataset.toeg = '1';
+    });
+    document.querySelectorAll('[class*=schakel],[class*=switch],[class*=toggle]').forEach(b => {
+      if (b.matches('button,[onclick]')) { b.setAttribute('role', 'switch'); b.setAttribute('aria-checked', AAN.test(b.className)); }
+    });
+    const klik = [...document.querySelectorAll('div[onclick],li[onclick],span[onclick],div[data-a],div[data-g],li[data-a],li[data-g]')]
+      .concat([...document.querySelectorAll('div,li,span,b')].filter(d => typeof d.onclick === 'function' && !d.closest('button,a')));
+    // nooit een achtergrond van een vel of een blok met eigen bedieningselementen als knop (review 132, B1)
+    klik.filter(d => !d.matches('.sheet-bg,.dialoog') && !d.querySelector('button,a,input,select,textarea,[role=button],.sheet')).forEach(d => {
+      if (!d.hasAttribute('role')) d.setAttribute('role', 'button');
+      if (d.tabIndex < 0) d.tabIndex = 0;
+    });
+    document.querySelectorAll('.sheet,.dialoog>div').forEach(s => {
+      if (s.hasAttribute('role')) return;
+      s.setAttribute('role', s.matches('.dialoog>div') ? 'alertdialog' : 'dialog'); s.setAttribute('aria-modal', 'true');
+      const f = s.querySelector('button,input,select,textarea,[tabindex="0"]');
+      if (f) setTimeout(() => f.focus({ preventScroll: true }), 0);
+    });
+  }
+  document.addEventListener('keydown', e => {
+    const t = e.target;
+    if ((e.key === 'Enter' || e.key === ' ') && t.getAttribute && t.getAttribute('role') === 'button' && !/^(BUTTON|A|INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) { e.preventDefault(); t.click(); }
+    if (e.key === 'Escape') { const bg = [...document.querySelectorAll('.sheet-bg')].pop(); if (bg) bg.click(); }
+  });
+  // focus terug naar waar hij was als een vel of dialoog sluit (review 132, B7)
+  let vorige = null, open = false;
+  document.addEventListener('focusin', e => { if (!e.target.closest('.sheet,.dialoog')) vorige = e.target; });
+  function terug() {
+    const nu = !!document.querySelector('.sheet,.dialoog');
+    if (open && !nu && vorige && vorige.isConnected && (document.activeElement === document.body || !document.activeElement)) vorige.focus({ preventScroll: true });
+    open = nu;
+  }
+  let tm; new MutationObserver(() => { clearTimeout(tm); tm = setTimeout(() => { pas(); terug(); }, 30); })
+    .observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'hidden'] });
+  pas();
+})();
+
+</script>
+<!-- toeg:end -->
 </body>
 </html>
