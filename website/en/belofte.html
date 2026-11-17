@@ -30,11 +30,13 @@ body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.6 -apple-system,
 a{color:var(--groen)}
 .wrap{max-width:720px;margin:0 auto;padding:0 20px}
 header{padding:18px 0;border-bottom:1px solid var(--lijn)}
-header .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px}
+header .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+nav{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;row-gap:6px}
 .merk{display:flex;align-items:center;gap:10px;font-weight:700;font-size:22px;text-decoration:none;color:var(--ink)}
 .logo{width:40px;height:40px}
 nav a{margin-left:14px;font-size:15px;text-decoration:none;color:var(--zacht)}
 .mail{font-weight:600}
+nav a[aria-current]{color:var(--ink);font-weight:600}
 .taal{font-size:14px;border:1px solid var(--lijn);border-radius:999px;padding:2px 10px}
 .hero{padding:48px 0 28px}
 .hero h1{font-size:38px;line-height:1.15;margin:0 0 14px;font-weight:700;letter-spacing:-.01em}
@@ -67,18 +69,23 @@ footer{margin:56px 0 0;padding:24px 0 40px;border-top:1px solid var(--lijn);font
 @media (max-width:520px){.hero h1{font-size:31px}nav a.verberg{display:none}}
 
 .knop{display:inline-block;background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 18px;font-weight:600;text-decoration:none;margin:8px 0}
-.knop.uit{opacity:.55;cursor:default}
+.knop.uit{background:var(--kaart);color:var(--ink);border:1px dashed var(--zacht);cursor:default}
+.naar-inhoud{position:absolute;left:-9999px;top:8px;background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:0 0 10px 0;z-index:10;text-decoration:none;font-weight:600}
+.naar-inhoud:focus{left:8px}
+a:focus-visible,summary:focus-visible,[tabindex="0"]:focus-visible{outline:3px solid var(--terra);outline-offset:3px}
+.app.dur a:focus-visible,.app.dur [tabindex="0"]:focus-visible{outline-color:var(--goud)}
 .shots{display:flex;gap:10px;overflow-x:auto;padding:6px 0 10px}
 .shots img{width:44%;max-width:250px;height:auto;border-radius:18px;flex:0 0 auto}
 .kruimel{font-size:14px;margin:18px 0 0}
 .kaartlinks{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
 .kaartlinks a{display:block;background:var(--kaart);border:1px solid var(--lijn);border-radius:14px;padding:12px 14px;text-decoration:none;color:var(--ink);font-weight:600}
-footer a{color:var(--zacht);margin-right:12px}
+footer a{color:var(--zacht);margin-right:12px;display:inline-block;min-height:24px}
 </style>
 </head>
 <body>
-<header><div class="wrap"><a class="merk" href="index.html" aria-label="Logo: two peas in a pod"><svg class="logo" viewBox="0 0 100 100" aria-hidden="true"><circle cx="36" cy="50" r="14.5" fill="#B5D08F" stroke="#3F5A31" stroke-width="2.5"/><circle cx="64" cy="50" r="14.5" fill="#B5D08F" stroke="#3F5A31" stroke-width="2.5"/><path d="M6 50 C 16 88, 84 88, 94 50 C 78 66, 22 66, 6 50 Z" fill="#5E7D4A"/><path d="M81 63 C 92 59, 98.5 50, 98.5 41 C 98.5 36, 96.8 32, 93.4 29.2 C 91.2 27.4, 88.2 29.6, 89.8 31.9 C 92.2 34.6, 93 37.6, 92.6 41 C 92.2 47.5, 88.5 56.6, 74 59.6 Z" fill="#5E7D4A"/><ellipse cx="91.3" cy="29.0" rx="2.6" ry="4.4" transform="rotate(48 91.3 29.0)" fill="#5E7D4A"/></svg>Peulen</a><nav><a class="altijd" href="index.html#apps">Apps</a><a class="verberg" href="belofte.html">Promise</a><a class="verberg" href="privacy.html">Privacy</a><a class="verberg" href="pers.html">Press</a><a class="taal" href="../belofte.html">Nederlands</a></nav></div></header>
-<main class="wrap" id="top">
+<a class="naar-inhoud" href="#top">Skip to content</a>
+<header><div class="wrap"><a class="merk" href="index.html"><svg class="logo" viewBox="0 0 100 100" aria-hidden="true"><circle cx="36" cy="50" r="14.5" fill="#B5D08F" stroke="#3F5A31" stroke-width="2.5"/><circle cx="64" cy="50" r="14.5" fill="#B5D08F" stroke="#3F5A31" stroke-width="2.5"/><path d="M6 50 C 16 88, 84 88, 94 50 C 78 66, 22 66, 6 50 Z" fill="#5E7D4A"/><path d="M81 63 C 92 59, 98.5 50, 98.5 41 C 98.5 36, 96.8 32, 93.4 29.2 C 91.2 27.4, 88.2 29.6, 89.8 31.9 C 92.2 34.6, 93 37.6, 92.6 41 C 92.2 47.5, 88.5 56.6, 74 59.6 Z" fill="#5E7D4A"/><ellipse cx="91.3" cy="29.0" rx="2.6" ry="4.4" transform="rotate(48 91.3 29.0)" fill="#5E7D4A"/></svg>Peulen</a><nav aria-label="Main menu"><a class="altijd" href="index.html#apps">Apps</a><a class="verberg" href="belofte.html" aria-current="page">Promise</a><a class="verberg" href="privacy.html">Privacy</a><a class="verberg" href="pers.html">Press</a><a class="taal" href="../belofte.html" lang="nl" hreflang="nl">Nederlands</a></nav></div></header>
+<main class="wrap" id="top" tabindex="-1">
 <section class="hero"><h1>What we promise</h1><p>We wrote this down before a single app was live. So you can hold us to it.</p></section><ul class="belofte"><li><b>Fair pricing.</b>Basic use stays free. After that you pay once, or a small amount per year. Never per week.</li><li><b>No trial that quietly rolls on.</b>A free period simply ends. You only pay when you choose to.</li><li><b>Cancel in one tap.</b>If you choose a yearly price, you can cancel it from the app in one tap, through Apple.</li><li><b>What you bought once stays yours.</b>If you bought something once, you keep it, with that app's updates. We never turn it into a subscription afterwards.</li><li><b>No ads.</b>Not in the app, not between your data.</li><li><b>No account.</b>You never need to sign up to use an app.</li><li><b>Your data stays yours.</b>Everything stays on your phone. We have no server with your data, and we sell nothing, because we don't have it.</li><li><b>No tricks.</b>No streaks that make you feel guilty, no notifications to lure you back, no trial that quietly rolls on.</li><li><b>The price on day one.</b>Before you use anything, you see what it costs and what stays free.</li><li><b>No claims about your body.</b>Our apps promise no health, no weight loss and no miracles.</li></ul><p>If we ever break this promise, email us at <a class="mail" href="mailto:contact@peulen.app">contact@peulen.app</a>.</p><p>Pjotr &amp; Kasper</p>
 </main><footer><div class="wrap"><p><a href="belofte.html">Our promise</a><a href="privacy.html">Privacy</a><a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/">Terms (Apple)</a><a href="pers.html">Press</a><a href="index.html#contact">Contact</a></p>Peulen · the brand of Pjotr and Kasper Peulen · peulen.app · this site uses no cookies</div></footer>
 </body>
