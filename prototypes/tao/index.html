@@ -297,5 +297,74 @@ document.getElementById('main').addEventListener('touchend', e => {
 });
 teken();
 </script>
+<!-- toeg:start (00-werkmodel/toegankelijk/toeg.js) -->
+<script>
+/* Toegankelijkheid voor de prototypes (punt 132, 15 november 2026, Algemeen-sessie).
+   Wordt door 00-preview-site/bouw_preview.py vóór </body> in elk prototype op de preview gezet (tussen toeg:start en toeg:end).
+   Wat het doet, zonder iets aan het uiterlijk te veranderen behalve een zichtbare focusrand:
+   - tabknoppen in <nav>: aria-current="page" op de actieve;
+   - knoppengroepen (twee of meer knoppen naast elkaar, één met de klasse aan/actief/active/gekozen): aria-pressed;
+   - schakelaars (klasse met schakel, switch of toggle): role="switch" en aria-checked;
+   - klikbare div's, li's, span's en b's (ook met een onclick die in script is gezet, zoals Durora): role="button", tabindex 0, Enter en spatie klikken;
+   - vellen (.sheet): role="dialog", aria-modal, focus op het eerste bedieningselement, Escape sluit.
+   Het echte gedrag in de app bouwt Kasper in SwiftUI; dit is alleen voor de proef met schermlezer en toetsenbord. */
+(() => {
+  if (window.__toeg) return; window.__toeg = true;
+  const st = document.createElement('style');
+  // tweekleurige focusrand (review 132, B2): donkere rand met een witte binnenrand, zichtbaar op licht, donker en gevuld
+  st.textContent = ':focus-visible{outline:3px solid #111!important;outline-offset:2px!important;box-shadow:0 0 0 2px #fff!important}';
+  document.head.appendChild(st);
+  const AAN = /(^|\s)(aan|actief|active|gekozen|sel|selected)(\s|$)/;
+  function pas() {
+    document.querySelectorAll('nav button, nav a').forEach(b => {
+      if (AAN.test(b.className)) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    // keuzeknoppen: alleen knoppen met dezelfde basisklasse als de gekozen knop (review 132, B5)
+    const basis = b => (b.className || '').split(/\s+/).filter(c => c && !AAN.test(' ' + c + ' ')).sort().join(' ');
+    document.querySelectorAll('button').forEach(b => {
+      if (b.closest('nav') || !b.parentElement) return;
+      const aan = [...b.parentElement.children].filter(x => x.tagName === 'BUTTON' && AAN.test(x.className));
+      const groep = aan.length && [...b.parentElement.children].filter(x => x.tagName === 'BUTTON' && basis(x) === basis(aan[0])).length >= 2;
+      if (groep && basis(b) === basis(aan[0])) b.setAttribute('aria-pressed', AAN.test(b.className));
+      else if (b.dataset.toegPressed !== 'eigen' && b.hasAttribute('aria-pressed') && b.dataset.toeg === '1') b.removeAttribute('aria-pressed');
+      if (b.hasAttribute('aria-pressed')) b.dataset.toeg = '1';
+    });
+    document.querySelectorAll('[class*=schakel],[class*=switch],[class*=toggle]').forEach(b => {
+      if (b.matches('button,[onclick]')) { b.setAttribute('role', 'switch'); b.setAttribute('aria-checked', AAN.test(b.className)); }
+    });
+    const klik = [...document.querySelectorAll('div[onclick],li[onclick],span[onclick],div[data-a],div[data-g],li[data-a],li[data-g]')]
+      .concat([...document.querySelectorAll('div,li,span,b')].filter(d => typeof d.onclick === 'function' && !d.closest('button,a')));
+    // nooit een achtergrond van een vel of een blok met eigen bedieningselementen als knop (review 132, B1)
+    klik.filter(d => !d.matches('.sheet-bg,.dialoog') && !d.querySelector('button,a,input,select,textarea,[role=button],.sheet')).forEach(d => {
+      if (!d.hasAttribute('role')) d.setAttribute('role', 'button');
+      if (d.tabIndex < 0) d.tabIndex = 0;
+    });
+    document.querySelectorAll('.sheet,.dialoog>div').forEach(s => {
+      if (s.hasAttribute('role')) return;
+      s.setAttribute('role', s.matches('.dialoog>div') ? 'alertdialog' : 'dialog'); s.setAttribute('aria-modal', 'true');
+      const f = s.querySelector('button,input,select,textarea,[tabindex="0"]');
+      if (f) setTimeout(() => f.focus({ preventScroll: true }), 0);
+    });
+  }
+  document.addEventListener('keydown', e => {
+    const t = e.target;
+    if ((e.key === 'Enter' || e.key === ' ') && t.getAttribute && t.getAttribute('role') === 'button' && !/^(BUTTON|A|INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) { e.preventDefault(); t.click(); }
+    if (e.key === 'Escape') { const bg = [...document.querySelectorAll('.sheet-bg')].pop(); if (bg) bg.click(); }
+  });
+  // focus terug naar waar hij was als een vel of dialoog sluit (review 132, B7)
+  let vorige = null, open = false;
+  document.addEventListener('focusin', e => { if (!e.target.closest('.sheet,.dialoog')) vorige = e.target; });
+  function terug() {
+    const nu = !!document.querySelector('.sheet,.dialoog');
+    if (open && !nu && vorige && vorige.isConnected && (document.activeElement === document.body || !document.activeElement)) vorige.focus({ preventScroll: true });
+    open = nu;
+  }
+  let tm; new MutationObserver(() => { clearTimeout(tm); tm = setTimeout(() => { pas(); terug(); }, 30); })
+    .observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'hidden'] });
+  pas();
+})();
+
+</script>
+<!-- toeg:end -->
 </body>
 </html>
