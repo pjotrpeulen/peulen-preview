@@ -20,15 +20,15 @@ body.zwart{--bg:#000}
 .app{max-width:440px;min-height:100vh;margin:0 auto;position:relative}
 main{padding:18px 22px 110px}
 .standen{display:flex;margin:10px auto 0;width:180px;background:rgba(255,255,255,.12);border-radius:20px;padding:3px}
-.standen button{flex:1;border:0;background:none;color:var(--zacht);font:600 14px inherit;padding:7px;border-radius:16px;cursor:pointer}
+.standen button{flex:1;border:0;background:none;color:var(--zacht);font:inherit;font-weight:600;font-size:14px;padding:7px;border-radius:16px;cursor:pointer}
 .standen button.aan{background:rgba(255,255,255,.9);color:#2B2F36}
 .midden{text-align:center} .zacht{color:var(--zacht)} .klein{font-size:13px;color:var(--dim)}
 h1{font-size:24px;font-weight:600;margin:20px 0 8px} h2{font-size:17px;margin:20px 0 8px}
-.knop{display:block;width:100%;border:0;border-radius:26px;background:var(--ac);color:#fff;font:600 16px/1 inherit;padding:15px;margin-top:16px;cursor:pointer}
+.knop{display:block;width:100%;border:0;border-radius:26px;background:var(--ac);color:#fff;font:inherit;font-weight:600;font-size:16px;line-height:1;padding:15px;margin-top:16px;cursor:pointer}
 .knop.rand{background:transparent;border:1px solid var(--rand);font-weight:500}
-.link{background:none;border:0;color:#AEB9E0;font:500 14px inherit;padding:8px 0;cursor:pointer}
+.link{background:none;border:0;color:#AEB9E0;font:inherit;font-weight:500;font-size:14px;padding:8px 0;cursor:pointer}
 .kaart{background:var(--kaart);border-radius:18px;padding:14px 16px;margin-top:12px}
-.chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:center} .chip{border:1px solid var(--rand);background:var(--kaart);color:var(--wit);border-radius:14px;padding:7px 12px;font:14px inherit;cursor:pointer} .chip.aan{background:var(--wac,#fff);color:#2B2F36;background:#fff}
+.chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:center} .chip{border:1px solid var(--rand);background:var(--kaart);color:var(--wit);border-radius:14px;padding:7px 12px;font:inherit;font-size:14px;cursor:pointer} .chip.aan{background:var(--wac,#fff);color:#2B2F36;background:#fff}
 .bol{position:relative;width:250px;height:250px;margin:24px auto 8px;touch-action:none}
 .bol .o1{position:absolute;inset:0;border-radius:50%;background:rgba(255,255,255,.05)} .bol .o2{position:absolute;inset:26px;border-radius:50%;background:rgba(255,255,255,.08)}
 .bol .kern{position:absolute;left:50%;top:50%;width:140px;height:140px;margin:-70px;border-radius:50%;background:var(--ac);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:transform .25s linear}
@@ -41,7 +41,7 @@ h1{font-size:24px;font-weight:600;margin:20px 0 8px} h2{font-size:17px;margin:20
 .stilvlak .vak{border:1px solid var(--rand);border-radius:28px;padding:34px 22px;width:100%;max-width:340px;background:rgba(255,255,255,.04)}
 .zin{min-height:52px;margin-top:16px;color:var(--zacht);font-size:15px;transition:opacity .6s}
 nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;background:rgba(43,47,54,.97);border-top:1px solid var(--rand);display:flex;padding:10px 0 calc(14px + env(safe-area-inset-bottom));z-index:3}
-nav button{flex:1;background:none;border:0;color:var(--dim);font:500 14px inherit;padding:8px;cursor:pointer} nav button.aan{color:#fff;font-weight:700}
+nav button{flex:1;background:none;border:0;color:var(--dim);font:inherit;font-weight:500;font-size:14px;padding:8px;cursor:pointer} nav button.aan{color:#fff;font-weight:700}
 .stap{display:flex;gap:12px;align-items:flex-start;margin:14px 0} .stap span{width:26px;height:26px;border-radius:50%;background:var(--ac);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex:none}
 .slot{opacity:.45} .demo{margin-top:24px;padding:14px;border:1px dashed var(--rand);border-radius:16px}
 .rij{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--rand)}
@@ -81,7 +81,7 @@ veilig(){return `<h1 style="margin-top:50px">Voor je begint</h1>
  <button class="knop" data-a="begrepen">Begrepen</button>`;},
 adem(){const zuchtSlot=!open();return standen("adem")+`
  <div class="bol" id="bol"><div class="o1"></div><div class="o2"></div><div class="kern" id="kern"><b>Houd vast</b><small>als je inademt</small></div></div>
- <p class="midden zacht" style="margin:4px 0">${S.meten?"Houd de cirkel vast als je inademt, laat los als je uitademt.<br>Eerst volgt de app jou; daarna neemt hij je mee naar rustiger.":"Zonder tikken: de app begint op 12 per minuut<br>en neemt je mee naar rustiger."}</p>
+ <p class="midden zacht" style="margin:4px 0">${S.meten?"Houd de cirkel vast als je inademt, laat los als je uitademt.<br>Eerst volgt de app jou; daarna brengt hij je naar een trager tempo.":"Zonder tikken: de app begint op 12 per minuut<br>en brengt je naar een trager tempo."}</p>
  <div class="chips" style="margin-top:8px"><button class="chip ${S.meten?"aan":""}" data-meten="1">eerst je tempo meten</button><button class="chip ${S.meten?"":"aan"}" data-meten="0">zonder tikken</button></div>
  <div class="chips" style="margin-top:12px">${[2,5,10].map(m=>`<button class="chip ${S.duurAdem===m&&!S.zucht?"aan":""}" data-duur="${m}">${m} min</button>`).join("")}<button class="chip ${S.zucht?"aan":""} ${zuchtSlot?"slot":""}" data-a="zucht">zucht ${zuchtSlot?"🔒":""}</button></div>
  <button class="knop" data-a="startAdem">Begin</button>
@@ -97,7 +97,7 @@ stil(){return standen("stil")+`
  <p class="klein midden">Merken is de oefening, geen fout.</p>`;},
 klaarA(){const r=S.laatsteAdem||{start:14,eind:6};return `<p class="klein midden" style="margin-top:40px">Klaar</p>
  <h1 class="midden">Je begon op ${r.start}, je eindigde op ${r.eind}</h1><p class="midden zacht">ademhalingen per minuut</p>
- <div class="kaart midden"><div class="klein">Je uitademing duurde op het eind</div><div style="font-size:26px;font-weight:300">${r.uit||6} seconden</div><div class="klein">${(r.uit||6)-(r.in||4)} langer dan je inademing; dat is wat rust geeft</div></div>
+ <div class="kaart midden"><div class="klein">Je uitademing duurde op het eind</div><div style="font-size:26px;font-weight:300">${r.uit||6} seconden</div><div class="klein">${(r.uit||6)-(r.in||4)} langer dan je inademing</div></div>
  <button class="knop" data-a="naarStil">Nu een paar minuten stil?</button><button class="knop rand" data-g="adem">Klaar voor nu</button>
  <p class="klein midden">Geen reeks, geen score. Morgen mag ook.</p>`;},
 klaarS(){const r=S.laatsteStil||{keer:7,gem:48};const vorige=S.sessies.length>1?S.sessies[S.sessies.length-2]:null;return `<p class="klein midden" style="margin-top:40px">Klaar</p>
@@ -110,8 +110,8 @@ uitleg(){return `<h1>Waarom tikken werkt</h1>
  <div class="stap"><span>1</span><div><b>Dwalen</b><div class="klein">je gedachten gaan hun eigen gang</div></div></div>
  <div class="stap"><span>2</span><div><b>Merken</b><div class="klein">je ziet het: daar tik je</div></div></div>
  <div class="stap"><span>3</span><div><b>Terug</b><div class="klein">je keert terug naar je adem</div></div></div>
- <p class="klein">Uit onderzoek (Hasenkamp, 2012): deze cyclus is in de hersenscan terug te zien. Wij meten niets in je hoofd; we tellen alleen je tikken.</p>
- <h2>En de adem?</h2><p class="klein">Langzaam ademen, met een uitademing die langer is dan de inademing, helpt veel mensen om tot rust te komen. De app begint bij jouw tempo en neemt je geleidelijk mee; je hoeft niet te tellen.</p>
+ <p class="klein">Uit onderzoek (Hasenkamp, 2012): mediteerders drukten op een knop zodra ze merkten dat ze waren afgedwaald. Dat doe jij hier ook. Wij meten niets in je hoofd; we tellen alleen je tikken.</p>
+ <h2>En de adem?</h2><p class="klein">Adem begint bij jouw tempo en brengt je met trilling naar een trager tempo, ongeveer 6 per minuut, met een uitademing die langer is dan je inademing. Je hoeft niet te tellen.</p>
  <div class="kaart"><b>Voel je je onrustiger?</b><div class="zacht">Stop, open je ogen, kijk rond. Blijft het: praat met je huisarts. Acuut: 113 of 112.</div></div>
  <p class="klein midden">Geen medische claims. Niets verzameld.</p>`;},
 meer(){return `<h1>Meer</h1>
@@ -211,5 +211,74 @@ function koppel(){
 if(!S.gezien)S.scherm="veilig"; else if(["klaarA","klaarS"].includes(S.scherm))S.scherm=S.stand;
 teken();
 </script>
+<!-- toeg:start (00-werkmodel/toegankelijk/toeg.js) -->
+<script>
+/* Toegankelijkheid voor de prototypes (punt 132, 15 november 2026, Algemeen-sessie).
+   Wordt door 00-preview-site/bouw_preview.py vóór </body> in elk prototype op de preview gezet (tussen toeg:start en toeg:end).
+   Wat het doet, zonder iets aan het uiterlijk te veranderen behalve een zichtbare focusrand:
+   - tabknoppen in <nav>: aria-current="page" op de actieve;
+   - knoppengroepen (twee of meer knoppen naast elkaar, één met de klasse aan/actief/active/gekozen): aria-pressed;
+   - schakelaars (klasse met schakel, switch of toggle): role="switch" en aria-checked;
+   - klikbare div's, li's, span's en b's (ook met een onclick die in script is gezet, zoals Durora): role="button", tabindex 0, Enter en spatie klikken;
+   - vellen (.sheet): role="dialog", aria-modal, focus op het eerste bedieningselement, Escape sluit.
+   Het echte gedrag in de app bouwt Kasper in SwiftUI; dit is alleen voor de proef met schermlezer en toetsenbord. */
+(() => {
+  if (window.__toeg) return; window.__toeg = true;
+  const st = document.createElement('style');
+  // tweekleurige focusrand (review 132, B2): donkere rand met een witte binnenrand, zichtbaar op licht, donker en gevuld
+  st.textContent = ':focus-visible{outline:3px solid #111!important;outline-offset:2px!important;box-shadow:0 0 0 2px #fff!important}';
+  document.head.appendChild(st);
+  const AAN = /(^|\s)(aan|actief|active|gekozen|sel|selected)(\s|$)/;
+  function pas() {
+    document.querySelectorAll('nav button, nav a').forEach(b => {
+      if (AAN.test(b.className)) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    // keuzeknoppen: alleen knoppen met dezelfde basisklasse als de gekozen knop (review 132, B5)
+    const basis = b => (b.className || '').split(/\s+/).filter(c => c && !AAN.test(' ' + c + ' ')).sort().join(' ');
+    document.querySelectorAll('button').forEach(b => {
+      if (b.closest('nav') || !b.parentElement) return;
+      const aan = [...b.parentElement.children].filter(x => x.tagName === 'BUTTON' && AAN.test(x.className));
+      const groep = aan.length && [...b.parentElement.children].filter(x => x.tagName === 'BUTTON' && basis(x) === basis(aan[0])).length >= 2;
+      if (groep && basis(b) === basis(aan[0])) b.setAttribute('aria-pressed', AAN.test(b.className));
+      else if (b.dataset.toegPressed !== 'eigen' && b.hasAttribute('aria-pressed') && b.dataset.toeg === '1') b.removeAttribute('aria-pressed');
+      if (b.hasAttribute('aria-pressed')) b.dataset.toeg = '1';
+    });
+    document.querySelectorAll('[class*=schakel],[class*=switch],[class*=toggle]').forEach(b => {
+      if (b.matches('button,[onclick]')) { b.setAttribute('role', 'switch'); b.setAttribute('aria-checked', AAN.test(b.className)); }
+    });
+    const klik = [...document.querySelectorAll('div[onclick],li[onclick],span[onclick],div[data-a],div[data-g],li[data-a],li[data-g]')]
+      .concat([...document.querySelectorAll('div,li,span,b')].filter(d => typeof d.onclick === 'function' && !d.closest('button,a')));
+    // nooit een achtergrond van een vel of een blok met eigen bedieningselementen als knop (review 132, B1)
+    klik.filter(d => !d.matches('.sheet-bg,.dialoog') && !d.querySelector('button,a,input,select,textarea,[role=button],.sheet')).forEach(d => {
+      if (!d.hasAttribute('role')) d.setAttribute('role', 'button');
+      if (d.tabIndex < 0) d.tabIndex = 0;
+    });
+    document.querySelectorAll('.sheet,.dialoog>div').forEach(s => {
+      if (s.hasAttribute('role')) return;
+      s.setAttribute('role', s.matches('.dialoog>div') ? 'alertdialog' : 'dialog'); s.setAttribute('aria-modal', 'true');
+      const f = s.querySelector('button,input,select,textarea,[tabindex="0"]');
+      if (f) setTimeout(() => f.focus({ preventScroll: true }), 0);
+    });
+  }
+  document.addEventListener('keydown', e => {
+    const t = e.target;
+    if ((e.key === 'Enter' || e.key === ' ') && t.getAttribute && t.getAttribute('role') === 'button' && !/^(BUTTON|A|INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) { e.preventDefault(); t.click(); }
+    if (e.key === 'Escape') { const bg = [...document.querySelectorAll('.sheet-bg')].pop(); if (bg) bg.click(); }
+  });
+  // focus terug naar waar hij was als een vel of dialoog sluit (review 132, B7)
+  let vorige = null, open = false;
+  document.addEventListener('focusin', e => { if (!e.target.closest('.sheet,.dialoog')) vorige = e.target; });
+  function terug() {
+    const nu = !!document.querySelector('.sheet,.dialoog');
+    if (open && !nu && vorige && vorige.isConnected && (document.activeElement === document.body || !document.activeElement)) vorige.focus({ preventScroll: true });
+    open = nu;
+  }
+  let tm; new MutationObserver(() => { clearTimeout(tm); tm = setTimeout(() => { pas(); terug(); }, 30); })
+    .observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'hidden'] });
+  pas();
+})();
+
+</script>
+<!-- toeg:end -->
 </body>
 </html>
