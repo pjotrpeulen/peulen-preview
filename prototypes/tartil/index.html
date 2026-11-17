@@ -11,7 +11,7 @@
 <style>
 :root{--fs:30px}
 #app{--papier:#FBF7EE;--kaart:#FFFDF8;--inkt:#1F2421;--zacht:#6B6F76;--lijn:#E3DDD0;--ac:#1F5F4A;--ac2:#E3EEE8;--rand:#1F5F4A}
-#app[data-thema="sepia"]{--papier:#F3EAD6;--kaart:#F9F2E3;--inkt:#3A2F22;--zacht:#7A6B57;--lijn:#E0D3B8;--ac:#1F5F4A;--ac2:#E6E4CF}
+#app[data-thema="sepia"]{--papier:#F3EAD6;--kaart:#F9F2E3;--inkt:#3A2F22;--zacht:#6A5C4A;--lijn:#E0D3B8;--ac:#1F5F4A;--ac2:#E6E4CF}
 #app[data-thema="donker"]{--papier:#111614;--kaart:#1A211E;--inkt:#E7E4DC;--zacht:#9AA19C;--lijn:#2C3531;--ac:#7FC0A6;--ac2:#22312B;--rand:#3F6E5E}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;background:#E7E3DA}
@@ -51,7 +51,7 @@ nav.tabs button.aan{color:var(--ac)}
 .chip.aan{background:var(--ac2);color:var(--ac);border-color:var(--ac)}
 .groot{font-size:24px;font-weight:600;margin:8px 0 4px}
 .uitleg{color:var(--zacht);font-size:14px;line-height:1.5}
-.zoek{width:100%;border:1px solid var(--lijn);background:var(--kaart);color:var(--inkt);border-radius:12px;padding:11px 12px;font-size:15px;margin:10px 0 4px}
+.zoek{width:100%;border:1px solid var(--zacht);background:var(--kaart);color:var(--inkt);border-radius:12px;padding:11px 12px;font-size:15px;margin:10px 0 4px}
 .rij{display:flex;align-items:center;gap:12px;padding:12px 2px;border-bottom:1px solid var(--lijn);cursor:pointer}
 .rij .n{width:34px;height:34px;border:1.4px solid var(--ac);border-radius:9px;transform:rotate(45deg);display:grid;place-items:center;flex:none;margin:0 4px}
 .rij .n span{transform:rotate(-45deg);font-size:13px;font-weight:600;color:var(--ac)}
@@ -59,7 +59,7 @@ nav.tabs button.aan{color:var(--ac)}
 .rij .tx b{font-weight:600}
 .rij .tx small{display:block;color:var(--zacht);font-size:12.5px;margin-top:2px}
 .rij .arn{font-size:22px;color:var(--ac)}
-.rij.uit{opacity:.45;cursor:default}
+.rij.uit{cursor:default}.rij.uit b,.rij.uit .n span{color:var(--zacht)}.rij.uit .n{border-style:dashed;border-color:var(--zacht)}
 .instel{background:var(--kaart);border:1px solid var(--lijn);border-radius:16px;padding:2px 14px;margin:14px 0}
 .instel .r{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--lijn);font-size:15px;gap:10px}
 .instel .r:last-child{border-bottom:0}
@@ -69,7 +69,7 @@ nav.tabs button.aan{color:var(--ac)}
 .seg{display:flex;border:1px solid var(--lijn);border-radius:10px;overflow:hidden;flex:none}
 .seg button{border:0;background:var(--kaart);padding:7px 11px;font:500 13px -apple-system,Arial,sans-serif;color:var(--zacht);cursor:pointer}
 .seg button.aan{background:var(--ac);color:var(--papier)}
-.schakel{width:50px;height:30px;border-radius:15px;background:var(--lijn);border:0;position:relative;cursor:pointer;flex:none}
+.schakel{width:50px;height:30px;border-radius:15px;background:var(--zacht);border:0;position:relative;cursor:pointer;flex:none}
 .schakel::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:12px;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
 .schakel.aan{background:var(--ac)}
 .schakel.aan::after{left:23px}
@@ -89,7 +89,7 @@ nav.tabs button.aan{color:var(--ac)}
 .sheet{background:var(--kaart);color:var(--inkt);width:100%;border-radius:18px 18px 0 0;padding:16px 18px 26px}
 .sheet .grip{width:40px;height:5px;border-radius:3px;background:var(--lijn);margin:0 auto 14px}
 .sheet h3{margin:0 0 10px;font-size:17px}
-.sheet input{width:100%;border:1px solid var(--lijn);background:var(--papier);color:var(--inkt);border-radius:10px;padding:10px;font-size:15px}
+.sheet input{width:100%;border:1px solid var(--zacht);background:var(--papier);color:var(--inkt);border-radius:10px;padding:10px;font-size:15px}
 .sheet .optie{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--lijn);background:none;color:var(--inkt);font:400 16px -apple-system,Arial,sans-serif;padding:13px 2px;cursor:pointer}
 .sheet.ios{background:#F2F2F7;color:#1C1C1E}
 .sheet.ios .app{display:flex;gap:12px;align-items:center;background:#fff;border-radius:12px;padding:12px}
@@ -101,6 +101,8 @@ nav.tabs button.aan{color:var(--ac)}
 .toast.zien{opacity:.93}
 .proto{font-size:11px;color:var(--zacht);text-align:center;margin:18px 0 0;line-height:1.5}
 .keuze{color:#9A5B00;font-weight:600}
+#app[data-thema="donker"] .keuze{color:#E0A85C}
+:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
 </style>
 </head>
 <body>
@@ -161,7 +163,7 @@ function lezen() {
  else if (d.basmala) h += `<div class="basmala ar" dir="rtl" lang="ar" style="font-size:var(--fs);line-height:2.1">${esc(d.basmala)}</div>`;
  h += `<div dir="rtl" lang="ar" class="ar">`;
  d.vz.forEach(x => {
-  h += `<div class="vers ${x.v === S.vers ? 'plek' : ''}" id="v-${d.n}-${x.v}" onclick="versMenu(${d.n},${x.v})" role="button" aria-label="Soera ${esc(d.tr)}, vers ${x.v}">${arTekst(d, x)}<span class="vm">${arNr(x.v)}</span>${heeftBw(d.n, x.v) ? '<span class="lint" aria-label="bladwijzer">&#9646;</span>' : ''}</div>`;
+  h += `<div class="vers ${x.v === S.vers ? 'plek' : ''}" id="v-${d.n}-${x.v}" onclick="versMenu(${d.n},${x.v})" role="button" tabindex="0">${arTekst(d, x)}<span class="vm">${arNr(x.v)}</span>${heeftBw(d.n, x.v) ? '<span class="lint" aria-label="bladwijzer">&#9646;</span>' : ''}</div>`;
   if (S.vert) h += `</div>${vertTekst(d, x)}<div dir="rtl" lang="ar" class="ar">`;
  });
  h += `</div></div>`;
@@ -187,9 +189,11 @@ function snelBw() {
 }
 function sheet(html, cls) {
  const bg = document.createElement('div'); bg.className = 'sheet-bg';
- bg.innerHTML = `<div class="sheet ${cls || ''}"><div class="grip"></div>${html}</div>`;
+ bg.innerHTML = `<div class="sheet ${cls || ''}" role="dialog" aria-modal="true"><div class="grip"></div>${html}</div>`;
  bg.onclick = e => { if (e.target === bg) bg.remove(); };
- document.getElementById('app').appendChild(bg); return bg;
+ bg.onkeydown = e => { if (e.key === 'Escape') bg.remove(); };
+ document.getElementById('app').appendChild(bg); toeg(bg);
+ const f = bg.querySelector('button,input,[tabindex="0"]'); if (f) f.focus(); return bg;
 }
 function versMenu(n, v) {
  S.soera = n; S.vers = v; bewaar(); teken();
@@ -226,7 +230,7 @@ function inhoud() {
  const q = normaal(ZOEK);
  const lijst = DATA.filter(d => !q || [d.tr, d.nl, d.ar, d.zoek, String(d.n)].some(x => normaal(x).includes(q) || x.split(' ').some(w => normaal(w).startsWith(q))));
  let h = `<div class="groot">Inhoud</div><div class="uitleg">Soera's. In de app ook juz, hizb en pagina (1 tot 604).</div>`;
- h += `<input class="zoek" id="zoek" placeholder="Zoek op naam of ga naar 112:3" value="${esc(ZOEK)}" oninput="zoek(this.value)" onkeydown="if(event.key==='Enter')gaNaar(this.value)" autocomplete="off">`;
+ h += `<input class="zoek" id="zoek" aria-label="Zoek een soera of ga naar een vers" placeholder="Zoek op naam of ga naar 112:3" value="${esc(ZOEK)}" oninput="zoek(this.value)" onkeydown="if(event.key==='Enter')gaNaar(this.value)" autocomplete="off">`;
  h += `<div id="lijst">` + (lijst.length ? lijst.map(rij).join('') : `<p class="uitleg">Geen soera gevonden in de steekproef.</p>`);
  h += `<div class="rij uit"><div class="n"><span>…</span></div><div class="tx"><b>111 andere soera's</b><small>In de app alle 114 soera's (Tanzil-metadata); niet in deze steekproef</small></div></div></div>`;
  return h;
@@ -308,6 +312,7 @@ function koop(i) {
  <button class="blauw" id="koopknop">Kopen</button>
  <div class="klein">Nagebootst: in dit prototype wordt niets betaald.<br>In de app handelt Apple de betaling af. Gezinsdeling aan.</div>
  <button class="link" style="color:#0A84FF" id="annuleer">Annuleer</button>`, 'ios');
+ bg.querySelector('.sheet').setAttribute('data-contrast-uitzondering', 'nagebootst iOS-betaalvel (review 130, B4)');
  bg.querySelector('#annuleer').onclick = () => bg.remove();
  bg.querySelector('#koopknop').onclick = function () {
   this.textContent = 'Bezig…'; this.disabled = true;
@@ -339,8 +344,17 @@ function teken() {
  else if (S.tab === 'inh') m.innerHTML = inhoud();
  else if (S.tab === 'bw') m.innerHTML = bladwijzers();
  else m.innerHTML = instellingen();
- kopknoppen(); tabs(); welkom();
+ kopknoppen(); tabs(); welkom(); toeg(app);
 }
+// 15 nov (review 130): standen en klikbare rijen voor schermlezer en toetsenbord
+function toeg(w) {
+ w.querySelectorAll('.schakel').forEach(b => { b.setAttribute('role', 'switch'); b.setAttribute('aria-checked', b.classList.contains('aan')); });
+ w.querySelectorAll('.ik[title="Vertaling"], .ik[title="Bladwijzer"]').forEach(b => b.setAttribute('aria-pressed', b.classList.contains('aan')));
+ w.querySelectorAll('.seg').forEach(g => { if (g.querySelector('.aan')) g.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.classList.contains('aan'))); });
+ w.querySelectorAll('nav.tabs button').forEach(b => { if (b.classList.contains('aan')) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+ w.querySelectorAll('div[onclick]').forEach(d => { d.setAttribute('role', 'button'); d.tabIndex = 0; });
+}
+document.addEventListener('keydown', e => { const t = e.target; if ((e.key === 'Enter' || e.key === ' ') && t.getAttribute && t.getAttribute('role') === 'button' && t.tagName !== 'BUTTON') { e.preventDefault(); t.click(); } });
 let tx = null;
 const M = document.getElementById('main');
 M.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive: true});
@@ -351,5 +365,74 @@ M.addEventListener('touchend', e => {
 });
 teken(); if (S.tab === 'lezen') scrollNaarVers();
 </script>
+<!-- toeg:start (00-werkmodel/toegankelijk/toeg.js) -->
+<script>
+/* Toegankelijkheid voor de prototypes (punt 132, 15 november 2026, Algemeen-sessie).
+   Wordt door 00-preview-site/bouw_preview.py vóór </body> in elk prototype op de preview gezet (tussen toeg:start en toeg:end).
+   Wat het doet, zonder iets aan het uiterlijk te veranderen behalve een zichtbare focusrand:
+   - tabknoppen in <nav>: aria-current="page" op de actieve;
+   - knoppengroepen (twee of meer knoppen naast elkaar, één met de klasse aan/actief/active/gekozen): aria-pressed;
+   - schakelaars (klasse met schakel, switch of toggle): role="switch" en aria-checked;
+   - klikbare div's, li's, span's en b's (ook met een onclick die in script is gezet, zoals Durora): role="button", tabindex 0, Enter en spatie klikken;
+   - vellen (.sheet): role="dialog", aria-modal, focus op het eerste bedieningselement, Escape sluit.
+   Het echte gedrag in de app bouwt Kasper in SwiftUI; dit is alleen voor de proef met schermlezer en toetsenbord. */
+(() => {
+  if (window.__toeg) return; window.__toeg = true;
+  const st = document.createElement('style');
+  // tweekleurige focusrand (review 132, B2): donkere rand met een witte binnenrand, zichtbaar op licht, donker en gevuld
+  st.textContent = ':focus-visible{outline:3px solid #111!important;outline-offset:2px!important;box-shadow:0 0 0 2px #fff!important}';
+  document.head.appendChild(st);
+  const AAN = /(^|\s)(aan|actief|active|gekozen|sel|selected)(\s|$)/;
+  function pas() {
+    document.querySelectorAll('nav button, nav a').forEach(b => {
+      if (AAN.test(b.className)) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    // keuzeknoppen: alleen knoppen met dezelfde basisklasse als de gekozen knop (review 132, B5)
+    const basis = b => (b.className || '').split(/\s+/).filter(c => c && !AAN.test(' ' + c + ' ')).sort().join(' ');
+    document.querySelectorAll('button').forEach(b => {
+      if (b.closest('nav') || !b.parentElement) return;
+      const aan = [...b.parentElement.children].filter(x => x.tagName === 'BUTTON' && AAN.test(x.className));
+      const groep = aan.length && [...b.parentElement.children].filter(x => x.tagName === 'BUTTON' && basis(x) === basis(aan[0])).length >= 2;
+      if (groep && basis(b) === basis(aan[0])) b.setAttribute('aria-pressed', AAN.test(b.className));
+      else if (b.dataset.toegPressed !== 'eigen' && b.hasAttribute('aria-pressed') && b.dataset.toeg === '1') b.removeAttribute('aria-pressed');
+      if (b.hasAttribute('aria-pressed')) b.dataset.toeg = '1';
+    });
+    document.querySelectorAll('[class*=schakel],[class*=switch],[class*=toggle]').forEach(b => {
+      if (b.matches('button,[onclick]')) { b.setAttribute('role', 'switch'); b.setAttribute('aria-checked', AAN.test(b.className)); }
+    });
+    const klik = [...document.querySelectorAll('div[onclick],li[onclick],span[onclick],div[data-a],div[data-g],li[data-a],li[data-g]')]
+      .concat([...document.querySelectorAll('div,li,span,b')].filter(d => typeof d.onclick === 'function' && !d.closest('button,a')));
+    // nooit een achtergrond van een vel of een blok met eigen bedieningselementen als knop (review 132, B1)
+    klik.filter(d => !d.matches('.sheet-bg,.dialoog') && !d.querySelector('button,a,input,select,textarea,[role=button],.sheet')).forEach(d => {
+      if (!d.hasAttribute('role')) d.setAttribute('role', 'button');
+      if (d.tabIndex < 0) d.tabIndex = 0;
+    });
+    document.querySelectorAll('.sheet,.dialoog>div').forEach(s => {
+      if (s.hasAttribute('role')) return;
+      s.setAttribute('role', s.matches('.dialoog>div') ? 'alertdialog' : 'dialog'); s.setAttribute('aria-modal', 'true');
+      const f = s.querySelector('button,input,select,textarea,[tabindex="0"]');
+      if (f) setTimeout(() => f.focus({ preventScroll: true }), 0);
+    });
+  }
+  document.addEventListener('keydown', e => {
+    const t = e.target;
+    if ((e.key === 'Enter' || e.key === ' ') && t.getAttribute && t.getAttribute('role') === 'button' && !/^(BUTTON|A|INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) { e.preventDefault(); t.click(); }
+    if (e.key === 'Escape') { const bg = [...document.querySelectorAll('.sheet-bg')].pop(); if (bg) bg.click(); }
+  });
+  // focus terug naar waar hij was als een vel of dialoog sluit (review 132, B7)
+  let vorige = null, open = false;
+  document.addEventListener('focusin', e => { if (!e.target.closest('.sheet,.dialoog')) vorige = e.target; });
+  function terug() {
+    const nu = !!document.querySelector('.sheet,.dialoog');
+    if (open && !nu && vorige && vorige.isConnected && (document.activeElement === document.body || !document.activeElement)) vorige.focus({ preventScroll: true });
+    open = nu;
+  }
+  let tm; new MutationObserver(() => { clearTimeout(tm); tm = setTimeout(() => { pas(); terug(); }, 30); })
+    .observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'hidden'] });
+  pas();
+})();
+
+</script>
+<!-- toeg:end -->
 </body>
 </html>
