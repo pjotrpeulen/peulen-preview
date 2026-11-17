@@ -19,10 +19,10 @@ main{padding:16px 20px 110px}
 .kop{display:flex;justify-content:space-between;align-items:center} .kop h1{margin:8px 0 0}
 h1{font-size:22px;margin:16px 0 4px} h2{font-size:16px;margin:20px 0 8px}
 .sub{color:var(--sub);font-size:14px} .klein{font-size:12.5px;color:var(--sub)} .midden{text-align:center}
-.knop{display:block;width:100%;border:0;border-radius:24px;background:var(--ac);color:#fff;font:600 16px/1 inherit;padding:14px;margin-top:14px;cursor:pointer}
+.knop{display:block;width:100%;border:0;border-radius:24px;background:var(--ac);color:#fff;font:inherit;font-weight:600;font-size:16px;line-height:1;padding:14px;margin-top:14px;cursor:pointer}
 .knop.licht{background:var(--licht);color:var(--ac)} .knop.rand{background:#fff;color:var(--ink);border:1px solid var(--lijn);font-weight:500}
-.link{background:none;border:0;color:var(--ac);font:600 14px inherit;padding:6px 0;cursor:pointer}
-.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0} .chip{border:1px solid var(--lijn);background:#fff;border-radius:16px;padding:7px 13px;font:14px inherit;cursor:pointer;color:var(--ink)} .chip.aan{background:var(--ac);border-color:var(--ac);color:#fff}
+.link{background:none;border:0;color:var(--ac);font:inherit;font-weight:600;font-size:14px;padding:6px 0;cursor:pointer}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0} .chip{border:1px solid var(--lijn);background:#fff;border-radius:16px;padding:7px 13px;font:inherit;font-size:14px;cursor:pointer;color:var(--ink)} .chip.aan{background:var(--ac);border-color:var(--ac);color:#fff}
 .item{padding:12px 2px;border-bottom:1px solid var(--lijn);cursor:pointer}
 .item .r{display:flex;justify-content:space-between;align-items:baseline} .item b{font-size:16px}
 .stip{display:inline-block;width:9px;height:9px;border-radius:50%;border:1.5px solid var(--lijn);margin-right:4px} .stip.vol{background:var(--ac);border-color:var(--ac)}
@@ -30,15 +30,15 @@ h1{font-size:22px;margin:16px 0 4px} h2{font-size:16px;margin:20px 0 8px}
 .kaart{background:var(--licht);border-radius:16px;padding:14px 16px;margin-top:12px}
 .waarschuw{background:var(--oral);border:1px solid var(--ora);border-radius:14px;padding:12px 14px;margin-top:12px;font-size:14px}
 .stappen{display:flex;justify-content:space-between;margin-top:12px}
-.stappen button{background:none;border:0;cursor:pointer;text-align:center;font:12px inherit;color:var(--ink);width:25%}
+.stappen button{background:none;border:0;cursor:pointer;text-align:center;font:inherit;font-size:12px;color:var(--ink);width:25%}
 .stappen i{display:flex;width:26px;height:26px;margin:0 auto 4px;border-radius:50%;border:2px solid var(--ac);align-items:center;justify-content:center;font-style:normal;font-weight:700;color:var(--ac)}
 .stappen i.af{background:var(--ac);color:#fff}
 nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;background:#fff;border-top:1px solid var(--lijn);display:flex;padding:10px 0 calc(14px + env(safe-area-inset-bottom));z-index:3}
-nav button{flex:1;background:none;border:0;color:var(--sub);font:500 14px inherit;padding:8px;cursor:pointer} nav button.aan{color:var(--ac);font-weight:700}
+nav button{flex:1;background:none;border:0;color:var(--sub);font:inherit;font-weight:500;font-size:14px;padding:8px;cursor:pointer} nav button.aan{color:var(--ac);font-weight:700}
 .sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:flex-end;justify-content:center;z-index:9}
 .sheet{background:#fff;width:100%;max-width:440px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:14px 20px 30px}
 .greep{width:40px;height:5px;border-radius:3px;background:var(--lijn);margin:0 auto 10px}
-input[type=text],input[type=date],textarea{width:100%;border:1px solid var(--lijn);border-radius:12px;padding:11px;font:15px inherit;background:#fff}
+input[type=text],input[type=date],textarea{width:100%;border:1px solid var(--sub);border-radius:12px;padding:11px;font:inherit;font-size:15px;background:#fff}
 .rij{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--lijn)}
 .pdf{background:#EDEFEC;padding:12px;border-radius:12px} .blad{background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.12);padding:18px 16px;font-size:12px;line-height:1.5;color:#222;aspect-ratio:1/1.414;overflow:hidden}
 .blad h3{font-size:15px;margin:0 0 2px} .blad h4{font-size:12px;margin:10px 0 2px;color:var(--ac)}
@@ -182,5 +182,74 @@ function koppel(){
 }
 if(S.start)S.scherm="start"; teken();
 </script>
+<!-- toeg:start (00-werkmodel/toegankelijk/toeg.js) -->
+<script>
+/* Toegankelijkheid voor de prototypes (punt 132, 15 november 2026, Algemeen-sessie).
+   Wordt door 00-preview-site/bouw_preview.py vóór </body> in elk prototype op de preview gezet (tussen toeg:start en toeg:end).
+   Wat het doet, zonder iets aan het uiterlijk te veranderen behalve een zichtbare focusrand:
+   - tabknoppen in <nav>: aria-current="page" op de actieve;
+   - knoppengroepen (twee of meer knoppen naast elkaar, één met de klasse aan/actief/active/gekozen): aria-pressed;
+   - schakelaars (klasse met schakel, switch of toggle): role="switch" en aria-checked;
+   - klikbare div's, li's, span's en b's (ook met een onclick die in script is gezet, zoals Durora): role="button", tabindex 0, Enter en spatie klikken;
+   - vellen (.sheet): role="dialog", aria-modal, focus op het eerste bedieningselement, Escape sluit.
+   Het echte gedrag in de app bouwt Kasper in SwiftUI; dit is alleen voor de proef met schermlezer en toetsenbord. */
+(() => {
+  if (window.__toeg) return; window.__toeg = true;
+  const st = document.createElement('style');
+  // tweekleurige focusrand (review 132, B2): donkere rand met een witte binnenrand, zichtbaar op licht, donker en gevuld
+  st.textContent = ':focus-visible{outline:3px solid #111!important;outline-offset:2px!important;box-shadow:0 0 0 2px #fff!important}';
+  document.head.appendChild(st);
+  const AAN = /(^|\s)(aan|actief|active|gekozen|sel|selected)(\s|$)/;
+  function pas() {
+    document.querySelectorAll('nav button, nav a').forEach(b => {
+      if (AAN.test(b.className)) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    // keuzeknoppen: alleen knoppen met dezelfde basisklasse als de gekozen knop (review 132, B5)
+    const basis = b => (b.className || '').split(/\s+/).filter(c => c && !AAN.test(' ' + c + ' ')).sort().join(' ');
+    document.querySelectorAll('button').forEach(b => {
+      if (b.closest('nav') || !b.parentElement) return;
+      const aan = [...b.parentElement.children].filter(x => x.tagName === 'BUTTON' && AAN.test(x.className));
+      const groep = aan.length && [...b.parentElement.children].filter(x => x.tagName === 'BUTTON' && basis(x) === basis(aan[0])).length >= 2;
+      if (groep && basis(b) === basis(aan[0])) b.setAttribute('aria-pressed', AAN.test(b.className));
+      else if (b.dataset.toegPressed !== 'eigen' && b.hasAttribute('aria-pressed') && b.dataset.toeg === '1') b.removeAttribute('aria-pressed');
+      if (b.hasAttribute('aria-pressed')) b.dataset.toeg = '1';
+    });
+    document.querySelectorAll('[class*=schakel],[class*=switch],[class*=toggle]').forEach(b => {
+      if (b.matches('button,[onclick]')) { b.setAttribute('role', 'switch'); b.setAttribute('aria-checked', AAN.test(b.className)); }
+    });
+    const klik = [...document.querySelectorAll('div[onclick],li[onclick],span[onclick],div[data-a],div[data-g],li[data-a],li[data-g]')]
+      .concat([...document.querySelectorAll('div,li,span,b')].filter(d => typeof d.onclick === 'function' && !d.closest('button,a')));
+    // nooit een achtergrond van een vel of een blok met eigen bedieningselementen als knop (review 132, B1)
+    klik.filter(d => !d.matches('.sheet-bg,.dialoog') && !d.querySelector('button,a,input,select,textarea,[role=button],.sheet')).forEach(d => {
+      if (!d.hasAttribute('role')) d.setAttribute('role', 'button');
+      if (d.tabIndex < 0) d.tabIndex = 0;
+    });
+    document.querySelectorAll('.sheet,.dialoog>div').forEach(s => {
+      if (s.hasAttribute('role')) return;
+      s.setAttribute('role', s.matches('.dialoog>div') ? 'alertdialog' : 'dialog'); s.setAttribute('aria-modal', 'true');
+      const f = s.querySelector('button,input,select,textarea,[tabindex="0"]');
+      if (f) setTimeout(() => f.focus({ preventScroll: true }), 0);
+    });
+  }
+  document.addEventListener('keydown', e => {
+    const t = e.target;
+    if ((e.key === 'Enter' || e.key === ' ') && t.getAttribute && t.getAttribute('role') === 'button' && !/^(BUTTON|A|INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) { e.preventDefault(); t.click(); }
+    if (e.key === 'Escape') { const bg = [...document.querySelectorAll('.sheet-bg')].pop(); if (bg) bg.click(); }
+  });
+  // focus terug naar waar hij was als een vel of dialoog sluit (review 132, B7)
+  let vorige = null, open = false;
+  document.addEventListener('focusin', e => { if (!e.target.closest('.sheet,.dialoog')) vorige = e.target; });
+  function terug() {
+    const nu = !!document.querySelector('.sheet,.dialoog');
+    if (open && !nu && vorige && vorige.isConnected && (document.activeElement === document.body || !document.activeElement)) vorige.focus({ preventScroll: true });
+    open = nu;
+  }
+  let tm; new MutationObserver(() => { clearTimeout(tm); tm = setTimeout(() => { pas(); terug(); }, 30); })
+    .observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'hidden'] });
+  pas();
+})();
+
+</script>
+<!-- toeg:end -->
 </body>
 </html>
