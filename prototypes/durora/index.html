@@ -23,10 +23,10 @@ main{position:relative;padding:18px 22px 120px}
 .zacht{color:var(--zacht)} .klein{font-size:13px;color:var(--zacht)} .midden{text-align:center}
 h1{font-size:24px;margin:18px 0 6px} h2{font-size:17px;margin:22px 0 10px}
 .kaart{background:var(--kaart);border-radius:16px;padding:14px 16px;margin-top:12px}
-.knop{display:block;width:100%;border:0;border-radius:26px;background:var(--goud);color:#13213D;font:700 16px/1 inherit;padding:15px;margin-top:18px;cursor:pointer}
+.knop{display:block;width:100%;border:0;border-radius:26px;background:var(--goud);color:#13213D;font:inherit;font-weight:700;font-size:16px;line-height:1;padding:15px;margin-top:18px;cursor:pointer}
 .knop.rand{background:transparent;color:var(--wit);border:1px solid var(--zacht);font-weight:500}
-.link{background:none;border:0;color:var(--goud);font:500 15px inherit;padding:8px 0;cursor:pointer}
-.jn{display:flex;gap:8px} .jn button{border-radius:18px;padding:8px 16px;font:700 14px inherit;cursor:pointer;border:1px solid var(--zacht);background:transparent;color:var(--wit)} .jn button.ja{background:var(--goud);border-color:var(--goud);color:#13213D}
+.link{background:none;border:0;color:var(--goud);font:inherit;font-weight:500;font-size:15px;padding:8px 0;cursor:pointer}
+.jn{display:flex;gap:8px} .jn button{border-radius:18px;padding:8px 16px;font:inherit;font-weight:700;font-size:14px;cursor:pointer;border:1px solid var(--zacht);background:transparent;color:var(--wit)} .jn button.ja{background:var(--goud);border-color:var(--goud);color:#13213D}
 .groot{font-size:56px;font-weight:300;letter-spacing:-1px}
 .lijst div,.optie{display:flex;justify-content:space-between;align-items:center;padding:13px 2px;border-bottom:1px solid var(--lijn);cursor:pointer}
 .optie.aan b{color:var(--goud)} .optie small{display:block;color:var(--zacht);font-size:12px;max-width:290px}
@@ -35,9 +35,9 @@ h1{font-size:24px;margin:18px 0 6px} h2{font-size:17px;margin:22px 0 10px}
 .kal b{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:13px;font-weight:600;color:var(--zacht);cursor:pointer}
 .kal b.g{background:var(--goud);color:#13213D} .kal b.m{border:2px dashed var(--oranje);color:var(--wit)} .kal b.i{background:transparent;border:2px solid var(--goud);color:var(--goud)} .kal b.v{border:2px solid var(--wit);color:var(--wit)}
 nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;background:rgba(13,24,48,.96);border-top:1px solid var(--lijn);display:flex;padding:10px 0 calc(14px + env(safe-area-inset-bottom));z-index:5}
-nav button{flex:1;background:none;border:0;color:var(--zacht);font:500 14px inherit;padding:8px;cursor:pointer} nav button.aan{color:var(--goud);font-weight:700}
-.chips{display:flex;gap:6px;flex-wrap:wrap} .chip{border:1px solid var(--lijn);background:var(--kaart);color:var(--wit);border-radius:14px;padding:6px 11px;font:13px inherit;cursor:pointer} .chip.aan{background:var(--goud);color:#13213D;border-color:var(--goud)}
-textarea,select,input[type=date]{width:100%;background:rgba(255,255,255,.06);color:var(--wit);border:1px solid var(--lijn);border-radius:14px;padding:12px;font:15px inherit}
+nav button{flex:1;background:none;border:0;color:var(--zacht);font:inherit;font-weight:500;font-size:14px;padding:8px;cursor:pointer} nav button.aan{color:var(--goud);font-weight:700}
+.chips{display:flex;gap:6px;flex-wrap:wrap} .chip{border:1px solid var(--lijn);background:var(--kaart);color:var(--wit);border-radius:14px;padding:6px 11px;font:inherit;font-size:13px;cursor:pointer} .chip.aan{background:var(--goud);color:#13213D;border-color:var(--goud)}
+textarea,select,input[type=date]{width:100%;background:rgba(255,255,255,.06);color:var(--wit);border:1px solid var(--zacht);border-radius:14px;padding:12px;font:inherit;font-size:15px}
 select option{color:#000}
 .slot{position:relative} .slot .waas{filter:blur(5px);opacity:.45;pointer-events:none}
 .slot .over{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
@@ -97,7 +97,13 @@ function tijden(ds){
 function ga(x){S.scherm=x;bewaar();teken();scrollTo(0,0);}
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>ga(b.dataset.t));
 function open(){return S.gekocht||S.installDag<=14;}
-function sterren(){let s="";let x=7;for(let i=0;i<30;i++){x=(x*9301+49297)%233280;const a=x/233280;x=(x*9301+49297)%233280;const b=x/233280;s+=`<circle cx="${(a*420).toFixed(0)}" cy="${(b*250).toFixed(0)}" r="${(0.6+a*1.1).toFixed(1)}" fill="#fff" opacity="${(0.25+b*0.5).toFixed(2)}"/>`;}$("#sterren").innerHTML=s;}
+function sterren(){let s="";let x=7;for(let i=0;i<30;i++){x=(x*9301+49297)%233280;const a=x/233280;x=(x*9301+49297)%233280;const b=x/233280;s+=`<circle cx="${(a*420).toFixed(0)}" cy="${(b*250).toFixed(0)}" r="${(0.6+a*1.1).toFixed(1)}" fill="#fff" opacity="${(0.25+b*0.5).toFixed(2)}"/>`;}$("#sterren").innerHTML=s;sterrenVrij();}
+// 17 nov (punt 119): geen ster over tekst, knoppen, kaarten of beelden; sterren die daar vallen, worden verborgen (opnieuw na elk scherm)
+function sterrenVrij(){const sv=document.getElementById("sterren");if(!sv)return;const r=sv.getBoundingClientRect();if(!r.width)return;const sx=r.width/420,sy=r.height/260,M=8;
+ const vakken=[...document.querySelectorAll("#s *")].filter(e=>{if(e.closest("svg")&&e.tagName!=="svg")return false;const t=[...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim());return t||/^(BUTTON|INPUT|SELECT|TEXTAREA|IMG|svg|CANVAS)$/i.test(e.tagName)||(cs=>cs.backgroundColor!=="rgba(0, 0, 0, 0)"||cs.backgroundImage!=="none"||parseFloat(cs.borderTopWidth)>0)(getComputedStyle(e));}).map(e=>e.getBoundingClientRect()).filter(b=>b.width&&b.top<r.bottom);
+ sv.querySelectorAll("circle").forEach(c=>{const x=r.left+(+c.getAttribute("cx"))*sx,y=r.top+(+c.getAttribute("cy"))*sy;c.style.display=vakken.some(b=>x>b.left-M&&x<b.right+M&&y>b.top-M&&y<b.bottom+M)?"none":"";});}
+new MutationObserver(()=>requestAnimationFrame(sterrenVrij)).observe(document.getElementById("s"),{childList:true,subtree:true});
+addEventListener("resize",sterrenVrij);
 function teken(){
  const t=nu(), ds=datumVan(t), T=tijden(ds); const nachtNu=t<T.imsak||t>T.iftar;
  document.body.classList.toggle("nacht",nachtNu&&S.scherm==="vandaag");
@@ -207,5 +213,111 @@ function koppel(){
 sterren(); if(S.scherm!=="welkom"&&!S.plaats) S.scherm="welkom"; teken();
 setInterval(()=>{if(S.scherm==="vandaag"&&!$("#sheet").innerHTML)teken();},1000);
 </script>
+<!-- taal-en:start (12-vasten-timer/prototypes/taal-en, maak_en.py) -->
+<script>
+/* Engelse stand voor de prototypes van Stilvast en Durora (punt 179, 17 november 2026, Algemeen-sessie).
+   Aan met ?taal=en in de adresregel (niet bewaard). Vertaalt de tekst op het scherm, aria-label, title en placeholder
+   met een vaste woordenlijst (W) en patronen (P); datums en tijden via DG en MD. Nederlands blijft de bron; dit is alleen
+   voor de Engelse winkel- en websitebeelden. Wordt door maak_en.py in index.html gezet tussen taal-en:start en taal-en:end. */
+(() => {
+  // alleen via de adresregel (niet bewaard): zo blijft elk ander prototype en elke NL-opname Nederlands
+  if (new URLSearchParams(location.search).get('taal') !== 'en') return;
+  document.documentElement.lang = 'en';
+  const W = {"Je vast": "Fasting", "nog 1:48": "1:48 to go", "Gestart": "Started", "gisteren 20:00": "yesterday 20:00", "Doel": "Goal", "Geen reeks. Morgen mag ook.": "No streak. Tomorrow is fine too.", "Vasten": "Fast", "Geschiedenis": "History", "Meer": "More", "Je proef van 14 dagen": "Your 14-day trial", "is voorbij": "has ended", "één keer · geen abonnement": "once · no subscription", "Geschiedenis per dag, week, maand": "History by day, week, month", "Live-activiteit (toegangsscherm)": "Live Activity (Lock Screen)", "Exporteren blijft altijd gratis.": "Export always stays free.", "Gezinsdeling: je gezin doet mee": "Family Sharing: your family joins in", "Timen blijft altijd gratis. Er wordt nooit": "Timing always stays free. Nothing is ever", "iets vanzelf afgeschreven. Wat je koopt,": "charged automatically. What you buy", "blijft van jou.": "stays yours.", "Koop voor € 4,99": "Buy for € 4.99", "Aankoop herstellen · Niet nu": "Restore purchase · Not now", "van Peulen": "by Peulen", "Een vastentimer": "A fasting timer", "die gewoon klopt.": "that simply works.", "Twee tikken per dag: starten na het eten,": "Two taps a day: start after dinner,", "stoppen bij je eerste maaltijd.": "stop at your first meal.", "Timen blijft altijd gratis.": "Timing always stays free.", "14 dagen alles open, daarna € 4,99,": "Everything open for 14 days, then", "één keer. Niets vanzelf afgeschreven.": "pay once. Nothing charged automatically.", "Geen account; alles op je telefoon.": "No account; everything on your phone.", "Vast niet zonder overleg met je arts als je": "Talk to your doctor before fasting if you", "zwanger bent, borstvoeding geeft, een eetstoornis": "are pregnant, breastfeeding, have (had) an", "hebt (gehad), diabetes hebt of medicijnen gebruikt.": "eating disorder, diabetes or take medication.", "Begin": "Start", "Vasten aanpassen": "Edit fast", "Vergeten te stoppen? Zet het achteraf goed.": "Forgot to stop? Fix it afterwards.", "Start": "Start", "do 4 feb · 19:30": "Thu 4 Feb · 19:30", "Einde": "End", "vr 5 feb · 10:00": "Fri 5 Feb · 10:00", "Was 19:30 → 12:05 (16:35)": "Was 19:30 → 12:05 (16:35)", "Wordt 19:30 → 10:00 (14:30)": "Becomes 19:30 → 10:00 (14:30)", "Bewaar": "Save", "Wissen (met ongedaan maken)": "Delete (with undo)", "Welkom terug": "Welcome back", "Fijn dat je er weer bent.": "Good to see you again.", "Er is niets in te halen.": "There is nothing to catch up on.", "Je laatste vasten": "Your last fast", "3 weken geleden · doel 16 uur": "3 weeks ago · goal 16 hours", "Start vasten": "Start fast", "Ander doel kiezen": "Choose another goal", "Geen reeks die is gebroken.": "No streak that was broken.", "Je geschiedenis blijft gewoon staan.": "Your history simply stays.", "Ramadan · dag 12": "Ramadan · day 12", "nog tot iftar": "until iftar", "Suhoor eindigt morgen om 06:10": "Suhoor ends tomorrow at 06:10", "Melding 30 minuten vooraf": "Notification 30 minutes before", "Gisteren gevast?": "Fasted yesterday?", "Voor je logboek": "For your log", "Ja": "Yes", "Nee": "No", "Tijden: Diyanet · Utrecht": "Times: Diyanet · Utrecht", "Geen reclame · niets verzameld": "No ads · nothing collected", "Vandaag": "Today", "Logboek": "Log", "Tijden": "Times", "nog eten · tot imsak 06:10": "still eat · until imsak 06:10", "Melding om 05:40": "Notification at 05:40", "30 minuten voor imsak": "30 minutes before imsak", "Scherm blijft donker en rustig": "Screen stays dark and calm", "Ramadan 1448 · februari en maart 2027": "Ramadan 1448 · February and March 2027", "m": "M", "d": "T", "w": "W", "v": "F", "z": "S", "Nog in te halen": "Still to make up", "1 dag": "1 day", "Inhalen": "Make up", "gevast": "fasted", "in te halen": "to make up", "vandaag": "today", "Alleen op deze telefoon": "Only on this phone", "Plaats": "Place", "Methode": "Method", "De tijden die Diyanet publiceert": "The times Diyanet publishes", "Eigen moskee": "Own mosque", "De tabel van je moskee, geplakt": "Your mosque's timetable, pasted", "18 graden": "18 degrees", "Fajr bij 18° onder de horizon": "Fajr at 18° below the horizon", "15 en 12 graden": "15 and 12 degrees", "Latere fajr, voor korte nachten": "Later fajr, for short nights", "Imsak-marge": "Imsak margin", "Vandaag (Diyanet)": "Today (Diyanet)", "Geen religieuze uitspraken: jij kiest.": "No religious rulings: you choose.", "één keer · geen abonnement · geen reclame": "once · no subscription · no ads", "Logboek met in te halen dagen": "Log with days to make up", "Aftellen, widget en meldingen blijven": "Countdown, widget and notifications stay", "altijd gratis. Wat je koopt, blijft van jou.": "always free. What you buy stays yours.", "Waar ben je?": "Where are you?", "Zonder locatietoestemming: kies je stad.": "No location permission: pick your city.", "Den Haag": "The Hague", "Gebruik mijn locatie (blijft op je telefoon)": "Use my location (stays on your phone)", "dinsdag 5 januari": "Tuesday 5 January", "doel om 12:00": "goal at 12:00", "1:14 gevast": "1:14 fasted", "Twee tikken: starten na het eten, stoppen bij het ontbijt.": "Two taps: start after dinner, stop at breakfast.", "Je vast · 1:14": "Fasting · 1:14", "€ 4,99": "€ 4.99", "18°, iftar 6 min na zonsondergang": "18°, iftar 6 min after sunset", "Zoals veel moskeeën; iftar +2 min": "Like many mosques; iftar +2 min", "16, 15 of 13,5 graden": "16, 15 or 13.5 degrees", "Latere fajr, zoals sommige moskeeën": "Later fajr, like some mosques", "Suhoor eindigt morgen om 05:52": "Suhoor ends tomorrow at 05:52", "nog eten · tot imsak 05:52": "still eat · until imsak 05:52", "Melding om 05:22": "Notification at 05:22", "Niet nu": "Not now", "Aankoop herstellen": "Restore purchase", "Bekijk de aankoop": "See the purchase", "Alleen in dit prototype": "Only in this prototype", "Alles wissen en opnieuw beginnen": "Clear everything and start over", "Proefdag": "Trial day", "Proefdag:": "Trial day:", "Tijd versnellen": "Speed up time", "Tijd versnellen:": "Speed up time:", "Bevestig": "Confirm", "Terug": "Back", "Stop": "Stop", "Wissen": "Delete", "Ongedaan maken": "Undo", "Meldingen": "Notifications", "Weergave": "Appearance", "echt": "real", "licht": "light", "nacht": "night", "auto": "auto", "Exporteer": "Export", "Exporteer ›": "Export ›", "uit": "off", "aan": "on", "Een dag eerder": "One day earlier", "Een dag later": "One day later", "Een uur eerder": "One hour earlier", "Een uur later": "One hour later", "Kwartier eerder": "Quarter of an hour earlier", "Kwartier later": "Quarter of an hour later", "een dag eerder": "one day earlier", "een dag later": "one day later", "Datum en tijd": "Date and time", "Starttijd": "Start time", "De start kan niet in de toekomst liggen.": "The start can't be in the future.", "Het einde moet na de start liggen.": "The end must be after the start.", "Het einde kan niet in de toekomst liggen.": "The end can't be in the future.", "Live-activiteit op je toegangsscherm": "Live Activity on your Lock Screen", "Toegangsscherm": "Lock Screen", "Nagebootst in het prototype: in de app tekent iOS dit scherm.": "Simulated in the prototype: in the app, iOS draws this screen.", "Terug naar de app": "Back to the app", "Spring vooruit": "Jump ahead", "Spring vooruit:": "Jump ahead:", "+1 uur": "+1 hour", "+4 uur": "+4 hours", "dag": "day", "Dag": "Day", "leeg": "empty", "Durora": "Durora", "Durora · klikbaar prototype": "Durora · clickable prototype", "Jouw iftar-tijd, van je moskee of Diyanet.": "Your iftar time, from your mosque or Diyanet.", "Rustig aftellen naar iftar, 's nachts tot imsak, en een logboek met je inhaaldagen.": "A calm countdown to iftar, at night to imsak, and a log of your days to make up.", "Aftellen, widget en meldingen blijven altijd gratis.": "Countdown, widget and notifications always stay free.", "14 dagen alles open, daarna één keer € 4,99. Geen reclame; er wordt nooit iets vanzelf afgeschreven.": "Everything open for 14 days, then € 4.99, once. No ads; nothing is ever charged automatically.", "Geen account. Je plaats blijft op je telefoon.": "No account. Your place stays on your phone.", "Kies je plaats": "Choose your place", "Zonder locatietoestemming: kies je stad. Je kunt dit altijd wijzigen.": "No location permission: pick your city. You can always change this.", "Wanneer begint jouw Ramadan?": "When does your Ramadan start?", "Eerste dag van de Ramadan": "First day of Ramadan", "Eerste vastendag": "First day of fasting", "De tijden van Diyanet, die veel Turkse moskeeën volgen: fajr bij 18°, iftar 6 minuten na zonsondergang.": "The times of Diyanet, which many Turkish mosques follow: fajr at 18°, iftar 6 minutes after sunset.", "De tabel van je eigen moskee, ingevoerd of geplakt. Dan gelden precies die tijden.": "Your own mosque's timetable, typed or pasted. Then exactly those times apply.", "Zoals veel moskeeën in Nederland: fajr bij 18°, iftar 2 minuten na zonsondergang.": "Like many mosques in the Netherlands: fajr at 18°, iftar 2 minutes after sunset.", "Sommige moskeeën, onder meer in Amsterdam, gebruiken een kleinere hoek; fajr valt dan later.": "Some mosques, including in Amsterdam, use a smaller angle; fajr is then later.", "Sommige moskeeën, onder meer in Den Haag, gebruiken een kleinere hoek; fajr valt dan later.": "Some mosques, including in The Hague, use a smaller angle; fajr is then later.", "Sommige moskeeën, onder meer in België, gebruiken een kleinere hoek; fajr valt dan later.": "Some mosques, including in Belgium, use a smaller angle; fajr is then later.", "16 graden": "16 degrees", "15 graden": "15 degrees", "13,5 graden": "13.5 degrees", "Hoeveel minuten vóór fajr je stopt met eten.": "How many minutes before fajr you stop eating.", "Tabel van je moskee": "Your mosque's timetable", "Bewaar tabel": "Save table", "Datum:": "Date:", "Demo-moment:": "Demo moment:", "Geen melding": "No notification", "Durora rekent tijden uit en houdt je logboek bij. Het geeft geen religieuze uitspraken: welke tijden je volgt, kies je zelf.": "Durora calculates times and keeps your log. It gives no religious rulings: which times you follow is your choice.", "Exporteer je logboek (CSV)": "Export your log (CSV)", "Je logboek met in te halen dagen": "Your log with days to make up", "Je logboek staat klaar": "Your log is ready", "Alles van Durora, voor altijd": "All of Durora, for good", "Je proef van 14 dagen is voorbij": "Your 14-day trial has ended", "Altijd gratis, ook na de proef": "Always free, also after the trial", "proef voorbij": "trial over", "Aftellen, widget en meldingen blijven altijd gratis. Er wordt nooit iets vanzelf afgeschreven. Exporteren blijft altijd gratis. Wat je koopt, blijft van jou.": "Countdown, widget and notifications always stay free. Nothing is ever charged automatically. Export always stays free. What you buy stays yours.", "iftar": "iftar", "imsak": "imsak", "ingehaald": "made up", "niet gevast (inhalen)": "not fasted (make up)", "suhoor": "suhoor", "ochtend": "morning", "middag": "afternoon", "vlak voor iftar": "just before iftar", "avond": "evening", "na de Ramadan": "after Ramadan", "Tik op een dag om hem te wijzigen.": "Tap a day to change it."}, P = [["^nog (\\d+:\\d\\d)$", "$1 to go"], ["^vandaag (\\d\\d:\\d\\d)$", "today $1"], ["^gisteren (\\d\\d:\\d\\d)$", "yesterday $1"], ["^gisteren$", "yesterday"], ["^vandaag$", "today"], ["^(\\d+) keer · gem\\. (\\d+:\\d\\d)$", "$1 times · avg. $2"], ["^(\\d+) uur$", "$1 hours"], ["^(\\d+) uur ›$", "$1 hours ›"], ["^1 uur$", "1 hour"], ["^doel om (\\d\\d:\\d\\d)$", "goal at $1"], ["^· doel (\\d\\d:\\d\\d)$", "· goal $1"], ["^(\\d+) uur vasten$", "$1-hour fast"], ["^Je vast · (\\d+:\\d\\d)$", "Fasting · $1"], ["^dag (\\d+)$", "day $1"], ["^Proefdag (\\d+)$", "Trial day $1"], ["^Ramadan · dag (\\d+)$", "Ramadan · day $1"], ["^Ramadan (\\d+) · (.*)$", "Ramadan $1 · $2"], ["^nog tot iftar(.*)$", "until iftar$1"], ["^nog eten · tot imsak (\\d\\d:\\d\\d)$", "still eat · until imsak $1"], ["^Suhoor eindigt morgen om (\\d\\d:\\d\\d)$", "Suhoor ends tomorrow at $1"], ["^Suhoor eindigt vandaag om (\\d\\d:\\d\\d)$", "Suhoor ends today at $1"], ["^Tijden: (.*) · (.*)$", "Times: $1 · $2"], ["^Vandaag \\((.*)\\)$", "Today ($1)"], ["^(\\d+) dagen tot de Ramadan$", "$1 days until Ramadan"], ["^(\\d+) dag$", "$1 day"], ["^(\\d+) dagen$", "$1 days"], ["^(\\d+) min$", "$1 min"], ["^Duroraproef: nog (\\d+) dagen ›$", "Durora trial: $1 days left ›"], ["^Stilvastproef: nog (\\d+) dagen ›$", "Stilvast trial: $1 days left ›"], ["^Melding om (\\d\\d:\\d\\d)$", "Notification at $1"], ["^Dit overlapt met je vasten van (.*) tot (.*)\\.$", "This overlaps with your fast from $1 to $2."], ["^Dit overlapt met het vasten dat nu loopt \\(gestart (.*)\\)\\.$", "This overlaps with the fast that is running now (started $1)."], ["^(\\d+) van (\\d+)$", "$1 of $2"], ["^(\\d+):(\\d\\d) gevast$", "$1:$2 fasted"]].map(([a, b]) => [new RegExp(a), b]);
+  const DG = { zo: 'Sun', ma: 'Mon', di: 'Tue', wo: 'Wed', do: 'Thu', vr: 'Fri', za: 'Sat' };
+  const MD = { jan: 'Jan', feb: 'Feb', mrt: 'Mar', apr: 'Apr', mei: 'May', jun: 'Jun', jul: 'Jul', aug: 'Aug', sep: 'Sep', okt: 'Oct', nov: 'Nov', dec: 'Dec' };
+  const DATUM = /\b(zo|ma|di|wo|do|vr|za) (\d{1,2}) (jan|feb|mrt|apr|mei|jun|jul|aug|sep|okt|nov|dec)\b/g;
+  const KAAL = /\b(\d{1,2}) (jan|feb|mrt|apr|mei|jun|jul|aug|sep|okt|nov|dec)\b/g;
+  function t(s) {
+    const k = s.trim(); if (!k) return s;
+    let r = W[k];
+    if (r === undefined) for (const [re, v] of P) if (re.test(k)) { r = k.replace(re, v); break; }
+    if (r === undefined) r = k;
+    r = r.replace(DATUM, (m, a, b, c) => DG[a] + ' ' + b + ' ' + MD[c]).replace(KAAL, (m, b, c) => b + ' ' + MD[c]).replace(/€ (\d+),(\d\d)/g, '€ $1.$2');
+    return r === k ? s : s.replace(k, r);
+  }
+  function loop(root) {
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentElement && /^(SCRIPT|STYLE)$/.test(n.parentElement.tagName) ? 2 : 1 });
+    for (let n; (n = w.nextNode());) { const v = t(n.nodeValue); if (v !== n.nodeValue) n.nodeValue = v; }
+    (root.querySelectorAll ? root : document).querySelectorAll('[aria-label],[title],[placeholder]').forEach(e => {
+      for (const a of ['aria-label', 'title', 'placeholder']) if (e.hasAttribute(a)) { const v = t(e.getAttribute(a)); if (v !== e.getAttribute(a)) e.setAttribute(a, v); }
+    });
+  }
+  document.title = t(document.title);
+  const go = () => { loop(document.body); new MutationObserver(ms => { for (const m of ms) { if (m.type === 'characterData') { const v = t(m.target.nodeValue); if (v !== m.target.nodeValue) m.target.nodeValue = v; } else m.addedNodes.forEach(n => n.nodeType === 3 ? (n.nodeValue = t(n.nodeValue)) : n.nodeType === 1 && loop(n)); } }).observe(document.body, { childList: true, subtree: true, characterData: true }); };
+  if (document.body) go(); else addEventListener('DOMContentLoaded', go);
+})();
+
+</script>
+<!-- taal-en:end -->
+<!-- toeg:start (00-werkmodel/toegankelijk/toeg.js) -->
+<script>
+/* Toegankelijkheid voor de prototypes (punt 132, 15 november 2026, Algemeen-sessie).
+   Wordt door 00-preview-site/bouw_preview.py vóór </body> in elk prototype op de preview gezet (tussen toeg:start en toeg:end).
+   Wat het doet, zonder iets aan het uiterlijk te veranderen behalve een zichtbare focusrand:
+   - tabknoppen in <nav>: aria-current="page" op de actieve;
+   - knoppengroepen (twee of meer knoppen naast elkaar, één met de klasse aan/actief/active/gekozen): aria-pressed;
+   - schakelaars (klasse met schakel, switch of toggle): role="switch" en aria-checked;
+   - klikbare div's, li's, span's en b's (ook met een onclick die in script is gezet, zoals Durora): role="button", tabindex 0, Enter en spatie klikken;
+   - vellen (.sheet): role="dialog", aria-modal, focus op het eerste bedieningselement, Escape sluit.
+   Het echte gedrag in de app bouwt Kasper in SwiftUI; dit is alleen voor de proef met schermlezer en toetsenbord. */
+(() => {
+  if (window.__toeg) return; window.__toeg = true;
+  const st = document.createElement('style');
+  // tweekleurige focusrand (review 132, B2): donkere rand met een witte binnenrand, zichtbaar op licht, donker en gevuld
+  st.textContent = ':focus-visible{outline:3px solid #111!important;outline-offset:2px!important;box-shadow:0 0 0 2px #fff!important}';
+  document.head.appendChild(st);
+  const AAN = /(^|\s)(aan|actief|active|gekozen|sel|selected)(\s|$)/;
+  function pas() {
+    document.querySelectorAll('nav button, nav a').forEach(b => {
+      if (AAN.test(b.className)) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    // keuzeknoppen: alleen knoppen met dezelfde basisklasse als de gekozen knop (review 132, B5)
+    const basis = b => (b.className || '').split(/\s+/).filter(c => c && !AAN.test(' ' + c + ' ')).sort().join(' ');
+    document.querySelectorAll('button').forEach(b => {
+      if (b.closest('nav') || !b.parentElement) return;
+      const aan = [...b.parentElement.children].filter(x => x.tagName === 'BUTTON' && AAN.test(x.className));
+      const groep = aan.length && [...b.parentElement.children].filter(x => x.tagName === 'BUTTON' && basis(x) === basis(aan[0])).length >= 2;
+      if (groep && basis(b) === basis(aan[0])) b.setAttribute('aria-pressed', AAN.test(b.className));
+      else if (b.dataset.toegPressed !== 'eigen' && b.hasAttribute('aria-pressed') && b.dataset.toeg === '1') b.removeAttribute('aria-pressed');
+      if (b.hasAttribute('aria-pressed')) b.dataset.toeg = '1';
+    });
+    document.querySelectorAll('[class*=schakel],[class*=switch],[class*=toggle]').forEach(b => {
+      if (b.matches('button,[onclick]')) { b.setAttribute('role', 'switch'); b.setAttribute('aria-checked', AAN.test(b.className)); }
+    });
+    const klik = [...document.querySelectorAll('div[onclick],li[onclick],span[onclick],div[data-a],div[data-g],li[data-a],li[data-g]')]
+      .concat([...document.querySelectorAll('div,li,span,b')].filter(d => typeof d.onclick === 'function' && !d.closest('button,a')));
+    // nooit een achtergrond van een vel of een blok met eigen bedieningselementen als knop (review 132, B1)
+    klik.filter(d => !d.matches('.sheet-bg,.dialoog') && !d.querySelector('button,a,input,select,textarea,[role=button],.sheet')).forEach(d => {
+      if (!d.hasAttribute('role')) d.setAttribute('role', 'button');
+      if (d.tabIndex < 0) d.tabIndex = 0;
+    });
+    document.querySelectorAll('.sheet,.dialoog>div').forEach(s => {
+      if (s.hasAttribute('role')) return;
+      s.setAttribute('role', s.matches('.dialoog>div') ? 'alertdialog' : 'dialog'); s.setAttribute('aria-modal', 'true');
+      const f = s.querySelector('button,input,select,textarea,[tabindex="0"]');
+      if (f) setTimeout(() => f.focus({ preventScroll: true }), 0);
+    });
+  }
+  document.addEventListener('keydown', e => {
+    const t = e.target;
+    if ((e.key === 'Enter' || e.key === ' ') && t.getAttribute && t.getAttribute('role') === 'button' && !/^(BUTTON|A|INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) { e.preventDefault(); t.click(); }
+    if (e.key === 'Escape') { const bg = [...document.querySelectorAll('.sheet-bg')].pop(); if (bg) bg.click(); }
+  });
+  // focus terug naar waar hij was als een vel of dialoog sluit (review 132, B7)
+  let vorige = null, open = false;
+  document.addEventListener('focusin', e => { if (!e.target.closest('.sheet,.dialoog')) vorige = e.target; });
+  function terug() {
+    const nu = !!document.querySelector('.sheet,.dialoog');
+    if (open && !nu && vorige && vorige.isConnected && (document.activeElement === document.body || !document.activeElement)) vorige.focus({ preventScroll: true });
+    open = nu;
+  }
+  let tm; new MutationObserver(() => { clearTimeout(tm); tm = setTimeout(() => { pas(); terug(); }, 30); })
+    .observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'hidden'] });
+  pas();
+})();
+
+</script>
+<!-- toeg:end -->
 </body>
 </html>
