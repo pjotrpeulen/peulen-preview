@@ -1,0 +1,16 @@
+{
+  "name": "Peulen Stuur",
+  "short_name": "Stuur",
+  "description": "Stuur je projecten: kijken en tikken.",
+  "lang": "nl",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#14161a",
+  "theme_color": "#14161a",
+  "icons": [
+    { "src": "icoon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icoon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icoon-180.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
