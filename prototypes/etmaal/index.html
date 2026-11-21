@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Etmaal · klikbaar prototype</title>
+<!--
+  Etmaal (werknaam), klikbaar prototype voor iPhone (map slaapcoach).
+  Datum: 21 november 2026. Gebouwd volgens 3-app-ontwerp.md en de verwijsregel en medische grens uit 1-onderzoek-per-onderdeel.md.
+  Bijgewerkt op 21 november 2026 met review 92 (sectie Act), review 93, review 94, review 95 (bundel en Act)
+  en daarna review 96 (bundel en Act, codes B-1 tot F-1 en de lage punten).
+  Versies daarvoor: historie/index-2026-11-21-voor-review-92.html, historie/index-2026-11-21-voor-review-93.html,
+  historie/index-2026-11-21-voor-review-95.html en historie/index-2026-11-21-voor-review-96.html.
+
+  Wat het is:
+  - Eén zelfstandig HTML-bestand: alle CSS en JS staan hierin. Geen netwerk, geen externe bestanden, geen opslag in de browser.
+    Alles wat je invult blijft alleen in het geheugen van dit tabblad en is weg als je de pagina sluit.
+  - Een telefoonframe met de schermen: opzet bij de eerste start (Start 1 tot 5), avond (A1 tot A3), nacht (N1 tot N5,
+    NT toiletroute, NZ zwart na sluiten), ochtend (O1 tot O5), dag (D1 tot D4) en het betaalscherm (KOOP).
+  - Een kleine stand (standaard, gratis) en een uitgebreide stand (hoort na de proef bij de aankoop).
+    Na de proef zonder aankoop valt de app zelf terug op de kleine stand, zonder slotkaart (review 95, A-1).
+    Wie de uitgebreide stand probeerde, krijgt op dag 15 één keer overdag een neutrale zin (review 96, K-2).
+  - Een demopaneel naast of onder de telefoon: tijd van de dag, proefdag, stand, de antwoorden van Start 3, late avond,
+    Apple Watch aan of uit, schuiven voor lux en hartslag.
+
+  Beoogd doel (vast, geldt ook voor winkeltekst, website en campagne):
+  "Etmaal helpt volwassenen bij een rustig dag- en nachtritme. Etmaal stelt geen diagnose en behandelt geen slaapproblemen of slapeloosheid."
+  Verboden zinnen in marketing, onder meer: "einde aan slapeloze nachten".
+
+  Leesbaarheid: tekst overdag minstens 16px, ook labels en banden; nachttekst minstens 22px in #C0603A
+  (ongeveer 5 : 1 op zwart), grote cijfers minstens font-weight 300, knopranden minstens .7 dekking,
+  elk tikvlak minstens 44px. De app volgt Dynamic Type (tekststijlen van iOS); dit prototype gebruikt vaste px.
+
+  Wat nagebootst is:
+  - De lichtcheck: de lux-waarde komt van de schuif in het demopaneel. De app meet met de camera.
+  - De buitentimer: loopt in het prototype door als je naar een ander scherm gaat. In de app loopt hij door met het scherm uit.
+    Met een Apple Watch komt de tijd uit "Tijd in daglicht".
+  - De hartslag: komt van de schuif in het demopaneel. De app leest de hartslag uit HealthKit.
+  - De stappen bij bewegen: een rekensom uit de verstreken tijd. De app leest de stappen van de iPhone.
+  - Het koppelen van de Apple Watch, de meldingen en de aankoop van 4,99 euro: er wordt niets gekoppeld, verstuurd of afgeschreven.
+  - Het geluid in de nachtstand wordt in de browser gemaakt (ruis, regen en zee via Web Audio), zonder geluidsbestanden.
+  - De tijd van de dag en de minuten na de wektijd komen uit het demopaneel, niet uit de klok van je apparaat.
+  - Het weekoverzicht toont vaste voorbeelddagen. De stip van vandaag (zo) komt van "Ik ben op" in O1.
+  - De proefdatum onder Info wordt uit de klok van je apparaat en de proefdag in het demopaneel berekend.
+
+  Grenzen in het ontwerp: geen scores, geen reeksen, geen klok in de nachtstand, geen opdracht om op te staan.
+-->
+<style>
+[hidden]{display:none!important}
+:root{--bg:#23272F;--kaart:rgba(255,255,255,.07);--rand:rgba(255,255,255,.14);--wit:#FFFFFF;--zacht:#D6D8DE;--dim:#9A9DA6;--ac:#5B6CA3;--acl:#AEB9E0;--groen:#6FAF8A;--warm:#E0B26B;--nacht:#C0603A;--knoprand:rgba(255,255,255,.7)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:#15171C;color:var(--wit);font:16px/1.45 -apple-system,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
+.buiten{display:flex;flex-wrap:wrap;gap:28px;justify-content:center;align-items:flex-start;padding:24px 12px 40px}
+.kolom{display:flex;flex-direction:column;align-items:center;gap:10px}
+.badge{font-size:13px;color:var(--dim);background:rgba(255,255,255,.06);border:1px solid var(--rand);border-radius:12px;padding:4px 12px}
+.badge b{color:var(--wit)}
+.telefoon{width:390px;height:812px;border-radius:56px;border:12px solid #0B0C0F;background:var(--bg);position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5);user-select:none;-webkit-user-select:none}
+.telefoon.zwart{background:#000}
+.eiland{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:120px;height:34px;border-radius:18px;background:#000;z-index:5}
+.status{position:absolute;top:0;left:0;right:0;height:52px;display:flex;justify-content:space-between;align-items:center;padding:6px 30px 0;font-size:15px;font-weight:600;z-index:4}
+.status span:last-child{font-size:12px;color:var(--zacht)}
+.inhoud{position:absolute;top:52px;left:0;right:0;bottom:0;overflow-y:auto;padding:10px 22px 110px}
+.inhoud::-webkit-scrollbar{width:0}
+.tabs{position:absolute;bottom:0;left:0;right:0;display:flex;background:rgba(35,39,47,.97);border-top:1px solid var(--rand);padding:4px 0 22px;z-index:4}
+.tabs button{flex:1;background:none;border:0;color:var(--dim);font:inherit;font-size:16px;font-weight:500;padding:6px;min-height:48px;cursor:pointer}
+.tabs button.aan{color:#fff;font-weight:700}
+.tabs button i{display:block;width:6px;height:6px;border-radius:50%;margin:0 auto 4px;background:currentColor;opacity:.6}
+h1{font-size:26px;font-weight:600;margin:14px 0 8px} h2{font-size:18px;margin:18px 0 6px}
+p{margin:8px 0}
+.zacht{color:var(--zacht)} .klein{font-size:16px;color:var(--dim)} .midden{text-align:center}
+.knop{display:block;width:100%;min-height:48px;border:0;border-radius:24px;background:var(--ac);color:#fff;font:inherit;font-weight:600;font-size:17px;padding:14px;margin-top:14px;cursor:pointer}
+.knop.rand{background:transparent;border:1px solid var(--knoprand);font-weight:500}
+.knop:disabled{opacity:.4;cursor:default}
+.link{display:inline-block;min-height:44px;background:none;border:0;color:var(--acl);font:inherit;font-size:16px;font-weight:500;padding:10px 0;cursor:pointer}
+.kaart{background:var(--kaart);border-radius:18px;padding:14px 16px;margin-top:12px}
+.kaart.warm{border:1px solid rgba(224,178,107,.4)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.chip{min-height:44px;border:1px solid var(--knoprand);background:var(--kaart);color:var(--wit);border-radius:16px;padding:10px 14px;font:inherit;font-size:16px;cursor:pointer}
+.chip.aan{background:#fff;color:#23272F}
+.chip:disabled{opacity:.45;cursor:default}
+.rij{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--rand)}
+.vinkrij{display:flex;gap:12px;align-items:flex-start;padding:12px 0;min-height:48px;border-bottom:1px solid var(--rand);cursor:pointer}
+.vak{width:26px;height:26px;border-radius:7px;border:1.5px solid var(--acl);flex:none;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#23272F}
+.vak.aan{background:var(--acl)}
+.tijdlabel{font-size:16px;color:var(--acl);font-weight:600}
+.groot{font-size:52px;font-weight:300;text-align:center;margin:6px 0}
+.seg{display:flex;background:rgba(255,255,255,.08);border-radius:12px;padding:3px;margin:6px 0 4px}
+.seg button{flex:1;min-height:44px;border:0;background:none;color:var(--zacht);font:inherit;font-size:16px;font-weight:600;padding:8px 2px;border-radius:9px;cursor:pointer}
+.seg button.aan{background:rgba(255,255,255,.9);color:#23272F}
+textarea,input[type=text]{width:100%;background:rgba(255,255,255,.06);border:1px solid var(--rand);border-radius:12px;color:#fff;font:inherit;padding:10px;resize:none;user-select:text;-webkit-user-select:text}
+input[type=text]{min-height:44px}
+.label-nb{display:block;font-size:16px;font-weight:600;color:#23272F;background:var(--warm);border-radius:8px;padding:5px 9px;margin:8px 0}
+.uitklap{margin-top:12px}
+.uitklap summary{min-height:44px;display:flex;align-items:center;color:var(--acl);font-weight:500;cursor:pointer}
+.lijst{margin:8px 0 0;padding-left:20px;color:var(--zacht)} .lijst li{margin:4px 0}
+.meter{height:10px;border-radius:5px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:10px}
+.meter div{height:100%;background:linear-gradient(90deg,#5B6CA3,#E0B26B,#FFF2C4);transition:width .3s}
+.banden{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:8px;font-size:16px;line-height:1.3;text-align:center}
+.banden div{padding:6px 2px;border-radius:8px;background:rgba(255,255,255,.05);color:var(--dim)}
+.banden div.aan{background:rgba(224,178,107,.25);color:#fff;font-weight:600}
+.hart{font-size:48px;font-weight:300;text-align:center}
+.hart small{font-size:16px;color:var(--dim)}
+/* nachtstand: tekst minstens 22px in #C0603A (ongeveer 5 : 1 op zwart), knoppen minstens 44px, randen minstens .7 (review 95, N-3; review 96) */
+.nachttik{position:absolute;inset:0;background:#000;cursor:pointer}
+.nzin{position:absolute;top:34%;left:0;right:0;padding:0 34px;text-align:center;font-size:22px;line-height:1.5;color:var(--nacht)}
+.nachttik .hint{position:absolute;bottom:70px;width:100%;text-align:center;font-size:22px;color:var(--nacht)}
+.nt{color:var(--nacht);font-size:22px;line-height:1.5} .nt p{font-size:22px} .nt h1{color:var(--nacht);font-weight:400}
+.ngroot{font-size:24px!important;margin:14px 0}
+.nknop{display:block;width:100%;min-height:56px;background:#000;border:1px solid rgba(192,96,58,.7);color:var(--nacht);border-radius:24px;font:inherit;font-size:22px;padding:12px 14px;margin-top:14px;cursor:pointer}
+.nknop.klein2{font-size:22px;min-height:48px;padding:10px 14px;border-color:rgba(192,96,58,.7)}
+.nknop.smal{display:inline-block;width:auto;margin:0;padding:10px 16px}
+.nknop.kies{border-color:var(--nacht)}
+.adembol{width:170px;height:170px;border-radius:50%;margin:50px auto 26px;background:radial-gradient(circle,rgba(192,96,58,.5),rgba(192,96,58,.07) 70%);animation:adem 11s ease-in-out infinite}
+@keyframes adem{0%{transform:scale(.55)}36%{transform:scale(1)}100%{transform:scale(.55)}}
+.golven{display:flex;gap:6px;justify-content:center;align-items:center;height:120px;margin:40px 0 20px;transition-property:opacity;transition-timing-function:linear}
+.golven span{width:6px;border-radius:3px;background:var(--nacht);animation:golf 2.4s ease-in-out infinite}
+@keyframes golf{0%,100%{height:14px}50%{height:70px}}
+.lampje{width:34px;height:34px;border-radius:50%;margin:24px auto 10px;background:radial-gradient(circle,#D8904C 0,#C0603A 40%,rgba(192,96,58,0) 72%)}
+/* demopaneel (geen onderdeel van de app) */
+.demo{width:330px;background:#1D2027;border:1px dashed var(--rand);border-radius:20px;padding:16px 18px;font-size:14px}
+.demo h3{margin:0 0 4px;font-size:16px}
+.demo .klein{font-size:13px}
+.demo .chip{font-size:13px;padding:5px 10px;min-height:0;border-radius:12px}
+.demo .groep{margin-top:14px}
+.demo .groep>b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);margin-bottom:6px}
+.demo input[type=range]{width:100%}
+.demo .waarde{float:right;color:var(--warm);font-weight:600}
+.d-rij{display:flex;justify-content:space-between;align-items:center;gap:6px;margin:4px 0;font-size:13px;color:var(--zacht)}
+.d-rij span:last-child{white-space:nowrap}
+.sprong{display:flex;flex-wrap:wrap;gap:5px}
+.sprong button{border:1px solid var(--rand);background:var(--kaart);color:var(--zacht);border-radius:9px;padding:4px 7px;font:inherit;font-size:12px;cursor:pointer}
+.sprong button.aan{background:var(--acl);color:#23272F}
+</style>
+</head>
+<body>
+<div class="buiten">
+ <div class="kolom">
+  <div class="badge" id="badge">Scherm</div>
+  <div class="telefoon" id="tel">
+   <div class="eiland"></div>
+   <div class="status" id="status"><span id="klok">21.00</span><span>Etmaal</span></div>
+   <div class="inhoud" id="s"></div>
+   <nav class="tabs" id="tabs">
+    <button data-tab="avond"><i></i>Avond</button>
+    <button data-tab="nacht"><i></i>Nacht</button>
+    <button data-tab="ochtend"><i></i>Ochtend</button>
+    <button data-tab="dag"><i></i>Dag</button>
+   </nav>
+  </div>
+ </div>
+
+ <aside class="demo" id="demo">
+  <h3>Demopaneel</h3>
+  <div class="klein">Alleen voor het prototype. Niets hiervan zit in de app.</div>
+
+  <div class="groep"><b>Tijd van de dag</b>
+   <div class="chips" id="d-tijd">
+    <button class="chip" data-tijd="avond">Avond</button><button class="chip" data-tijd="nacht">Nacht</button><button class="chip" data-tijd="ochtend">Ochtend</button><button class="chip" data-tijd="dag">Dag</button>
+   </div>
+   <button class="knop rand" id="d-openen" style="margin-top:8px;font-size:14px;padding:8px;min-height:0">App openen (zoals na ontgrendelen)</button>
+   <div class="klein" style="margin-top:6px">Tussen bedtijd en wektijd (Nacht) opent de app altijd op N1.</div>
+  </div>
+
+  <div class="groep"><b>Proefdag</b>
+   <div class="chips" id="d-dag">
+    <button class="chip" data-dag="1">Dag 1 (alles open)</button><button class="chip" data-dag="3">Dag 3 (uitnodiging)</button><button class="chip" data-dag="15">Dag 15 zonder aankoop</button>
+   </div>
+   <div class="klein" id="d-dagtekst" style="margin-top:6px"></div>
+  </div>
+
+  <div class="groep"><b>Stand</b>
+   <div class="chips" id="d-stand">
+    <button class="chip" data-dstand="klein">Klein (standaard)</button><button class="chip" data-dstand="uitgebreid">Uitgebreid</button>
+   </div>
+  </div>
+
+  <div class="groep"><b>Antwoorden Start 3</b>
+   <div id="d-s3"></div>
+  </div>
+
+  <div class="groep"><b>Avond</b>
+   <div class="chips" id="d-laat">
+    <button class="chip" data-laat="0">Gewone avond</button><button class="chip" data-laat="1">Vanavond wordt het laat</button>
+   </div>
+   <div class="klein" style="margin-top:6px">Bij een late avond toont O1 de volgende ochtend een eigen tekst. Zonder late avond staat op O1 de knop "Werd het gisteren laat?". Zet je na een late nacht de tijd op Dag, dan toont D1 de tekst voor de dag erna en gaat de late avond weer uit. Op Avond of Nacht verdwijnt die tekst.</div>
+  </div>
+
+  <div class="groep"><b>Apple Watch</b>
+   <div class="chips" id="d-watch">
+    <button class="chip" data-watch="1">Aan</button><button class="chip" data-watch="0">Uit</button>
+   </div>
+  </div>
+
+  <div class="groep"><b>Nagebootste lux <span class="waarde" id="d-luxw"></span></b>
+   <input type="range" id="d-lux" min="0" max="100" step="1">
+   <div class="klein">Voor de lichtcheck (O3). Schaal loopt van 1 tot ongeveer 50.000 lux.</div>
+  </div>
+
+  <div class="groep"><b>Nagebootste hartslag <span class="waarde" id="d-hrw"></span></b>
+   <input type="range" id="d-hr" min="45" max="170" step="1">
+   <div class="klein">Voor bewegen met Apple Watch (O4).</div>
+  </div>
+
+  <div class="groep"><b>Minuten na de wektijd <span class="waarde" id="d-minw"></span></b>
+   <input type="range" id="d-min" min="0" max="120" step="1">
+   <div class="klein">Voor de klok in de statusbalk, 's ochtends.</div>
+  </div>
+
+  <div class="groep"><b>Tempo van de timers</b>
+   <div class="chips" id="d-snel">
+    <button class="chip" data-snel="0">Echt</button><button class="chip" data-snel="1">Versneld (1 minuut is 1 seconde)</button>
+   </div>
+  </div>
+
+  <div class="groep"><b>Spring naar scherm</b>
+   <div class="sprong" id="d-sprong"></div>
+  </div>
+
+  <div class="groep">
+   <button class="knop rand" id="d-opnieuw" style="margin-top:4px;font-size:14px;padding:10px;min-height:0">Eerste start opnieuw</button>
+  </div>
+ </aside>
+</div>
+
+<script>
+const $=q=>document.querySelector(q);
+const pad=n=>String(n).padStart(2,"0");
+const hm=m=>{m=((m%1440)+1440)%1440;return pad(Math.floor(m/60))+"."+pad(m%60);};
+const mmss=s=>{s=Math.max(0,Math.ceil(s));return Math.floor(s/60)+":"+pad(s%60);};
+const punt=n=>String(n).replace(/\B(?=(\d{3})+(?!\d))/g,".");
+const esc=t=>String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+
+const S={
+ scherm:"S1",opzet:false,wektijd:420,bedtijd:1380,marge:60,stand:"klein",behandeling:false,
+ vrij:[false,false,false,false,false,true,true],elkeDag:false,
+ ploeg:null,zwanger:null,bipolair:null,medsuf:null,stemming:null,vroeg:null,
+ watch:false,mAvond:null,mOchtend:false,
+ dag:1,gekocht:false,uitnGedaan:false,probeerde:false,pkOp:null,pkGedaan:false,
+ tijd:"avond",luxP:48,hr:92,minNa:12,snel:false,laat:false,laatBed:null,laatGisteren:false,dagNaLaat:false,opTijd:null,
+ avond:{koffie:false,dimmen:false,douche:false,weg:false,schrijf:false},
+ ochtend:{op:false,licht:false,bewegen:false},keuze:{},
+ todo:"",avondnotitie:"",gevoel:null,eigen:"",lichtGedaan:false,o3fase:"check",buitenStart:null,buitenDuur:900000,
+ notities:[{wanneer:"eergisteren, ochtend",tekst:"moe"},{wanneer:"gisteren, avond",tekst:"Morgen: fiets naar de garage. Rustige dag gehad."},{wanneer:"gisteren, ochtend",tekst:"gewoon"}],wisVraag:null,
+ geluid:"regen",geluidMin:30,ademVorm:"rustig"
+};
+const open=()=>S.gekocht||S.dag<=14;
+// de uitgebreide stand is alleen echt aan als hij gekozen is en open is (proef of aankoop).
+// Na de proef zonder aankoop valt elk scherm zelf terug op de kleine stand, zonder slotkaart (review 95, A-1).
+const groot=()=>S.stand==="uitgebreid"&&open();
+const f=()=>S.snel?60:1;
+const lux=()=>{const v=Math.pow(10,S.luxP*4.7/100);return v<10?Math.round(v):v<1000?Math.round(v/10)*10:Math.round(v/100)*100;};
+// drie banden; de oude band vanaf 10.000 lux is weggelaten (open vraag 21, voorstel)
+function band(l){if(l<250)return 0;if(l<1000)return 1;return 2;}
+const BANDEN=["binnenlicht","lichter, ga naar buiten","buitenlicht"];
+const gat=b=>((S.wektijd-b)%1440+1440)%1440;
+// de gewone bedtijd (review 96, B-2): de keuzelijst laat 7 tot 9 uur vóór de wektijd zien, in stappen van 30 minuten.
+// Bij wektijd 05.30 begint de lijst dus om 20.30. Bedtijden staan in minuten vanaf middernacht van de avond (18.00 = 1080, 00.30 = 1470).
+const RASTER=Array.from({length:25},(_,i)=>1080+i*30);
+// met "Ik volg een behandeling en mijn behandelaar geeft mijn tijden" vallen onder- en bovengrens weg (review 96, B-3, voorlopig, keuze Pjotr)
+const BEDALLE=[1200,1230,1260,1290,1320,1350,1380,1410,1440,1470,1500,1530,1560,1590,1620];
+const bedOpties=()=>S.behandeling?BEDALLE:RASTER.filter(b=>gat(b)>=420&&gat(b)<=540);
+function fixBed(){if(S.bedtijd===null||S.behandeling)return;const o=bedOpties();if(o.includes(S.bedtijd))return;
+ const g=gat(S.bedtijd);S.bedtijd=o.reduce((best,b)=>Math.abs(gat(b)-g)<Math.abs(gat(best)-g)?b:best,o[0]);}
+// late avond (review 95, L-1 tot L-4, voorlopig, keuze Pjotr): de late avond is de eigen keuze van de gebruiker, geen voorschrift.
+// Je kiest vanaf 30 minuten na je gewone bedtijd (zonder bedtijd: 23.00) tot 03.00 uur, of "Nog later".
+// De ondergrens van 7 uur geldt alleen voor de gewone bedtijd. Bij bipolair of epilepsie dezelfde lijst (L-3).
+// Vrije dagen en late avond samen: hooguit 90 minuten later opstaan (L-4).
+// Bij bipolair of epilepsie komt er na een late avond geen ochtendmelding (review 96, B-7). Het prototype verstuurt geen meldingen.
+const LAATOPTIES=[1260,1290,1320,1350,1380,1410,1440,1470,1500,1530,1560,1590,1620];
+const basisBed=()=>S.bedtijd===null?1380:S.bedtijd;
+const laatOpties=()=>LAATOPTIES.filter(c=>c-basisBed()>=30);
+function zetLaat(v){S.laat=v;if(v){const o=laatOpties();if(S.laatBed===null||(S.laatBed!=="nog"&&!o.includes(S.laatBed)))S.laatBed=o.length?o[0]:"nog";}else S.laatBed=null;}
+
+const NAMEN={S1:"Start 1 · Welkom",S2:"Start 2 · Wektijd en vrije dagen",S3:"Start 3 · Zes vragen",S4:"Start 4 · Meer hulp",S5:"Start 5 · Stand, watch en meldingen",
+ A1:"A1 · Avondplan",A2:"A2 · Opschrijven",A3:"A3 · Welterusten",
+ N1:"N1 · Zwart scherm",N2:"N2 · Keuze na één tik",NT:"NT · Toiletroute",N3:"N3 · Adem",N4:"N4 · Geluid",N5:"N5 · Kun je niet slapen?",NZ:"NZ · Zwart na sluiten",
+ O1:"O1 · Goedemorgen",O2:"O2 · Je ochtend",O3:"O3 · Lichtcheck en buitentimer",O4:"O4 · Bewegen",O5:"O5 · Eén vraag",
+ D1:"D1 · Vandaag",D2:"D2 · Week",D3:"D3 · Notities",D4:"D4 · Info",KOOP:"Betaalscherm"};
+const FLOW=c=>c[0]==="A"?"avond":c[0]==="N"?"nacht":c[0]==="O"?"ochtend":c[0]==="D"?"dag":"";
+
+// verwijsregel als lijst; overdag uitklapbaar op Start 4 en altijd op D4, 's nachts alleen de korte N5
+const VERWIJS_KOP="Soms is meer hulp nodig. Dat ligt niet aan jou. Ga naar je huisarts als een van deze dingen bij je past:";
+const VERWIJS_LIJST=["je slaapt al een paar weken slecht en hebt er overdag last van;","je wordt steeds veel te vroeg wakker;","je bent overdag heel slaperig, of valt in slaap achter het stuur (rijd dan niet);","je snurkt zwaar of stopt met ademen in je slaap;","je schrikt benauwd wakker, je spieren worden opeens slap, of je slaat of schopt in je slaap;","je valt altijd pas heel laat in slaap;","je hebt onrustige benen, of je voelt je somber of angstig;","je gebruikt al lang slaapmiddelen;","je denkt dat je medicijnen je slaap verstoren."];
+const CGT="Bij langdurige slapeloosheid zijn routines alleen meestal niet genoeg. De behandeling die het best werkt heet CGT-I (cognitieve gedragstherapie bij slapeloosheid). Die kan via je huisarts, ook online. Vraag er gerust naar. Was je al bij de huisarts? Vraag dan gericht naar CGT-I.";
+const HULP113="Heb je donkere gedachten of denk je aan zelfdoding? Bel 113 of 0800-0113, gratis, dag en nacht. Of chat via 113.nl. Ben je in direct gevaar? Bel 112.";
+// Start 4 kort (review 95, S-1, voorlopig)
+const S4KORT="Soms is meer hulp nodig. Dat ligt niet aan jou. Onder Info staat wanneer je naar de huisarts gaat, en wat CGT-I is. Je mag Etmaal er gewoon naast gebruiken.";
+// N5 's nachts (review 95, N-1 en N-4; opening herzien in review 96): eerst een rustige zin, dan het hulpblok, dan de keuzes, onderaan de huisarts
+const N5_OPEN="Wakker liggen is vervelend. Je hoeft nu niets op te lossen.";
+const N5_KNOP="Kun je niet slapen?";
+const N5_HULP="Hulp, dag en nacht: bij donkere gedachten 113 of 0800-0113. Bij direct gevaar 112.";
+const N5_LIGGEN="Blijven liggen mag ook.";
+const N5_OPSTAAN="Wil je even opstaan? Doe dan een zacht lampje aan.";
+// zelfde volgorde als de toiletroute (review 96, V-1)
+const N5_ZITTEN="Ga even op de rand van je bed zitten, met je voeten op de grond. Sta dan rustig op. Word je licht in je hoofd? Ga dan weer even zitten.";
+const N5_HUISARTS="Langdurige slapeloosheid is goed te behandelen. Je huisarts kan helpen.";
+const DOEL="Etmaal helpt volwassenen bij een rustig dag- en nachtritme. Etmaal stelt geen diagnose en behandelt geen slaapproblemen of slapeloosheid.";
+const PLOEG="Etmaal is niet gemaakt voor nachtdiensten. Het ochtendlicht en de vaste wektijd staan daarom uit. De nachtstand en de avond kun je wel gebruiken. Na een nachtdienst: rijd niet als je erg slaperig bent.";
+const LICHT="Licht in de ochtend helpt je ritme. Ook later op de ochtend of rond de middag is buitenlicht goed.";
+const VROEG="Je hoeft niet vroeg naar buiten. Buitenlicht overdag is goed, ook later op de dag. Of licht laat op de dag helpt tegen te vroeg wakker worden, weten we niet zeker.";
+// late nacht (review 96, B-4 tot B-6): de rijzin in LAAT en LAATZIN, en een tekst voor de dag erna
+const LAAT="Late avond. Sta op rond je wektijd als het lukt, of hooguit anderhalf uur later. Zoek licht, en doe rustig aan. Ben je overdag erg slaperig? Rijd dan niet.";
+const LAAT_RUIM="Late avond. Slaap gerust uit, zodat je genoeg slaap krijgt. Zoek daarna licht, en doe rustig aan.";
+const LAATZIN="Dan wordt je nacht korter. Dat mag af en toe. Slaap morgen hooguit anderhalf uur uit. Zo blijft je ritme het best. Ben je overdag erg slaperig? Rijd dan niet.";
+const LAATBIPOLAIR="Korte nachten kunnen bij jou klachten uitlokken. Slaap morgen gerust uit, of kies een vroegere tijd.";
+const DAGNALAAT="Een kort dutje mag: hooguit 20 tot 30 minuten, vóór 15.00 uur. Ga vanavond op je gewone tijd naar bed. Dan zit je morgen weer in je ritme.";
+const LANGER="Toch langer geslapen? Geen probleem. Ga vanavond op je gewone tijd naar bed.";
+const BIPOLAIR="Gewoon buiten zijn overdag is goed. Gebruik geen daglichtlamp zonder overleg met je behandelaar. Zorg voor genoeg slaap: korte nachten kunnen bij jou klachten uitlokken. Na een late avond mag je gerust uitslapen.";
+// signaalzin bij bipolair (review 96, laag, W)
+const BIPSIGNAAL="Merk je dat je weinig slaap nodig hebt en vol energie bent? Neem dan contact op met je behandelaar.";
+const MEDS="Vraag je huisarts of apotheker of je medicijnen invloed hebben op je slaap.";
+const PLASPIL="Vraag je huisarts of apotheker wanneer je je plaspil het beste neemt.";
+const MEDSDUIZEL="Je medicijnen kunnen je duizelig maken. Ga extra rustig, en houd je ergens aan vast.";
+const ZWKOFFIE="Bij zwangerschap werkt cafeïne langer door. Volg het advies van je verloskundige.";
+const LICHTGEVOELIG="Gebruik je medicijnen waardoor je ogen of huid gevoelig zijn voor licht, of heb je een oogziekte? Overleg dan met je arts of oogarts voordat je met fel licht of de lichtmeter werkt. Een wandeling buiten mag.";
+// toiletroute voor iedereen (review 96, V-1); bij suffe of duizelige medicijnen komt MEDSDUIZEL erbij
+const TOILET=["Doe eerst een zacht lampje aan.","Ga even op de rand van je bed zitten, met je voeten op de grond.","Sta dan rustig op.","Word je licht in je hoofd? Ga dan weer even zitten.","Daarna gewoon terug naar bed."];
+// telefoontip (review 96, V-2)
+const TELTIP="Het beste: je telefoon de kamer uit. Wil je hem in de kamer? Leg hem dan met het scherm naar beneden op je nachtkastje, met Niet storen aan. Zet een zacht nachtlampje klaar.";
+const KLOKZIN="Het vergrendelscherm laat een klok zien; kijk er niet op.";
+// bedtijd (review 96, B-1)
+const BEDZIN="Etmaal beperkt je tijd in bed niet. Volg je een behandeling zoals CGT-I? Dan gaat het advies van je behandelaar voor.";
+const BEHANDELING="Ik volg een behandeling en mijn behandelaar geeft mijn tijden";
+const WEKKER="Etmaal is geen wekker. Je wekker zet je zelf in de Klok-app.";
+const MARGEZIN="Op vrije dagen mag je wat later opstaan. Een vaste tijd helpt je ritme het meest.";
+// vrije dagen kiezen (review 96, P-1)
+const ELKEDAG="Een vaste opstatijd helpt je ritme, ook zonder werk.";
+const DAGEN=["ma","di","wo","do","vr","za","zo"];
+const WEGLEG="Ben je veel met je slaap of met deze app bezig? Leg de app dan gerust een week weg. Hij wacht op je.";
+// Focus-tip als eigen kaart op A1 (review 96, F-1); Kasper controleert de namen
+const FOCUS="Instellingen › Focus › Slaap. Kies je eigen tijden, bijvoorbeeld zondag tot en met donderdag 23.00 uur. Op vrijdag en zaterdag laat je hem uit. Zet bij Apparaatvrije tijd Kaarten en Berichten op 'altijd toegestaan'.";
+const DUTJE="Een dutje? Hooguit 20 tot 30 minuten, vóór 15.00 uur.";
+const SEINTJE="Wil je 's avonds een zacht seintje?";
+const STOP="Stop bij duizeligheid, benauwdheid of pijn op de borst.";
+const STOP112="Pijn op de borst die niet overgaat, of erg benauwd? Bel 112.";
+const STOPHA="Blijven andere klachten? Ga dan naar je huisarts.";
+const JETLAG="Sociale jetlag: je ritme schuift als je op vrije dagen veel later opstaat dan op werkdagen, en daardoor voelt maandag soms zwaar.";
+const DELEN="Vind je Etmaal fijn? Vertel het een vriend.";
+// proef en aankoop (review 96, K-1 tot K-4, voorlopig, keuze Pjotr)
+const UITNODIGING="Wil je de uitgebreide stand proberen? Meer stappen voor de avond, de lichtmeter en de beweegstap. Je kunt altijd terug. Na de 14 dagen hoort de uitgebreide stand bij de eenmalige aankoop.";
+const PROEFKLAAR="Je proef is klaar. Je gebruikt nu weer de kleine stand. Die blijft gratis. Wil je de uitgebreide stand houden? Dat kan eenmalig voor € 4,99.";
+const STEUN="Met je aankoop steun je een kleine, onafhankelijke maker. Geen abonnement, geen reclame.";
+const D1KOOP="Uitgebreide stand: eenmalig € 4,99";
+const S3V=[
+ ["ploeg","Werk je soms 's nachts?",PLOEG],
+ ["zwanger","Ben je zwanger?","De douche-stap valt weg. Overleg met je verloskundige. Etmaal raadt geen heet bad aan. "+ZWKOFFIE],
+ ["bipolair","Heb je een bipolaire stoornis of epilepsie?",BIPOLAIR+" "+BIPSIGNAAL],
+ ["medsuf","Gebruik je medicijnen die je suf of duizelig maken, zoals een slaappil, plaspil of bloeddrukpil?",MEDS+" Gebruik je een plaspil? "+PLASPIL+" Bij de douche staat: voorzichtig, niet bij duizeligheid of lage bloeddruk. De toiletroute staat bij Welterusten en in de nachtstand."],
+ ["stemming","Gebruik je medicijnen voor je stemming, zoals een antidepressivum?",MEDS],
+ ["vroeg","Word je vaak veel te vroeg wakker en kun je dan niet meer slapen?",VROEG+" Gebeurt het steeds? Ga dan ook naar je huisarts. Dat ligt niet aan jou."]
+];
+const S3K=[["ploeg","Soms 's nachts werken"],["zwanger","Zwanger"],["bipolair","Bipolair of epilepsie"],["medsuf","Medicijnen suf of duizelig"],["stemming","Medicijnen voor je stemming"],["vroeg","Vaak veel te vroeg wakker"]];
+const NAAMG={regen:"Regen",ruis:"Ruis",zee:"Zee"};
+function setS3(k,v){S[k]=v;if(k==="ploeg"&&v)S.mOchtend=false;}
+// stand kiezen; wie tijdens de proef de uitgebreide stand kiest, heeft hem geprobeerd (review 96, K-2)
+function zetStand(v){S.stand=v;if(v==="uitgebreid"&&open()&&!S.gekocht)S.probeerde=true;}
+const vrijDag=i=>S.elkeDag||S.vrij[i];
+// "Proef loopt tot [datum]." (review 96, K-3): dag 14 is de laatste proefdag
+function proefEind(){const d=new Date();d.setDate(d.getDate()+(14-S.dag));return d.toLocaleDateString("nl-NL",{day:"numeric",month:"long"});}
+const overdag=()=>S.tijd==="ochtend"||S.tijd==="dag";
+// K-1: de uitnodiging vanaf dag 3, overdag, op D1 en op het ochtendscherm, tot je antwoordt. Nooit 's avonds of 's nachts.
+const toonUitn=()=>S.dag>=3&&S.dag<=14&&S.stand==="klein"&&!S.uitnGedaan&&!S.gekocht&&overdag();
+// K-2: na de proef één keer, overdag, voor wie de uitgebreide stand probeerde. Verdwijnt na een antwoord of als je naar een ander scherm gaat.
+const toonProefKlaar=()=>!open()&&S.probeerde&&!S.pkGedaan&&overdag()&&(S.pkOp===null||S.pkOp===S.scherm);
+function proefKaart(){
+ if(toonUitn())return `<div class="kaart warm"><div class="zacht">${UITNODIGING}</div><div class="chips"><button class="chip" data-a="probeer">Probeer</button><button class="chip" data-a="neeDank">Nee, dank je</button></div></div>`;
+ if(toonProefKlaar()){if(S.pkOp===null)S.pkOp=S.scherm;return `<div class="kaart warm"><div class="zacht">${PROEFKLAAR}</div><div class="chips"><button class="chip" data-a="pkBekijk">Bekijk</button><button class="chip" data-a="pkNee">Nee, dank je</button></div></div>`;}
+ return "";}
+// B-5 en B-6: de dag na een late nacht (O1 na "Werd het gisteren laat?" of na "Vanavond wordt het laat", en D1)
+const nachtLaat=()=>S.laat||S.laatGisteren;
+const dagNaLaatBlok=()=>`<p class="klein">${DAGNALAAT}</p>${S.bipolair?"":`<p class="klein">${LANGER}</p>`}`;
+// de kleine ochtend: één stap "Naar buiten", met de proefkaart (K-1 of K-2) eronder
+function ochtendKlein(){const sub=S.vroeg?"Een kwartier buiten, wanneer het jou uitkomt. Wandelen is genoeg.":"Een kwartier buiten, met licht en bewegen samen. Wandelen is genoeg.";
+ return `<p class="zacht" style="margin-top:16px">Eén stap.</p>${vink(S.ochtend.licht,"Naar buiten",sub,`data-och="licht"`)}${proefKaart()}`;}
+
+// ---------- timers en geluid ----------
+let T={};
+function stopAlles(){
+ ["a2","n2","n3","n4","o3","o4"].forEach(k=>{if(T[k]){clearInterval(T[k]);clearTimeout(T[k]);T[k]=null;}});
+ if(T.audio){try{T.audio.close();}catch(e){}T.audio=null;}
+}
+function startGeluid(soort,sec){
+ try{
+  const C=new (window.AudioContext||window.webkitAudioContext)();
+  const len=C.sampleRate*2,b=C.createBuffer(1,len,C.sampleRate),d=b.getChannelData(0);let last=0;
+  for(let i=0;i<len;i++){const w=Math.random()*2-1;if(soort==="regen"){d[i]=w*.45;}else{last=(last+.02*w)/1.02;d[i]=last*3.5;}}
+  const src=C.createBufferSource();src.buffer=b;src.loop=true;
+  const flt=C.createBiquadFilter();flt.type="lowpass";flt.frequency.value=soort==="regen"?2600:soort==="zee"?350:700;
+  const g=C.createGain(),t0=C.currentTime;
+  g.gain.setValueAtTime(.0001,t0);g.gain.linearRampToValueAtTime(.22,t0+2);g.gain.linearRampToValueAtTime(.0001,t0+Math.max(3,sec));
+  src.connect(flt);flt.connect(g);g.connect(C.destination);src.start();T.audio=C;
+ }catch(e){}
+}
+// buitentimer: staat los van stopAlles, zodat hij doorloopt op andere schermen (in de app: met het scherm uit)
+function buitenStart(){S.buitenStart=Date.now();S.buitenDuur=900000/f();if(T.buiten)clearInterval(T.buiten);T.buiten=setInterval(updBuitenTimer,250);}
+function buitenSim(){return Math.min(900,(Date.now()-S.buitenStart)/S.buitenDuur*900);}
+function updBuitenTimer(){if(!S.buitenStart)return;const s=buitenSim();if(s>=900){buitenKlaar();return;}const el=$("#o3timer");if(el)el.textContent=mmss(S.watch?s:900-s);}
+function buitenKlaar(){if(T.buiten){clearInterval(T.buiten);T.buiten=null;}S.buitenStart=null;S.lichtGedaan=true;S.ochtend.licht=true;try{navigator.vibrate&&navigator.vibrate(150);}catch(e){}if(S.scherm==="O3")teken();}
+
+// ---------- navigatie ----------
+function ga(c){stopAlles();S.wisVraag=null;if(S.pkOp!==null&&S.pkOp!==c)S.pkGedaan=true;S.scherm=c;teken();$("#s").scrollTop=0;}
+function teken(){
+ // de lichtmeter hoort bij de uitgebreide stand; na de proef zonder aankoop gaat de app zelf terug naar de kleine ochtend
+ if(S.scherm==="O3"&&!open())S.scherm="O2";
+ const c=S.scherm,nacht=c[0]==="N",vol=c==="N1"||c==="NZ";
+ $("#tel").classList.toggle("zwart",nacht);
+ $("#status").hidden=nacht;
+ $("#tabs").hidden=nacht||!S.opzet||c[0]==="S";
+ $("#klok").textContent=S.tijd==="avond"?"21.00":S.tijd==="ochtend"?hm(S.wektijd+S.minNa):S.tijd==="dag"?"13.00":"";
+ document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("aan",b.dataset.tab===FLOW(c)));
+ $("#badge").innerHTML="Scherm <b>"+NAMEN[c]+"</b>";
+ $("#s").innerHTML=V[c]();
+ if(nacht){$("#s").style.padding=vol?"0":"10px 26px 40px";$("#s").style.top=vol?"0":"52px";}else{$("#s").style.padding="";$("#s").style.top="";}
+ na(c);
+ demoTeken();
+}
+const vink=(aan,tekst,sub,attr,tijd)=>`<div class="vinkrij" ${attr}><div class="vak ${aan?"aan":""}">${aan?"✓":""}</div><div style="flex:1">${tijd?`<div class="tijdlabel">${tijd}</div>`:""}<div>${tekst}</div>${sub?`<div class="klein">${sub}</div>`:""}</div></div>`;
+const segD=a=>`<div class="seg">${[["D1","Vandaag"],["D2","Week"],["D3","Notities"],["D4","Info"]].map(([k,l])=>`<button class="${a===k?"aan":""}" data-g="${k}">${l}</button>`).join("")}</div>`;
+const standChips=()=>`<button class="chip ${S.stand==="klein"?"aan":""}" data-stand="klein">Klein (standaard)</button><button class="chip ${S.stand==="uitgebreid"?"aan":""}" data-stand="uitgebreid">Uitgebreid</button>`;
+const margeChips=()=>[0,30,60].map(m=>`<button class="chip ${S.marge===m?"aan":""}" data-marge="${m}">${m===0?"geen":m+" minuten"}</button>`).join("");
+// vrije dagen kiezen met chips van ma tot zo, standaard za en zo, plus "Elke dag is vrij" (review 96, P-1, voorlopig, keuze Pjotr)
+const dagChips=()=>`<div class="chips">${DAGEN.map((d,i)=>`<button class="chip ${vrijDag(i)?"aan":""}" data-vrij="${i}">${d}</button>`).join("")}</div>
+ <div class="chips"><button class="chip ${S.elkeDag?"aan":""}" data-a="elkeDag">Elke dag is vrij</button></div>
+ ${S.elkeDag?`<p class="klein">${ELKEDAG}</p>`:""}`;
+const verwijsHTML=()=>`<p class="zacht" style="margin:0">${VERWIJS_KOP}</p><ul class="lijst">${VERWIJS_LIJST.map(x=>`<li>${x}</li>`).join("")}</ul>`;
+const hulpBlok=()=>`<div class="kaart warm">${verwijsHTML()}</div>
+ <p class="zacht">${CGT}</p>
+ <div class="kaart"><p class="zacht" style="margin:0">${HULP113}</p></div>`;
+// avondmelding zonder standaardwaarde (review 96, laag): de gebruiker kiest Ja of Nee. Het seintje komt bij "Licht dimmen", 2 uur voor bed.
+const meldBlok=()=>`<div style="padding:8px 0;border-bottom:1px solid var(--rand)"><div>${SEINTJE}</div>
+  <div class="chips"><button class="chip ${S.mAvond===true?"aan":""}" data-mav="1">Ja</button><button class="chip ${S.mAvond===false?"aan":""}" data-mav="0">Nee</button></div>
+  ${S.mAvond===true?`<p class="klein" style="margin-bottom:0">Bij "Licht dimmen", 2 uur voor bed (${hm(basisBed()-120)}).</p>`:""}</div>
+ <div class="rij" style="border:0"><span>Ochtend (goedemorgen)</span>${S.ploeg?`<button class="chip" disabled>uit, nachtdiensten</button>`:`<button class="chip ${S.mOchtend?"aan":""}" data-a="mOchtend">${S.mOchtend?"aan":"uit"}</button>`}</div>`;
+// voorbeelddagen voor de extra's in het weekoverzicht (uitgebreide stand): wat je afvinkte, zonder score
+const WEEKSTAP=[["licht dimmen, scherm weg","naar buiten"],["scherm weg",""],["licht dimmen, opschrijven","naar buiten, bewegen"],["","naar buiten"],["licht dimmen, scherm weg","opgestaan"],["",""],["opschrijven","naar buiten"]];
+
+// ---------- schermen ----------
+const V={
+// ===== opzet bij de eerste start =====
+S1(){return `<div style="height:70px"></div>
+ <div class="midden" style="font-size:40px;font-weight:300;letter-spacing:.04em">Etmaal</div>
+ <p class="midden zacht" style="font-size:18px;margin-top:18px">Een rustige hulp voor je dag- en nachtritme.<br>Geen behandeling, geen scores.</p>
+ <div class="kaart"><div class="zacht">Etmaal werkt vanuit je wektijd:</div>
+  <div class="klein" style="margin-top:6px">'s avonds afbouwen, 's nachts rust als je wakker ligt, 's ochtends naar buiten, overdag één rustig overzicht.</div></div>
+ <div class="kaart"><div class="klein">De kleine stand is gratis. De uitgebreide stand is 14 dagen open, daarna één aankoop van € 4,99. Geen abonnement, geen reclame, geen account. Je gegevens blijven op je telefoon.</div></div>
+ <button class="knop" data-g="S2">Begin</button>`;},
+S2(){return `<p class="klein">Stap 1 van 4</p><h1>Je wektijd</h1>
+ <p class="zacht">Elke dag ongeveer dezelfde. Dit is het anker van de app.</p>
+ <div class="groot">${hm(S.wektijd)}</div>
+ <div class="chips" style="justify-content:center"><button class="chip" data-a="wek-15">15 min eerder</button><button class="chip" data-a="wek-5">5 min eerder</button><button class="chip" data-a="wek+5">5 min later</button><button class="chip" data-a="wek+15">15 min later</button></div>
+ <p class="klein midden">${WEKKER}</p>
+ <h2>Vrije dagen</h2>
+ <p class="klein">${MARGEZIN}</p>
+ ${dagChips()}
+ <p class="klein">Zoveel later mag je dan opstaan:</p>
+ <div class="chips">${margeChips()}</div>
+ <h2>Gewenste bedtijd (mag je overslaan)</h2>
+ <p class="klein">Alleen om je avondplan te plannen. Het is geen voorschrift.</p>
+ <div class="chips">${[null,...bedOpties()].map(b=>`<button class="chip ${S.bedtijd===b?"aan":""}" data-bed="${b===null?"geen":b}">${b===null?"geen":hm(b)}</button>`).join("")}</div>
+ <p class="klein">${BEDZIN}</p>
+ ${vink(S.behandeling,BEHANDELING,"",`data-a="behandeling"`)}
+ <button class="knop" data-g="S3">Verder</button>`;},
+// Start 3 (review 95, S-1, voorlopig): één lijst om aan te tikken, niets verplicht. "Geen van deze past bij mij" boven én onder de lijst (review 96).
+S3(){const geen=`<button class="knop rand" data-a="s3geen" style="margin-top:6px">Geen van deze past bij mij</button>`;
+ return `<p class="klein">Stap 2 van 4</p><h1>Zes vragen</h1>
+ ${geen}
+ <p class="zacht">Tik aan wat bij je past. Niets is verplicht. Zo past Etmaal zich aan jou aan.</p>
+ ${S3V.map(([k,vraag,ant])=>vink(S[k]===true,vraag,S[k]===true?ant:"",`data-s3="${k}"`)).join("")}
+ ${geen}
+ <p class="klein">Je antwoorden blijven op je telefoon.</p>
+ <button class="knop" data-g="S4">Verder</button>`;},
+// Start 4 (review 95, S-1, voorlopig): kort, met een uitklapbare lijst
+S4(){return `<p class="klein">Stap 3 van 4</p><h1>Als je meer hulp nodig hebt</h1>
+ <div class="kaart warm"><p class="zacht" style="margin:0">${S4KORT}</p></div>
+ <details class="uitklap"><summary>Lees de lijst</summary>${hulpBlok()}</details>
+ <button class="knop" data-g="S5">Verder</button>`;},
+S5(){return `<p class="klein">Stap 4 van 4</p><h1>Hoeveel wil je?</h1>
+ <div class="kaart"><b>Stand</b>
+  <div class="chips">${standChips()}</div>
+  <p class="klein">${S.stand==="klein"?"Klein: 's avonds twee stappen (licht dimmen en scherm weg), 's ochtends één (naar buiten). Opschrijven kan altijd.":"Uitgebreid: het hele avondplan, de lichtmeter, de beweegstap, extra's in het weekoverzicht en extra geluiden en adem. Na de 14 dagen hoort dit bij de aankoop."}</p>
+  <p class="klein">Je kunt dit later wisselen onder Dag, Info.</p></div>
+ <div class="kaart"><b>Apple Watch</b><p class="klein">Met een watch zie je bij het bewegen je hartslag, alleen lezen. Zonder watch werkt alles ook, met een timer en de stappen van je iPhone.</p>
+  <div class="chips"><button class="chip ${S.watch?"aan":""}" data-watchk="1">Koppelen</button><button class="chip ${!S.watch?"aan":""}" data-watchk="0">Overslaan</button></div>
+  ${S.watch?`<p class="klein" style="margin-top:8px">Gekoppeld (nagebootst). De app vraagt toestemming om de hartslag, de stappen en de tijd in daglicht te lezen. Slaapgegevens leest hij niet.</p>`:""}</div>
+ <div class="kaart"><b>Meldingen</b><p class="klein">Standaard hooguit één melding per dag.</p>
+  ${meldBlok()}</div>
+ <button class="knop" data-a="opzetKlaar">Klaar</button>`;},
+
+// ===== avond =====
+A1(){const b0=S.laat&&S.laatBed!==null?S.laatBed:S.bedtijd,nog=b0==="nog",b=nog?null:b0,t=x=>b===null?null:hm(b-x);
+ const ruim=groot();
+ const lo=laatOpties();
+ const kort=S.laatBed==="nog"||(S.laatBed!==null&&gat(S.laatBed)<420);
+ const laatTekst=S.bipolair?(kort?LAATBIPOLAIR:""):LAATZIN;
+ const laatKaart=S.laat?`<div class="kaart"><b>Vanavond wordt het laat</b>
+  <p class="zacht" style="margin-bottom:0">Kies je bedtijd voor vanavond. Je avondplan schuift mee.</p>
+  <div class="chips">${lo.map(c=>`<button class="chip ${S.laatBed===c?"aan":""}" data-laatbed="${c}">${hm(c)}</button>`).join("")}<button class="chip ${S.laatBed==="nog"?"aan":""}" data-laatbed="nog">Nog later</button></div>
+  ${laatTekst?`<p class="klein" style="margin-bottom:0">${laatTekst}</p>`:""}</div>`:"";
+ const alle={
+  koffie:["Laatste koffie",S.zwanger?"Optioneel. "+ZWKOFFIE:"Optioneel. Cafeïne werkt lang door.",540],
+  dimmen:["Licht dimmen","2 tot 3 uur voor bed. Liefst warm en laag licht.",120],
+  douche:["Warme douche (optioneel)",S.medsuf?"1 tot 2 uur voor bed. Warm, niet heet. Voorzichtig, niet bij duizeligheid of lage bloeddruk.":"1 tot 2 uur voor bed. Warm, niet heet. Niet bij duizeligheid of lage bloeddruk.",90],
+  weg:["Scherm weg",TELTIP,60],
+  schrijf:["Vijf minuten opschrijven","Wat moet morgen nog, en een avondnotitie.",60]
+ };
+ const rel={koffie:"ongeveer 9 uur voor bed",dimmen:"2 uur voor bed",douche:"1,5 uur voor bed",weg:"1 uur voor bed",schrijf:"1 uur voor bed"};
+ const keys=ruim?["koffie","dimmen",...(S.zwanger?[]:["douche"]),"weg","schrijf"]:["dimmen","weg"];
+ const telw=["Geen","Eén","Twee","Drie","Vier","Vijf"][keys.length];
+ return `<p class="klein">${nog?"Vanavond later dan 03.00: tijden ten opzichte van je bed":b===null?"Zonder bedtijd: tijden ten opzichte van je bed":"Bij bedtijd "+hm(b)}${S.laat&&!nog?", vanavond later":""}</p><h1>Je avond</h1>
+ <p class="zacht">${telw} rustige stappen. Afvinken mag, hoeft niet.</p>
+ ${laatKaart}
+ ${keys.map(k=>{const[l,s,x]=alle[k];return vink(S.avond[k],l,s,`data-av="${k}"`,t(x)||rel[k]);}).join("")}
+ ${ruim&&S.zwanger?`<div class="kaart warm"><b>Warme douche</b><div class="zacht">Overleg met je verloskundige.</div></div>`:""}
+ <div class="kaart"><b>Focus-tip</b><div class="zacht" style="margin-top:6px">${FOCUS}</div><div class="klein" style="margin-top:6px">Dat stel je zelf in. Etmaal verandert niets aan je iPhone.</div></div>
+ <button class="knop" data-g="A2">${ruim?"Nu opschrijven":"Opschrijven (mag)"}</button>
+ <button class="knop rand" data-a="laat">${S.laat?"Toch geen late avond":"Vanavond wordt het laat"}</button>
+ <button class="knop rand" data-g="A3">Naar bed</button>
+ <p class="klein midden">Geen punten, geen reeksen.</p>`;},
+A2(){
+ return `<h1>Opschrijven</h1>
+ <p class="klein">Zet het op papier, dan hoeft je hoofd het niet vast te houden. Een timer van vijf minuten mag, hoeft niet.</p>
+ <div class="groot" id="a2tijd" style="font-size:44px">5:00</div>
+ <button class="knop rand" id="a2start" data-a="a2start" style="margin-top:4px">Start de timer</button>
+ <h2>Wat moet morgen nog</h2><textarea id="todo" rows="4" placeholder="bijvoorbeeld: boodschappen">${esc(S.todo)}</textarea>
+ <h2>Avondnotitie</h2><textarea id="avn" rows="3" placeholder="Hoe was je dag, in een paar woorden">${esc(S.avondnotitie)}</textarea>
+ <button class="knop" data-a="a2klaar">Klaar, leg het weg</button>`;},
+A3(){return `<div style="height:50px"></div><h1 class="midden" style="font-weight:300;font-size:32px">Welterusten</h1>
+ <p class="midden zacht">De nachtstand is er als je hem nodig hebt. Je hoeft niets.</p>
+ <div class="kaart"><b>Tip</b><div class="zacht">${TELTIP} ${KLOKZIN}</div></div>
+ <div class="kaart"><b>Moet je 's nachts naar het toilet?</b><div class="zacht">${TOILET.join(" ")}${S.medsuf?" "+MEDSDUIZEL:""}</div></div>
+ ${S.ploeg?"":`<div class="kaart"><div class="klein">${WEKKER}</div></div>`}
+ <button class="knop" data-g="N1">Nachtstand openen</button>
+ <button class="knop rand" data-g="A1">Terug naar het avondplan</button>`;},
+
+// ===== nacht =====
+N1(){return `<div class="nachttik" data-g="N2"><div class="nzin">Kijk niet op de klok.<br>Even wakker worden in de nacht is normaal.</div><div class="hint">Tik één keer, ergens.</div></div>`;},
+// N2: bij suffe of duizelige medicijnen staat de toiletroute bovenaan (review 95, N-2). Zonder tik na 30 seconden terug naar zwart (N-3).
+N2(){const toilet=`<button class="nknop" data-g="NT">Even naar het toilet</button>${S.medsuf?`<p class="midden" style="margin:8px 0 0">${MEDSDUIZEL}</p>`:""}`;
+ return `<div class="nt" style="padding-top:${S.medsuf?40:80}px">
+ ${S.medsuf?toilet:""}
+ <button class="nknop" data-g="N3">Adem</button>
+ <button class="nknop" data-g="N4">Geluid</button>
+ ${S.medsuf?"":toilet}
+ <button class="nknop klein2" data-g="N5" style="margin-top:36px">${N5_KNOP}</button>
+ <button class="nknop klein2" data-g="N1">Terug naar zwart</button>
+ <button class="nknop klein2" data-a="nachtUit">Nachtstand sluiten</button></div>`;},
+// NT (review 96, V-1): de route voor iedereen; bij suffe of duizelige medicijnen bovenaan de zin over vasthouden
+NT(){return `<div class="nt" style="padding-top:20px">
+ <div class="lampje"></div>
+ ${S.medsuf?`<p class="ngroot">${MEDSDUIZEL}</p>`:""}
+ ${TOILET.map(z=>`<p class="ngroot">${z}</p>`).join("")}
+ <button class="nknop" data-g="N1" style="margin-top:34px">Terug naar zwart</button>
+ <button class="nknop klein2" data-g="N2">Terug</button></div>`;},
+N3(){if(!groot())S.ademVorm="rustig";const dur=S.ademVorm==="lang"?14:11;
+ return `<div class="nt midden">
+ <div class="adembol" style="animation-duration:${dur}s"></div>
+ <p>Langzaam in, nog langzamer uit.</p>
+ <p>Je hoeft niet te tellen. Ogen dicht mag. Het stopt vanzelf na ongeveer 10 minuten.</p>
+ ${groot()?`<div class="chips" style="justify-content:center">${[["rustig","rustig"],["lang","langer uit"]].map(([k,l])=>`<button class="nknop klein2 smal ${S.ademVorm===k?"kies":""}" data-adem="${k}">${l}</button>`).join("")}</div>`:""}
+ <button class="nknop klein2" data-g="N1" style="margin-top:28px">Stoppen</button></div>`;},
+N4(){const extra=groot();if(!extra&&S.geluid==="zee")S.geluid="regen";
+ const soorten=extra?["regen","ruis","zee"]:["regen","ruis"];
+ return `<div class="nt midden">
+ <div class="golven" id="golven">${Array.from({length:13},(_,i)=>`<span style="animation-delay:${(i*.17).toFixed(2)}s"></span>`).join("")}</div>
+ <p id="n4tekst">${NAAMG[S.geluid]}. Het geluid ebt langzaam weg.</p>
+ <div id="n4keuze">
+  <div class="chips" style="justify-content:center">${soorten.map(g=>`<button class="nknop klein2 smal ${S.geluid===g?"kies":""}" data-geluid="${g}">${g}</button>`).join("")}</div>
+  <div class="chips" style="justify-content:center;margin-top:10px">${[15,30,60].map(m=>`<button class="nknop klein2 smal ${S.geluidMin===m?"kies":""}" data-gmin="${m}">${m===60?"een uur":m+" min"}</button>`).join("")}</div>
+  <button class="nknop" data-a="n4start">Start</button>
+ </div>
+ <button class="nknop klein2" data-g="N1" style="margin-top:26px">Stoppen</button></div>`;},
+// N5 's nachts (review 95, N-1 en N-4): rustige opening, hulpblok (in de app tikbaar), de keuzes, onderaan de huisarts. Geen klachtenlijst.
+N5(){return `<div class="nt" style="padding-top:20px">
+ <p>${N5_OPEN}</p>
+ <div class="nknop" role="note" style="cursor:default;text-align:center">${N5_HULP}</div>
+ <p style="margin-top:20px">${N5_LIGGEN}</p>
+ <button class="nknop" data-g="N3">Adem</button>
+ <button class="nknop" data-g="N4">Geluid</button>
+ <div class="lampje"></div>
+ <p>${N5_OPSTAAN} ${N5_ZITTEN}</p>
+ <p>${N5_HUISARTS}</p>
+ <button class="nknop klein2" data-g="N2">Terug</button></div>`;},
+NZ(){return `<div class="nachttik" data-g="N1"><div class="nzin" style="top:44%">Tik als je iets nodig hebt.</div></div>`;},
+
+// ===== ochtend =====
+O1(){if(S.ploeg)return `<h1>Goedemorgen</h1><div class="kaart"><div class="zacht">${PLOEG}</div></div><button class="knop rand" data-g="O5">Eén vraag</button>`;
+ // geen balk; de tekst voor een late nacht staat er na "Vanavond wordt het laat" of na één tik op "Werd het gisteren laat?" (review 95, L-2),
+ // met daaronder de tekst voor de dag erna (review 96, B-5 en B-6)
+ const nacht=nachtLaat()?(S.bipolair?LAAT_RUIM:LAAT):null;
+ // "Ik ben op" in beide standen zet de stip van vandaag in D2 (review 96, P-3). In de kleine stand is de ochtend één scherm.
+ return `<p class="klein">Je wektijd ${hm(S.wektijd)}${S.marge?`, op vrije dagen tot ${S.marge} minuten later`:""}</p><h1>Goedemorgen</h1>
+ ${S.vroeg?`<p class="zacht">${VROEG}</p><p class="klein">Gebeurt het steeds? Dan kan je huisarts helpen.</p><button class="knop rand" data-g="D4">Wanneer naar de huisarts</button>`:`<p class="zacht">${LICHT}</p>`}
+ ${nacht?`<div class="kaart"><div class="zacht">${nacht}</div>${dagNaLaatBlok()}</div>`:`<button class="chip" data-a="laatGisteren" style="margin-top:12px">Werd het gisteren laat?</button>`}
+ <button class="knop ${S.ochtend.op?"rand":""}" data-a="ikbenop" id="ikbenop">${S.ochtend.op?"✓ Ik ben op":"Ik ben op"}</button>
+ ${groot()?`<button class="knop" data-g="O2">Je ochtend</button>
+ <button class="knop rand" data-g="O5">Alleen de vraag</button>`:`${ochtendKlein()}
+ <button class="knop rand" data-g="O5">Eén vraag</button>`}`;},
+O2(){if(S.ploeg)return `<h1>Je ochtend</h1><div class="kaart"><div class="zacht">${PLOEG}</div></div><button class="knop" data-g="O5">Eén vraag</button>`;
+ // kleine stand, ook als terugval na de proef: geen slotkaart, geen koopregel (review 95, A-1). Zelfde inhoud als onderaan O1.
+ if(!groot())return `<h1>Je ochtend</h1>${ochtendKlein()}
+ <button class="knop" data-g="O5">Eén vraag</button>`;
+ const kz=[["water","water"],["ontbijt","ontbijt"],["koffie","koffie later"],["snooze","niet op snooze drukken"]];
+ return `<h1>Je ochtend</h1><p class="zacht">Kies wat past.</p>
+ ${vink(S.ochtend.op,"Opgestaan","Rond je wektijd, als het lukt.",`data-a="ikbenop"`)}
+ ${vink(S.ochtend.licht,"Licht",S.vroeg?"Naar buiten, ongeveer een kwartier, wanneer het uitkomt.":"Naar buiten, ongeveer een kwartier.",`data-och="licht"`)}<button class="link" data-g="O3">Korte lichtcheck ›</button>
+ ${vink(S.ochtend.bewegen,"Bewegen","10 tot 20 minuten licht, liefst samen met het licht.",`data-och="bewegen"`)}
+ <button class="link" data-g="O4">Start bewegen ›</button>
+ <h2>Wat je er nog bij wilt</h2>
+ <div class="chips">${kz.map(([k,l])=>`<button class="chip ${S.keuze[k]?"aan":""}" data-kz="${k}">${l}</button>`).join("")}</div>
+ <button class="knop" data-g="O5">Eén vraag</button>`;},
+O3(){if(!open())return V.O2();
+ const fase=S.lichtGedaan?"gedaan":S.buitenStart?"buiten":S.o3fase;
+ const meter=`<div class="kaart midden"><span class="label-nb">Nagebootst in het prototype; de app meet met de camera</span>
+  <div class="klein">ongeveer</div><div id="luxg" style="font-size:40px;font-weight:300">0 lux</div>
+  <div id="luxb" style="font-size:18px;font-weight:600">binnenlicht</div>
+  <div class="meter"><div id="luxm"></div></div>
+  <div class="banden" id="banden"><div>binnen<br>onder 250</div><div>lichter<br>250 tot 1.000</div><div>buiten<br>vanaf 1.000</div></div>
+  <p class="klein" style="margin-bottom:0">Grove indicatie, geen precieze meting.</p></div>`;
+ let body="";
+ if(fase==="check")body=`<p class="zacht">Een korte check van ongeveer 10 seconden. Houd je telefoon rechtop op ooghoogte.</p>
+  <div class="kaart warm"><b>Richt de camera nooit op de zon.</b></div>${meter}
+  <p class="zacht midden" id="o3check">Nog 10 seconden</p>`;
+ else if(fase==="na")body=`${meter}<p class="zacht" id="o3uitslag"></p><p class="klein">Kijk niet in de zon.</p>
+  <button class="knop" data-a="buitenStart">Ik ga naar buiten</button>
+  <button class="link" data-a="checkOpnieuw">Nog een keer meten ›</button>`;
+ else if(fase==="buiten")body=`<div class="kaart midden"><div class="klein">${S.watch?"Tijd in daglicht, van je Apple Watch":"Buiten, nog"}</div>
+  <div class="groot" id="o3timer">${S.watch?"0:00":"15:00"}</div>
+  <span class="label-nb">${S.watch?"Nagebootst; de app leest Tijd in daglicht van de Apple Watch":"Nagebootst; in de app loopt de timer door met het scherm uit"}</span>
+  <p class="klein">Stop je telefoon gerust weg. Na een kwartier is het licht gedaan. Kijk niet in de zon.</p>
+  <button class="link" data-a="lichtNu">Demo: sla de 15 minuten over ›</button></div>`;
+ else body=`<div class="kaart"><b style="color:var(--groen)">Licht gedaan</b><div class="klein">Mooi. Je hoeft niets meer te meten vandaag.</div></div>`;
+ return `<h1>Lichtmeter</h1>${body}
+ <button class="knop rand" data-g="O2">Terug naar je ochtend</button>`;},
+// O4: de stoptekst met 112 (review 95, V-1). Na de proef zonder aankoop: timer en stappen, zonder slotkaart (A-1).
+O4(){const hr=S.watch&&open();
+ return `<h1>Bewegen</h1><p class="zacht">10 tot 20 minuten licht. Wandelen is genoeg, liefst buiten in het licht.</p>
+ <div class="kaart warm"><b>${STOP}</b><div class="zacht" style="margin-top:6px">${STOP112}</div><div class="klein">${STOPHA}</div></div>
+ <div class="groot" id="o4tijd" style="font-size:44px">0:00</div>
+ <p class="klein midden" style="margin-top:0">tijd bewogen, doel 10 tot 20 minuten</p>
+ <button class="knop" id="o4knop" data-a="o4start">Start</button>
+ ${hr?`<div class="kaart"><span class="label-nb">Nagebootst; de app leest de hartslag uit HealthKit</span>
+   <div class="hart"><span id="hrg">${S.hr}</span> <small>slagen per minuut</small></div>
+   <p class="klein midden">Van je Apple Watch tijdens een beweegsessie, alleen lezen. Licht omhoog is genoeg.</p></div>`:
+  `<div class="kaart"><span class="label-nb">Nagebootst; de app leest de stappen van de iPhone</span>
+   <div class="hart"><span id="stappen">0</span> <small>stappen</small></div>
+   <p class="klein midden">Een timer en de stappen van je iPhone.</p></div>`}
+ <button class="knop rand" data-a="o4klaar">Klaar met bewegen</button>`;},
+O5(){const w=["fris","gewoon","moe"];return `<h1>Hoe voel je je?</h1>
+ <p class="zacht">Kies een woord, of schrijf het zelf. Geen cijfer.</p>
+ <div class="chips">${w.map(x=>`<button class="chip ${S.gevoel===x?"aan":""}" data-gev="${x}" style="font-size:17px;padding:10px 18px">${x}</button>`).join("")}</div>
+ <h2>Eigen woorden</h2><input type="text" id="eigen" placeholder="Bijvoorbeeld: rustig, wat stijf" value="${esc(S.eigen)}">
+ <button class="knop" data-a="o5klaar">Bewaar</button>
+ <p class="klein">Alleen op je telefoon. Je ziet het terug bij Dag, Notities.</p>`;},
+
+// ===== dag =====
+D1(){const avG=[["koffie","laatste koffie"],["dimmen","licht dimmen"],["douche","warme douche"],["weg","scherm weg"],["schrijf","opschrijven"]].filter(([k])=>S.avond[k]).map(x=>x[1]);
+ const ochG=[["op","opgestaan"],["licht","naar buiten"],["bewegen","bewegen"]].filter(([k])=>S.ochtend[k]).map(x=>x[1]);
+ const gev=S.eigen||S.gevoel;
+ const rijen=[avG.length?["Avond",avG.join(", ")]:null,ochG.length?["Ochtend",ochG.join(", ")]:null,gev?["Hoe je je voelde",gev]:null].filter(Boolean);
+ // de uitnodiging vanaf dag 3 en de zin op dag 15, alleen overdag (review 96, K-1 en K-2, voorlopig, keuze Pjotr)
+ // de dag na een late nacht (review 96, B-5 en B-6)
+ const naLaat=S.dagNaLaat||(S.tijd==="ochtend"&&nachtLaat());
+ return segD("D1")+`<h1>Vandaag</h1>
+ ${proefKaart()}
+ ${naLaat?`<div class="kaart">${dagNaLaatBlok()}</div>`:""}
+ ${rijen.length?rijen.map(([k,v])=>`<div class="rij"><div><b>${k}</b><div class="klein">${esc(v)}</div></div></div>`).join("")+`<p class="klein midden">Een lijstje, geen oordeel.</p>`:`<div class="kaart"><div class="zacht">Niets hoeft. Kies wat past.</div></div>`}
+ <p class="klein">${WEGLEG}</p>
+ <button class="link" data-g="D4">Wanneer naar de huisarts? ›</button>
+ ${S.gekocht?"":`<button class="link" data-g="KOOP" style="display:block">${D1KOOP}</button>`}`;},
+// D2: het weekoverzicht van de wektijden is gratis in beide standen; de uitgebreide stand voegt de stappen per dag toe, zonder score (review 95, A-3)
+// De stip van vandaag (zo) komt van "Ik ben op" in O1, in beide standen (review 96, P-3). De andere dagen zijn voorbeelddagen.
+D2(){const dagen=DAGEN,afw=[0,5,-5,0,10,80,S.opTijd===null?null:S.opTijd-S.wektijd];
+ const x=i=>25+i*45,y=d=>Math.max(18,Math.min(140,70+d*.7));
+ const schoof=afw.some((d,i)=>d!==null&&(vrijDag(i)?(d>S.marge||d<-30):Math.abs(d)>=30));
+ const strook=S.marge?DAGEN.map((d,i)=>vrijDag(i)?`<rect x="${x(i)-21}" y="70" width="42" height="${(S.marge*.7).toFixed(1)}" rx="6" fill="rgba(174,185,224,.16)"/>`:"").join(""):"";
+ const svg=`<svg viewBox="0 0 320 180" width="100%" style="margin-top:8px">
+  ${strook}
+  <line x1="10" y1="70" x2="310" y2="70" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/>
+  ${afw.map((d,i)=>`${d===null?"":`<circle cx="${x(i)}" cy="${y(d)}" r="7" fill="${i===6?"#fff":"#AEB9E0"}"/>
+  <text x="${x(i)}" y="${y(d)+(d>30?24:-13)}" text-anchor="middle" font-size="16" fill="#D6D8DE">${hm(S.wektijd+d)}</text>`}
+  <text x="${x(i)}" y="174" text-anchor="middle" font-size="16" fill="#9A9DA6">${dagen[i]}</text>`).join("")}
+ </svg>`;
+ const extra=groot()?`<h2>Avond en ochtend per dag</h2><p class="klein">Wat je afvinkte. Geen score.</p>
+  ${WEEKSTAP.map(([a,o],i)=>`<div class="rij"><b style="width:30px">${dagen[i]}</b><div style="flex:1">${a?`<div class="klein">avond: ${a}</div>`:""}${o?`<div class="klein">ochtend: ${o}</div>`:""}${!a&&!o?`<div class="klein">niets afgevinkt</div>`:""}</div></div>`).join("")}`:"";
+ return segD("D2")+`<h1>Je week</h1><p class="zacht">Je wektijden als stippen. De lijn is je wektijd, ${hm(S.wektijd)}.${S.marge?` De smalle band op vrije dagen is je marge van ${S.marge} minuten.`:""}</p>${svg}
+ ${schoof?`<div class="kaart">Een dag die schuift, hoort erbij.</div>`:""}
+ ${extra}
+ <p class="klein midden">Geen score, geen oordeel. Etmaal meet je slaap niet.</p>`;},
+// D3: notities wissen, na een bevestiging
+D3(){const lijst=S.notities.map((n,i)=>({n,i})).reverse();
+ return segD("D3")+`<h1>Notities</h1><p class="klein">Je ochtendwoorden en avondnotities. Alleen op deze telefoon.</p>
+ ${lijst.length?lijst.map(({n,i})=>`<div class="kaart"><div class="klein">${esc(n.wanneer)}</div><div>${esc(n.tekst)}</div>
+  ${S.wisVraag===i?`<p class="klein" style="margin-bottom:0">Deze notitie wissen?</p><div class="chips"><button class="chip" data-wisja="${i}">Ja, wissen</button><button class="chip" data-a="wisNee">Nee</button></div>`:`<button class="link" data-wis="${i}">Wissen</button>`}</div>`).join(""):`<div class="kaart"><div class="zacht">Nog geen notities.</div></div>`}`;},
+D4(){return segD("D4")+`<h1>Info</h1>
+ <h2>Wat Etmaal is</h2><div class="kaart"><div class="zacht">${DOEL}</div></div>
+ <h2>Als je meer hulp nodig hebt</h2>
+ ${hulpBlok()}
+ <p class="klein">Gebruik je medicijnen? ${MEDS} Gebruik je een plaspil? ${PLASPIL} Ben je zwanger? Overleg met je verloskundige. ${ZWKOFFIE}</p>
+ <p class="klein">${LICHTGEVOELIG}</p>
+ ${S.bipolair?`<p class="klein">${BIPOLAIR} ${BIPSIGNAAL}</p>`:""}
+ <p class="klein">${WEGLEG}</p>
+ <h2>Stand</h2>
+ <div class="chips">${standChips()}</div>
+ <p class="klein">${S.stand==="uitgebreid"&&!open()?"De uitgebreide stand hoort bij de aankoop. Zonder aankoop werkt de kleine stand.":"Klein: twee avondstappen en één ochtendstap. Uitgebreid: alles, met de lichtmeter en extra's in het weekoverzicht."}</p>
+ <h2>Wektijd</h2>
+ <p class="klein">${hm(S.wektijd)}${S.ploeg?", staat uit door nachtdiensten":""}. Vrije dagen:</p>
+ ${dagChips()}
+ <div class="chips">${margeChips()}</div>
+ <h2>Meldingen</h2>
+ ${meldBlok()}
+ <h2>Wat deze app niet is</h2>
+ <div class="kaart"><div class="zacht">Geen behandeling en geen medisch oordeel.</div><div class="klein" style="margin-top:6px">Geen wekker (dat doet de Klok-app). Geen meting van je slaap, geen slaapfasen, geen scores, geen reeksen. Geen programma dat je opdraagt op te staan of minder te slapen.</div></div>
+ <h2>Een woord uitgelegd</h2>
+ <p class="klein">${JETLAG}</p>
+ <h2>Een dutje</h2>
+ <p class="klein">${DUTJE}</p>
+ <h2>Bronnen per tip</h2>
+ <div class="rij"><span>Laatste koffie</span><span class="klein">Gardiner 2023; training</span></div>
+ <div class="rij"><span>Licht dimmen</span><span class="klein">Brown 2022; training</span></div>
+ <div class="rij"><span>Warme douche</span><span class="klein">Haghayegh 2019</span></div>
+ <div class="rij"><span>Scherm weg, telefoon buiten de slaapkamer</span><span class="klein">Thuisarts; training</span></div>
+ <div class="rij"><span>Opschrijven</span><span class="klein">Scullin 2018; training</span></div>
+ <div class="rij"><span>Opstaan als je lang wakker ligt</span><span class="klein">Thuisarts (informatie)</span></div>
+ <div class="rij"><span>Ochtendlicht</span><span class="klein">Brown 2022; training</span></div>
+ <div class="rij"><span>Licht bij te vroeg wakker</span><span class="klein">Lack 1993 en 2005, Friedman 2009: zwak, gemengd</span></div>
+ <div class="rij"><span>Lichtmeter</span><span class="klein">grove indicatie, geen precieze meting</span></div>
+ <div class="rij"><span>Vaste wektijd</span><span class="klein">Thuisarts; training</span></div>
+ <div class="rij"><span>Dutje</span><span class="klein">Thuisarts</span></div>
+ <div class="rij"><span>CGT-I bij langdurige slapeloosheid</span><span class="klein">stevig (meta-analyses, AASM)</span></div>
+ <h2>Privacy</h2><p class="klein">Geen account, geen server. Hartslag, stappen en tijd in daglicht alleen lezen, alleen na toestemming. Slaapgegevens leest Etmaal niet.</p>
+ <div class="rij"><span>Aankoop</span><span class="klein">${S.gekocht?"gekocht, dank je":open()?"Proef loopt tot "+proefEind()+".":"niet gekocht; de kleine stand blijft gratis"}</span></div>
+ ${S.gekocht?"":`<button class="knop rand" data-g="KOOP">Bekijk de aankoop</button>`}
+ <p class="klein">${DELEN}</p>
+ <button class="knop rand" data-a="opnieuw">Opzet opnieuw doen</button>`;},
+
+// ===== betaalscherm (opent nooit vanzelf; alleen via Info of de regel op D1) =====
+KOOP(){if(S.gekocht)return `<div style="height:80px"></div><h1 class="midden">Dank je</h1><p class="midden zacht">De uitgebreide stand staat open. Ook voor je gezin, via gezinsdeling.</p><p class="klein midden">Nagebootst: er is niets afgeschreven.</p><button class="knop" data-a="naKoop">Verder</button>`;
+ return `<div style="height:20px"></div><p class="klein midden">${open()?"Je proef loopt nog. ":""}De kleine stand blijft gratis. Je hoeft niets te doen.</p>
+ <h1 class="midden">De uitgebreide stand</h1>
+ <div class="midden" style="font-size:46px;font-weight:300">€ 4,99</div><p class="midden klein" style="margin-top:0">één keer, geen abonnement</p>
+ <p class="midden zacht">${STEUN}</p>
+ <div class="kaart"><b>Met de aankoop: de uitgebreide stand</b><div class="zacht" style="margin-top:6px">het hele avondplan<br>de lichtmeter<br>de beweegstap met hartslag<br>extra's in het weekoverzicht<br>extra geluiden en ademvormen</div></div>
+ <div class="kaart"><b>Altijd gratis</b><div class="zacht" style="margin-top:6px">de kleine stand<br>de nachtstand met de toiletroute<br>de wektijd met vrije dagen<br>het weekoverzicht van je wektijden<br>de verwijsregel<br>opschrijven<br>de notities</div></div>
+ <p class="klein">Geen account. Gezinsdeling staat aan.</p>
+ <button class="knop" data-a="koop">Koop voor € 4,99</button>
+ <button class="knop rand" data-a="herstel">Aankoop herstellen</button>
+ <button class="knop rand" data-a="nietNu">Niet nu</button>
+ <p class="klein midden">Nagebootst: er wordt niets afgeschreven.</p>`;}
+};
+
+// ---------- na tekenen: timers en live waarden ----------
+function na(c){
+ // opnieuw tekenen van hetzelfde scherm mag geen dubbele timers geven
+ ["n2","n3","o3"].forEach(k=>{if(T[k]){clearInterval(T[k]);clearTimeout(T[k]);T[k]=null;}});
+ // N2 zonder tik na 30 seconden terug naar zwart (vaste tijd, ook bij versneld tempo)
+ if(c==="N2"){T.n2=setTimeout(()=>{if(S.scherm==="N2")ga("N1");},30000);}
+ if(c==="N3"){T.n3=setTimeout(()=>{if(S.scherm==="N3")ga("N1");},600000/f());try{navigator.vibrate&&navigator.vibrate(200);}catch(e){}}
+ if(c==="O3"&&open()){
+  updLux();updBuitenTimer();
+  if(!S.lichtGedaan&&!S.buitenStart&&S.o3fase==="check"){
+   const eind=Date.now()+10000;
+   T.o3=setInterval(()=>{const r=Math.ceil((eind-Date.now())/1000);
+    if(r<=0){clearInterval(T.o3);T.o3=null;S.o3fase="na";if(S.scherm==="O3")teken();return;}
+    const el=$("#o3check");if(el)el.textContent="Nog "+r+(r===1?" seconde":" seconden");},200);
+  }
+ }
+ if(c==="O4"){updHr();}
+}
+function updLux(){
+ if(!$("#luxg"))return;
+ const l=lux(),b=band(l);
+ $("#luxg").textContent=punt(l)+" lux";$("#luxb").textContent=BANDEN[b];
+ $("#luxm").style.width=Math.min(100,S.luxP)+"%";
+ document.querySelectorAll("#banden div").forEach((d,i)=>d.classList.toggle("aan",i===b));
+ const u=$("#o3uitslag");
+ if(u)u.textContent=l>=1000?"Dit is buitenlicht. Stop je telefoon weg en loop een kwartier.":"Buiten is het bijna altijd veel lichter dan binnen, ook bij bewolking. Twijfel je? Ga gewoon naar buiten.";
+}
+function updHr(){const e=$("#hrg");if(e)e.textContent=S.hr;}
+
+// ---------- klikken in de telefoon ----------
+$("#s").addEventListener("click",e=>{
+ const t=e.target.closest("[data-g],[data-a],[data-bed],[data-s3],[data-watchk],[data-av],[data-och],[data-kz],[data-gev],[data-geluid],[data-gmin],[data-marge],[data-stand],[data-adem],[data-laatbed],[data-mav],[data-vrij],[data-wis],[data-wisja]");if(!t)return;
+ const d=t.dataset;
+ if(d.g){if(S.scherm==="A2")bewaarA2();ga(d.g);return;}
+ if(d.bed){S.bedtijd=d.bed==="geen"?null:+d.bed;if(S.laat)zetLaat(true);teken();return;}
+ if(d.laatbed){S.laatBed=d.laatbed==="nog"?"nog":+d.laatbed;teken();return;}
+ if(d.s3){setS3(d.s3,S[d.s3]!==true);teken();return;}
+ if(d.watchk){S.watch=d.watchk==="1";teken();return;}
+ if(d.av){S.avond[d.av]=!S.avond[d.av];teken();return;}
+ if(d.och){S.ochtend[d.och]=!S.ochtend[d.och];teken();return;}
+ if(d.kz){S.keuze[d.kz]=!S.keuze[d.kz];teken();return;}
+ if(d.gev){S.gevoel=S.gevoel===d.gev?null:d.gev;S.eigen=$("#eigen").value;teken();return;}
+ if(d.geluid){S.geluid=d.geluid;teken();return;}
+ if(d.gmin){S.geluidMin=+d.gmin;teken();return;}
+ if(d.marge!==undefined){S.marge=+d.marge;teken();return;}
+ if(d.stand){zetStand(d.stand);teken();return;}
+ if(d.adem){S.ademVorm=d.adem;ga("N3");return;}
+ if(d.mav!==undefined){S.mAvond=d.mav==="1";teken();return;}
+ if(d.vrij!==undefined){const i=+d.vrij;if(S.elkeDag){S.elkeDag=false;S.vrij=S.vrij.map(()=>true);}S.vrij[i]=!S.vrij[i];teken();return;}
+ if(d.wisja!==undefined){S.notities.splice(+d.wisja,1);S.wisVraag=null;teken();return;}
+ if(d.wis!==undefined){S.wisVraag=+d.wis;teken();return;}
+ const a=d.a,wek=a&&a.match(/^wek([+-]\d+)$/);
+ if(wek){S.wektijd+=+wek[1];fixBed();if(S.laat)zetLaat(true);teken();}
+ else if(a==="mOchtend"){S.mOchtend=!S.mOchtend;teken();}
+ else if(a==="behandeling"){S.behandeling=!S.behandeling;fixBed();if(S.laat)zetLaat(true);teken();}
+ else if(a==="elkeDag"){S.elkeDag=!S.elkeDag;teken();}
+ // "Ik ben op" (O1, beide standen) en "Opgestaan" (O2, uitgebreid) zetten de stip van vandaag in D2
+ else if(a==="ikbenop"){S.ochtend.op=!S.ochtend.op;S.opTijd=S.ochtend.op?S.wektijd+S.minNa:null;teken();}
+ else if(a==="s3geen"){S3V.forEach(([k])=>setS3(k,false));ga("S4");}
+ else if(a==="opzetKlaar"){S.opzet=true;naarTijd();}
+ else if(a==="a2start"){
+  if(T.a2)return;const eind=Date.now()+300000/f();$("#a2start").textContent="De timer loopt";
+  T.a2=setInterval(()=>{const r=(eind-Date.now())/1000*f();const el=$("#a2tijd");if(!el){clearInterval(T.a2);T.a2=null;return;}
+   el.textContent=mmss(r);if(r<=0){clearInterval(T.a2);T.a2=null;el.textContent="Klaar";$("#a2start").textContent="Vijf minuten zijn om. Leg het weg.";try{navigator.vibrate&&navigator.vibrate(150);}catch(e){}}},250);
+ }
+ else if(a==="a2klaar"){bewaarA2(true);ga("A3");}
+ else if(a==="laat"){zetLaat(!S.laat);teken();}
+ else if(a==="laatGisteren"){S.laatGisteren=true;teken();}
+ else if(a==="probeer"){zetStand("uitgebreid");S.uitnGedaan=true;teken();}
+ else if(a==="neeDank"){S.uitnGedaan=true;teken();}
+ else if(a==="pkBekijk"){S.pkGedaan=true;ga("KOOP");}
+ else if(a==="pkNee"){S.pkGedaan=true;teken();}
+ else if(a==="wisNee"){S.wisVraag=null;teken();}
+ // 's nachts nooit terug naar een licht scherm met tijden: naar NZ (zwart, "Tik als je iets nodig hebt.")
+ else if(a==="nachtUit"){ga(S.tijd==="nacht"?"NZ":S.tijd==="ochtend"?"O1":S.tijd==="dag"?"D1":"A1");}
+ else if(a==="n4start"){
+  const sec=S.geluidMin*60/f();startGeluid(S.geluid,sec);
+  $("#n4keuze").hidden=true;$("#n4tekst").textContent=NAAMG[S.geluid]+". Het geluid ebt langzaam weg.";
+  const g=$("#golven");g.style.transitionDuration=sec+"s";requestAnimationFrame(()=>requestAnimationFrame(()=>{g.style.opacity="0";}));
+  if(T.n4)clearTimeout(T.n4);
+  T.n4=setTimeout(()=>{if(S.scherm==="N4")ga("N1");},sec*1000+400);
+ }
+ else if(a==="buitenStart"){buitenStart();teken();}
+ else if(a==="checkOpnieuw"){S.o3fase="check";ga("O3");}
+ else if(a==="lichtNu"){if(S.buitenStart)buitenKlaar();else{S.lichtGedaan=true;S.ochtend.licht=true;teken();}}
+ else if(a==="o4start"){
+  if(T.o4)return;const begin=Date.now();t.textContent="Je bent onderweg";
+  T.o4=setInterval(()=>{const s=(Date.now()-begin)/1000*f();const el=$("#o4tijd");if(!el)return;el.textContent=mmss(s);
+   const st=$("#stappen");if(st)st.textContent=punt(Math.round(s/60*95));
+   if(s>=600&&!S.ochtend.bewegen){S.ochtend.bewegen=true;$("#o4knop").textContent="10 minuten bewogen. Meer mag, tot 20.";}},250);
+ }
+ else if(a==="o4klaar"){S.ochtend.bewegen=true;ga("O2");}
+ else if(a==="o5klaar"){S.eigen=$("#eigen").value.trim();const w=S.eigen||S.gevoel;if(w){S.notities.push({wanneer:"vandaag, ochtend",tekst:w});}ga("D3");}
+ else if(a==="koop"||a==="herstel"){S.gekocht=true;teken();}
+ else if(a==="nietNu"||a==="naKoop"){naarTijd();}
+ else if(a==="opnieuw"){opnieuw();}
+});
+function bewaarA2(klaar){const a=$("#todo"),b=$("#avn");if(!a)return;S.todo=a.value;S.avondnotitie=b.value;
+ if(klaar){const tekst=[S.todo.trim()&&"Morgen: "+S.todo.trim(),S.avondnotitie.trim()].filter(Boolean).join(" ");if(tekst)S.notities.push({wanneer:"vandaag, avond",tekst});S.todo="";S.avondnotitie="";S.avond.schrijf=true;}}
+document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>{if(S.scherm==="A2")bewaarA2();ga({avond:"A1",nacht:"N1",ochtend:"O1",dag:"D1"}[b.dataset.tab]);});
+// tussen bedtijd en wektijd (tijd "nacht") opent de app altijd op N1
+function naarTijd(){ga({avond:"A1",nacht:"N1",ochtend:"O1",dag:"D1"}[S.tijd]);}
+function opnieuw(){S.opzet=false;S3V.forEach(([k])=>{S[k]=null;});zetLaat(false);S.laatGisteren=false;S.dagNaLaat=false;S.uitnGedaan=false;S.o3fase="check";ga("S1");}
+
+// ---------- demopaneel ----------
+function demoTeken(){
+ document.querySelectorAll("#d-tijd .chip").forEach(b=>b.classList.toggle("aan",b.dataset.tijd===S.tijd));
+ document.querySelectorAll("#d-dag .chip").forEach(b=>b.classList.toggle("aan",+b.dataset.dag===S.dag));
+ document.querySelectorAll("#d-stand .chip").forEach(b=>b.classList.toggle("aan",b.dataset.dstand===S.stand));
+ document.querySelectorAll("#d-laat .chip").forEach(b=>b.classList.toggle("aan",(b.dataset.laat==="1")===S.laat));
+ document.querySelectorAll("#d-watch .chip").forEach(b=>b.classList.toggle("aan",(b.dataset.watch==="1")===S.watch));
+ document.querySelectorAll("#d-snel .chip").forEach(b=>b.classList.toggle("aan",(b.dataset.snel==="1")===S.snel));
+ document.querySelectorAll("#d-sprong button").forEach(b=>b.classList.toggle("aan",b.dataset.c===S.scherm));
+ $("#d-s3").innerHTML=S3K.map(([k,l])=>`<div class="d-rij"><span>${l}</span><span><button class="chip ${S[k]===true?"aan":""}" data-ds3="${k}:1">ja</button> <button class="chip ${S[k]!==true?"aan":""}" data-ds3="${k}:0">nee</button></span></div>`).join("");
+ $("#d-dagtekst").textContent=S.gekocht?"Aankoop gedaan (nagebootst): de uitgebreide stand is open.":S.dag===3?"Proef, dag 3: in de kleine stand staat overdag (tijd Ochtend of Dag) de uitnodiging op O1 en D1, tot je antwoordt. 's Avonds en 's nachts niet.":S.dag<=14?"Proef: alles open.":"Na de proef, niet gekocht: de app valt zelf terug op de kleine stand, zonder slotkaart. Probeerde je de uitgebreide stand, dan staat overdag één keer een neutrale zin op O1 of D1, en springt de stand op Klein. Het weekoverzicht van de wektijden blijft. Het betaalscherm opent alleen via Info, de regel op D1 of \"Bekijk\".";
+ $("#d-luxw").textContent=punt(lux())+" lux";$("#d-hrw").textContent=S.hr+" per minuut";$("#d-minw").textContent=S.minNa+" min";
+}
+$("#d-sprong").innerHTML=Object.keys(NAMEN).map(c=>`<button data-c="${c}" title="${NAMEN[c]}">${c.startsWith("S")?"Start "+c.slice(1):c}</button>`).join("");
+$("#d-sprong").onclick=e=>{const b=e.target.closest("button");if(!b)return;const c=b.dataset.c;if(c[0]!=="S")S.opzet=true;const fl=FLOW(c);if(fl)S.tijd=fl;ga(c);};
+// na de ochtend geldt weer het gewone plan: overdag gaan de late avond en "Werd het gisteren laat?" uit.
+// Na een late nacht toont D1 die dag de tekst voor de dag erna (review 96, B-5); 's avonds en 's nachts is die weg.
+$("#d-tijd").onclick=e=>{const b=e.target.closest("[data-tijd]");if(!b)return;S.tijd=b.dataset.tijd;
+ if(S.tijd==="dag"){S.dagNaLaat=S.dagNaLaat||nachtLaat();zetLaat(false);S.laatGisteren=false;}
+ if(S.tijd==="avond"||S.tijd==="nacht")S.dagNaLaat=false;
+ if(S.opzet)naarTijd();else teken();};
+$("#d-openen").onclick=()=>{if(S.scherm==="A2")bewaarA2();if(S.opzet)naarTijd();else ga("S1");};
+// het betaalscherm opent nooit vanzelf, ook niet op dag 15 (review 95, A-1).
+// Op dag 15 springt de stand mee naar Klein, en wie de uitgebreide stand probeerde krijgt overdag één keer PROEFKLAAR (review 96, K-2).
+$("#d-dag").onclick=e=>{const b=e.target.closest("[data-dag]");if(!b)return;S.dag=+b.dataset.dag;S.gekocht=false;S.pkOp=null;S.pkGedaan=false;
+ if(S.dag<=14){S.uitnGedaan=false;if(S.dag<3)S.probeerde=S.stand==="uitgebreid";}
+ else if(S.stand==="uitgebreid"){S.probeerde=true;S.stand="klein";}
+ teken();};
+$("#d-stand").onclick=e=>{const b=e.target.closest("[data-dstand]");if(!b)return;zetStand(b.dataset.dstand);teken();};
+$("#d-s3").onclick=e=>{const b=e.target.closest("[data-ds3]");if(!b)return;const[k,v]=b.dataset.ds3.split(":");setS3(k,v==="1");teken();};
+$("#d-laat").onclick=e=>{const b=e.target.closest("[data-laat]");if(!b)return;zetLaat(b.dataset.laat==="1");teken();};
+$("#d-watch").onclick=e=>{const b=e.target.closest("[data-watch]");if(!b)return;S.watch=b.dataset.watch==="1";if(S.scherm==="O4"||S.scherm==="S5"||S.scherm==="O3")ga(S.scherm);else teken();};
+$("#d-snel").onclick=e=>{const b=e.target.closest("[data-snel]");if(!b)return;S.snel=b.dataset.snel==="1";demoTeken();};
+$("#d-lux").value=S.luxP;$("#d-lux").oninput=e=>{S.luxP=+e.target.value;demoTeken();updLux();};
+$("#d-hr").value=S.hr;$("#d-hr").oninput=e=>{S.hr=+e.target.value;demoTeken();updHr();};
+$("#d-min").value=S.minNa;$("#d-min").oninput=e=>{S.minNa=+e.target.value;demoTeken();if(S.scherm==="O1")teken();else if(S.tijd==="ochtend")$("#klok").textContent=hm(S.wektijd+S.minNa);};
+$("#d-opnieuw").onclick=opnieuw;
+
+teken();
+</script>
+</body>
+</html>
