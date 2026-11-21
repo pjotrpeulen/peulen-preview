@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Stuur">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#14161a">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; form-action 'none'; base-uri 'none'">
+<title>Peulen Stuur</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icoon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" id="touchicoon" href="icoon-180.png">
+<style>
+:root{--bg:#f3f3f0;--kaart:#fff;--tekst:#16181c;--zacht:#545a65;--lijn:#d9dce1;--groen:#1a7f45;--oranje:#b25e00;--rood:#c62f33;--knop:#16181c;--knoptekst:#fff;--accent:#1d5bc8;--gekozen:#1d5bc8;--gekozentekst:#fff;--veilig-onder:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root{--bg:#101216;--kaart:#1b1e24;--tekst:#f1f2f4;--zacht:#a9afba;--lijn:#30343c;--groen:#3ccf7f;--oranje:#f0a43a;--rood:#ff6b6e;--knop:#f1f2f4;--knoptekst:#101216;--accent:#86adff;--gekozen:#86adff;--gekozentekst:#0b1020}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tekst);font:17px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+body{padding:env(safe-area-inset-top,0) 0 0}
+main{max-width:640px;margin:0 auto;padding:12px 14px calc(110px + var(--veilig-onder))}
+h1{font-size:26px;margin:6px 0 2px;letter-spacing:-.01em}
+h2{font-size:14px;text-transform:uppercase;letter-spacing:.06em;color:var(--zacht);margin:22px 0 8px}
+p{margin:0}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.stand{color:var(--zacht);font-size:14px;margin-bottom:10px}
+.balk{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px}
+.klein{font-size:15px;color:var(--accent);min-height:44px;padding:0 6px;font-weight:600}
+.melding{background:var(--kaart);border:2px solid var(--oranje);border-radius:14px;padding:10px 12px;margin:8px 0;font-size:15px}
+.tellers{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 12px}
+.teller{display:flex;align-items:center;gap:6px;background:var(--kaart);border:1px solid var(--lijn);border-radius:999px;padding:8px 14px;min-height:44px;font-size:15px;font-weight:600}
+.teller[aria-pressed=true]{background:var(--gekozen);color:var(--gekozentekst);border-color:var(--gekozen)}
+.stip{display:inline-block;width:12px;height:12px;border-radius:50%;flex:none}
+.k-groen{--k:var(--groen)}.k-oranje{--k:var(--oranje)}.k-rood{--k:var(--rood)}
+.stip{background:var(--k)}
+.lijst{display:flex;flex-direction:column;gap:10px}
+.kaart{display:block;width:100%;text-align:left;background:var(--kaart);border-radius:16px;border-left:8px solid var(--k);padding:12px 14px 13px;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.kaart.pauze{opacity:.72}
+.kaart-kop{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.naam{font-weight:700;font-size:18px;flex:1 1 auto;min-width:0}
+.pil{font-size:13px;font-weight:700;border:1.5px solid var(--lijn);border-radius:8px;padding:2px 7px;color:var(--zacht);white-space:nowrap}
+.status{font-size:13px;font-weight:700;color:var(--k);white-space:nowrap}
+.wacht{background:var(--rood);color:#fff;font-size:13px;font-weight:700;border-radius:8px;padding:3px 8px;white-space:nowrap}
+@media (prefers-color-scheme:dark){.wacht{color:#16080a}}
+.gewijzigd{background:var(--gekozen);color:var(--gekozentekst);font-size:12px;font-weight:700;border-radius:8px;padding:2px 7px}
+.uitkomst{margin-top:6px}
+.volgende{margin-top:4px;color:var(--zacht);font-size:15px}
+.volgende b{color:var(--tekst);font-weight:600}
+.blok{background:var(--kaart);border-radius:16px;padding:14px;margin-top:10px}
+.seg{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.optie{min-height:48px;border-radius:12px;background:var(--kaart);border:1.5px solid var(--lijn);font-weight:600;padding:6px 8px}
+.optie[aria-pressed=true]{background:var(--gekozen);color:var(--gekozentekst);border-color:var(--gekozen)}
+.raster{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.raster .optie{text-align:left;padding:10px 12px}
+.raster .breed{grid-column:1/-1}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.chips .optie{min-height:44px;padding:6px 12px;font-size:15px}
+.schuif{display:flex;align-items:center;gap:12px}
+input[type=range]{flex:1;height:44px;accent-color:var(--gekozen)}
+.waarde{min-width:96px;text-align:right;font-weight:700}
+.veld{width:100%;min-height:48px;border-radius:12px;border:1.5px solid var(--lijn);background:var(--kaart);padding:10px 12px;font-size:17px}
+textarea.veld{min-height:96px;resize:vertical;margin-top:8px}
+.keuze{background:var(--kaart);border-radius:16px;padding:14px;margin-top:10px;border:2px solid var(--rood)}
+.keuze.gekozen{border-color:var(--gekozen)}
+.keuze h3{margin:0 0 4px;font-size:17px}
+.keuze .ctx{color:var(--zacht);font-size:15px}
+.keuze .adv{font-size:15px;margin:6px 0 10px}
+.keuze .opties{display:flex;flex-direction:column;gap:6px}
+.keuze .optie{text-align:left;padding:10px 12px}
+.voet{position:fixed;left:0;right:0;bottom:0;padding:10px 14px calc(10px + var(--veilig-onder));background:linear-gradient(to top,var(--bg) 70%,transparent)}
+.groot{display:block;width:100%;max-width:612px;margin:0 auto;min-height:56px;border-radius:16px;background:var(--knop);color:var(--knoptekst);font-weight:700;font-size:18px}
+.groot[disabled]{opacity:.45}
+.tweede{display:block;width:100%;min-height:52px;border-radius:14px;border:1.5px solid var(--lijn);background:var(--kaart);font-weight:600;margin-top:8px}
+.link{color:var(--accent);font-weight:600;min-height:44px;padding:8px 0}
+.scherm{max-width:460px;margin:8vh auto 0;padding:0 20px}
+.scherm p{margin:10px 0}
+.fout{color:var(--rood);font-weight:600;min-height:24px}
+label{display:block;font-weight:600;margin:14px 0 6px}
+.uitleg{color:var(--zacht);font-size:15px}
+.vel{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;z-index:9}
+.vel>div{background:var(--bg);width:100%;max-width:640px;margin:0 auto;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + var(--veilig-onder))}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + var(--veilig-onder));background:var(--knop);color:var(--knoptekst);padding:10px 16px;border-radius:12px;font-weight:600;z-index:10}
+body.typt .voet{display:none}
+.id{font:600 20px ui-monospace,Menlo,monospace;letter-spacing:.04em}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+</head>
+<body>
+<div id="app" aria-live="polite"></div>
+<div id="vel"></div>
+<div id="toast" class="toast" hidden></div>
+<script>
+'use strict';
+/* Peulen Stuur v1 · 21 november 2026 · alles in dit ene bestand, geen externe code.
+   Beveiliging: status.json is versleuteld met de publieke sleutel van Pjotr (ECDH P-256 + HKDF-SHA-256 + AES-GCM-256).
+   De privésleutel staat versleuteld in sleutel.json (AES-GCM met een sleutel uit PBKDF2-SHA-256, 600.000 rondes, uit zijn wachtwoord).
+   Het wachtwoord staat nergens in een bestand; Safari/iCloud-sleutelhanger vult het in met Face ID. */
+const MAIL = 'pjotrpeulen@gmail.com';
+const ITER = 600000;
+const INFO = 'peulen-stuur v1';
+const SLOT_NA_MS = 5 * 60 * 1000;
+const te = new TextEncoder(), td = new TextDecoder();
+
+/* ---------- hulpjes ---------- */
+function b64(u){u=new Uint8Array(u);let s='';for(let i=0;i<u.length;i+=8192)s+=String.fromCharCode.apply(null,u.subarray(i,i+8192));return btoa(s);}
+function unb64(s){const b=atob(s),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+const opslag={get(k){try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}},weg(k){try{localStorage.removeItem(k);}catch(e){}}};
+function twee(n){return String(n).padStart(2,'0');}
+function nuTekst(d){d=d||new Date();return d.getFullYear()+'-'+twee(d.getMonth()+1)+'-'+twee(d.getDate())+' '+twee(d.getHours())+':'+twee(d.getMinutes());}
+function isoDatum(d){return d.getFullYear()+'-'+twee(d.getMonth()+1)+'-'+twee(d.getDate());}
+const MAAND=['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+function mooiDatum(s){if(!s)return 'geen';const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(s);if(!m)return s;return (+m[3])+' '+MAAND[+m[2]-1]+' '+m[1];}
+function mooiMoment(s){if(!s)return '';const m=/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/.exec(s);return m?(+m[3])+' '+MAAND[+m[2]-1]+' '+m[4]+':'+m[5]:s;}
+function gelijk(a,b){return JSON.stringify(a)===JSON.stringify(b);}
+function toast(t){const el=document.getElementById('toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2200);}
+
+/* ---------- versleuteling ---------- */
+async function wwSleutel(ww,salt,iter){const basis=await crypto.subtle.importKey('raw',te.encode(ww),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:iter,hash:'SHA-256'},basis,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);}
+async function sleutelId(pubB64){const h=await crypto.subtle.digest('SHA-256',unb64(pubB64));return b64(h).slice(0,12);}
+async function maakSleutel(ww){
+  const kp=await crypto.subtle.generateKey({name:'ECDH',namedCurve:'P-256'},true,['deriveBits']);
+  const pub=await crypto.subtle.exportKey('raw',kp.publicKey);
+  const jwk=await crypto.subtle.exportKey('jwk',kp.privateKey);
+  const salt=crypto.getRandomValues(new Uint8Array(16)), iv=crypto.getRandomValues(new Uint8Array(12));
+  const k=await wwSleutel(ww,salt,ITER);
+  const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},k,te.encode(JSON.stringify(jwk)));
+  const pubB64=b64(pub);
+  return {v:1,alg:'ECDH-P256/HKDF-SHA256/AES-GCM-256',id:await sleutelId(pubB64),gemaakt:nuTekst(),pub:pubB64,prive:{kdf:'PBKDF2-SHA256',iter:ITER,salt:b64(salt),iv:b64(iv),ct:b64(ct)}};
+}
+async function openPrive(sl,ww){
+  const k=await wwSleutel(ww,unb64(sl.prive.salt),sl.prive.iter);
+  let pt;
+  try{pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(sl.prive.iv)},k,unb64(sl.prive.ct));}
+  catch(e){throw new Error('wachtwoord');}
+  const jwk=JSON.parse(td.decode(pt));
+  delete jwk.key_ops; jwk.ext=false;
+  return crypto.subtle.importKey('jwk',jwk,{name:'ECDH',namedCurve:'P-256'},false,['deriveBits']);
+}
+async function aesUitEcdh(priv,pub,epk){
+  const bits=await crypto.subtle.deriveBits({name:'ECDH',public:pub},priv,256);
+  const hk=await crypto.subtle.importKey('raw',bits,'HKDF',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'HKDF',hash:'SHA-256',salt:epk,info:te.encode(INFO)},hk,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+async function ontsleutel(env,priv){
+  const epk=unb64(env.epk);
+  const pub=await crypto.subtle.importKey('raw',epk,{name:'ECDH',namedCurve:'P-256'},true,[]);
+  const k=await aesUitEcdh(priv,pub,epk);
+  let pt;
+  try{pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(env.iv)},k,unb64(env.ct));}
+  catch(e){throw new Error('data');}
+  return JSON.parse(td.decode(pt));
+}
+
+/* ---------- toestand ---------- */
+const S={sleutel:null,env:null,priv:null,data:null,wijz:{},view:'lijst',pid:null,filter:false,open:{},verborgenSinds:0,laatsteMail:null,bron:''};
+const ACTIES=[['start','▶︎ Start'],['pauze','‖ Pauze'],['stop','■︎ Stop'],['opnieuw','↺ Opnieuw beginnen'],['review','✓ Opnieuw controleren'],['uitgebreid','☰ Uitgebreide status'],['wat','✎︎ Wat moet er gebeuren']];
+const GROEP=['start','pauze','stop','opnieuw'];
+const KLEURNAAM={groen:'Loopt',oranje:'Aandacht',rood:'Vast of wacht'};
+const KLEURRANG={rood:0,oranje:1,groen:2};
+
+function project(id){return S.data.projecten.find(p=>p.id===id);}
+function val(p,veld){const w=S.wijz[p.id];return (w&&Object.prototype.hasOwnProperty.call(w,veld))?w[veld]:p[veld];}
+function prioRang(v){return v==='pauze'?9:(+v||8);}
+function bewaarWijz(){opslag.set('stuur-wijz',{basis:S.data&&S.data.bijgewerkt,w:S.wijz});}
+/* 'wat' is geen opgeslagen actie: hij telt mee zodra er tekst staat. 'anders' zonder tekst telt niet mee. */
+function echteActies(w){return (w.acties||[]).filter(a=>a!=='wat').concat((w.wat||'').trim()?['wat']:[]);}
+function telKeuze(c){return c.keuze!=='anders'||(c.tekst||'').trim();}
+function leeg(w){if(!w)return true;if(echteActies(w).length)return false;if(w.keuzes&&Object.values(w.keuzes).some(telKeuze))return false;for(const k of ['prioriteit','uurPerWeek','einddatum','focus'])if(Object.prototype.hasOwnProperty.call(w,k))return false;return true;}
+function opruimen(pid){const w=S.wijz[pid];if(!w)return;if(w.acties&&!w.acties.length)delete w.acties;if(w.keuzes&&!Object.keys(w.keuzes).length)delete w.keuzes;if(w.wat!=null&&!w.wat.trim())delete w.wat;if(!Object.keys(w).length)delete S.wijz[pid];}
+function aantal(){return Object.keys(S.wijz).filter(id=>!leeg(S.wijz[id])).length;}
+function zet(pid,veld,waarde,stil){
+  const p=project(pid);S.wijz[pid]=S.wijz[pid]||{};
+  if(gelijk(waarde,p[veld]))delete S.wijz[pid][veld];else S.wijz[pid][veld]=waarde;
+  opruimen(pid);bewaarWijz();if(stil)voet();else render();
+}
+
+/* ---------- laden ---------- */
+async function haal(pad){const r=await fetch(pad+'?t='+Date.now(),{cache:'no-store'});if(r.status===404)return null;if(!r.ok)throw new Error('net');return r.json();}
+async function laad(){
+  let sl,env;
+  try{sl=await haal('sleutel.json');env=await haal('status.json');opslag.set('stuur-cache',{sl:sl,env:env});S.bron='';}
+  catch(e){const c=opslag.get('stuur-cache');if(c){sl=c.sl;env=c.env;S.bron='Geen verbinding: je ziet de laatst opgehaalde stand.';}else{S.sleutel=null;S.env=null;return 'offline';}}
+  S.sleutel=sl;S.env=env;
+  if(!sl)return 'setup';
+  if(!env||!env.versleuteld)return 'wacht';
+  return 'open';
+}
+async function start(){
+  const st=await laad();S.view=st;render();
+}
+
+/* ---------- schermen: setup, wacht, ontgrendel ---------- */
+function schermSetup(){
+  let wacht=opslag.get('stuur-sleutel-wacht');if(wacht&&!wacht.proefOk){opslag.weg('stuur-sleutel-wacht');wacht=null;}
+  return `<div class="scherm">
+  <h1>Peulen Stuur</h1>
+  <p>Eerste keer: kies een wachtwoord. Safari bewaart het in je iCloud-sleutelhanger; daarna open je de app met Face ID.</p>
+  ${wacht?`<div class="melding">Je hebt op ${esc(mooiMoment(wacht.sleutel.gemaakt))} al een sleutel gemaakt. Verstuurd? Dan wacht je op Dispatch. <button class="link" data-act="stuur-sleutel">Sleutelmail nog eens openen</button></div>`:''}
+  <form id="f-nieuw" method="post" action="#" autocomplete="on">
+    <label for="u1">Account</label>
+    <input class="veld" id="u1" name="username" autocomplete="username" value="Peulen Stuur" autocapitalize="off" spellcheck="false">
+    <label for="p1">Nieuw wachtwoord</label>
+    <input class="veld" id="p1" name="password" type="password" autocomplete="new-password" passwordrules="minlength: 20; required: lower; required: upper; required: digit;" minlength="12" required>
+    <label for="p2">Nog een keer</label>
+    <input class="veld" id="p2" name="password2" type="password" autocomplete="new-password" minlength="12" required>
+    <p class="uitleg">Tik op het veld en kies <b>Sterk wachtwoord</b>: Safari maakt en bewaart het voor je. Minstens 12 tekens.</p>
+    <p class="fout" id="fout"></p>
+    <button class="groot" type="submit">Sleutel maken</button>
+  </form></div>`;
+}
+function schermWacht(){
+  return `<div class="scherm"><h1>Peulen Stuur</h1>
+  <p>Je sleutel is binnen. Dispatch moet de stand nog met die sleutel versleutelen en publiceren.</p>
+  <button class="groot" data-act="herlaad">Opnieuw kijken</button>
+  <button class="tweede" data-act="nieuwe-sleutel">Nieuwe sleutel maken</button></div>`;
+}
+function schermOffline(){
+  return `<div class="scherm"><h1>Peulen Stuur</h1><p>Geen verbinding en nog niets bewaard op dit toestel.</p><button class="groot" data-act="herlaad">Opnieuw proberen</button></div>`;
+}
+function schermOpen(){
+  return `<div class="scherm"><h1>Peulen Stuur</h1>
+  ${S.bron?`<div class="melding">${esc(S.bron)}</div>`:''}
+  <form id="f-open" method="post" action="#" autocomplete="on">
+    <label for="u2">Account</label>
+    <input class="veld" id="u2" name="username" autocomplete="username" value="Peulen Stuur" autocapitalize="off" spellcheck="false">
+    <label for="p3">Wachtwoord</label>
+    <input class="veld" id="p3" name="password" type="password" autocomplete="current-password" required>
+    <p class="uitleg">Tik op het wachtwoordveld en kies je bewaarde wachtwoord: Face ID vult het in.</p>
+    <p class="fout" id="fout"></p>
+    <button class="groot" type="submit">Ontgrendel</button>
+  </form>
+  <p class="uitleg">Sleutel-id online: <b>${esc(S.sleutel&&S.sleutel.id)}</b></p>
+  ${(()=>{const mijn=opslag.get('stuur-mijn-id');return mijn&&S.sleutel&&mijn!==S.sleutel.id?`<div class="melding" style="border-color:var(--rood)"><b>Let op:</b> online staat een andere sleutel (${esc(S.sleutel.id)}) dan die je op dit toestel maakte (${esc(mijn)}). Heb jij die niet gemaakt? Ontgrendel niet en meld het Dispatch.</div>`:'';})()}
+  <button class="link" data-act="nieuwe-sleutel">Wachtwoord kwijt? Nieuwe sleutel maken</button></div>`;
+}
+
+/* ---------- lijst ---------- */
+function gesorteerd(){
+  return S.data.projecten.slice().sort((a,b)=>prioRang(val(a,'prioriteit'))-prioRang(val(b,'prioriteit'))||KLEURRANG[a.kleur]-KLEURRANG[b.kleur]||(b.wachtOpJou-a.wachtOpJou)||a.naam.localeCompare(b.naam,'nl'));
+}
+function prioLabel(v){return v==='pauze'?'Pauze':'P'+v;}
+function kaart(p){
+  const pr=val(p,'prioriteit');
+  return `<button class="kaart k-${esc(p.kleur)}${pr==='pauze'?' pauze':''}" data-act="open" data-id="${esc(p.id)}">
+    <div class="kaart-kop"><span class="naam">${esc(p.naam)}</span>${p.wachtOpJou?'<span class="wacht">Wacht op jou</span>':''}</div>
+    <div class="kaart-kop" style="margin-top:4px"><span class="stip"></span><span class="status">${esc(KLEURNAAM[p.kleur])}</span><span class="pil">${esc(p.fase)}</span><span class="pil">${esc(prioLabel(pr))}</span>${!leeg(S.wijz[p.id])?'<span class="gewijzigd">gewijzigd</span>':''}</div>
+    <p class="uitkomst">${esc(p.uitkomst)}</p>
+    <p class="volgende"><b>Volgende:</b> ${esc(p.volgende)}</p>
+  </button>`;
+}
+function lijst(){
+  const ps=gesorteerd();
+  const wacht=ps.filter(p=>p.wachtOpJou).length;
+  const tel=k=>ps.filter(p=>p.kleur===k).length;
+  const zicht=S.filter?ps.filter(p=>p.wachtOpJou):ps;
+  return `<main>
+  <div class="balk"><h1>Peulen Stuur</h1><button class="klein" data-act="slot">Vergrendel</button></div>
+  <p class="stand">Stand van ${esc(mooiMoment(S.data.bijgewerkt))}${S.bron?' · '+esc(S.bron):''}</p>
+  ${(S.data.meldingen||[]).map(m=>`<div class="melding">${esc(m)}</div>`).join('')}
+  <div class="tellers">
+    <button class="teller" data-act="filter" aria-pressed="${S.filter}"><span class="stip" style="background:var(--rood)"></span>Wacht op jou: ${wacht}</button>
+    <span class="teller k-rood"><span class="stip"></span>${tel('rood')}</span>
+    <span class="teller k-oranje"><span class="stip"></span>${tel('oranje')}</span>
+    <span class="teller k-groen"><span class="stip"></span>${tel('groen')}</span>
+  </div>
+  <div class="lijst">${zicht.map(kaart).join('')}</div>
+  <button class="link" data-act="herlaad" style="margin-top:12px">Nieuwe stand ophalen</button>
+  </main>`;
+}
+
+/* ---------- detail ---------- */
+function keuzeBlok(p,k){
+  const w=(S.wijz[p.id]&&S.wijz[p.id].keuzes&&S.wijz[p.id].keuzes[k.id])||null;
+  const gekozen=w?w.keuze:null;
+  const opties=Object.keys(k.opties||{}).map(o=>`<button class="optie" data-act="keuze" data-k="${esc(k.id)}" data-o="${esc(o)}" aria-pressed="${gekozen===o}"><b>${esc(o)}</b> · ${esc(k.opties[o])}</button>`).join('');
+  const adv=k.advies?`<button class="optie" data-act="keuze" data-k="${esc(k.id)}" data-o="advies" aria-pressed="${gekozen==='advies'}"><b>Advies volgen</b> (${esc(k.advies)})</button>`:'';
+  const anders=`<button class="optie" data-act="keuze" data-k="${esc(k.id)}" data-o="anders" aria-pressed="${gekozen==='anders'}"><b>Anders</b></button>`;
+  const tekst=gekozen==='anders'?`<textarea class="veld" data-veld="keuzetekst" data-k="${esc(k.id)}" placeholder="Wat wil je?" aria-label="Toelichting bij ${esc(k.vraag)}">${esc(w.tekst||'')}</textarea>`:'';
+  return `<div class="keuze${gekozen?' gekozen':''}"><h3>${esc(k.vraag)}</h3><p class="ctx">${esc(k.context)}</p><p class="adv"><b>Advies:</b> ${esc(k.adviesTekst||'geen')}</p><div class="opties">${opties}${adv}${anders}</div>${tekst}</div>`;
+}
+function detail(){
+  const p=project(S.pid);if(!p){S.view='lijst';return lijst();}
+  const w=S.wijz[p.id]||{};
+  const pr=val(p,'prioriteit'), uur=val(p,'uurPerWeek'), eind=val(p,'einddatum'), focus=val(p,'focus')||'';
+  const acties=w.acties||[];
+  const prio=[1,2,3,4,5,'pauze'].map(v=>`<button class="optie" data-act="prio" data-v="${v}" aria-pressed="${pr===v}">${v==='pauze'?'Pauze':v}</button>`).join('');
+  const chips=[['2w','+2 weken'],['1m','+1 maand'],['3m','+3 maanden'],['geen','Geen']].map(c=>`<button class="optie" data-act="eind" data-v="${c[0]}">${c[1]}</button>`).join('');
+  const toonWat=!!(S.open[p.id]||(w.wat&&w.wat.trim()));
+  const knoppen=ACTIES.map(a=>`<button class="optie${a[0]==='wat'?' breed':''}" data-act="actie" data-v="${a[0]}" aria-pressed="${a[0]==='wat'?toonWat:acties.includes(a[0])}">${a[1]}</button>`).join('');
+  return `<main>
+  <div class="balk"><button class="klein" data-act="terug" style="padding-left:0">‹ Overzicht</button>${S.wijz[p.id]?'<button class="klein" data-act="herstel">Wis wijzigingen</button>':''}</div>
+  <h1>${esc(p.naam)}</h1>
+  <div class="kaart-kop k-${esc(p.kleur)}"><span class="stip"></span><span class="status">${esc(KLEURNAAM[p.kleur])}</span><span class="pil">${esc(p.fase)}</span>${p.wachtOpJou?'<span class="wacht">Wacht op jou</span>':''}</div>
+  <div class="blok"><p>${esc(p.uitkomst)}</p><p class="volgende"><b>Volgende:</b> ${esc(p.volgende)}</p>${p.uitgebreid?`<p class="volgende" style="margin-top:10px;white-space:pre-line">${esc(p.uitgebreid)}</p>`:''}</div>
+  ${(p.keuzes&&p.keuzes.length)?`<h2>Open keuzes (${p.keuzes.length})</h2>`+p.keuzes.map(k=>keuzeBlok(p,k)).join(''):''}
+  <h2>Prioriteit</h2><div class="seg" role="group" aria-label="Prioriteit">${prio}</div>
+  <h2>Tijd per week</h2>
+  <div class="schuif"><input type="range" min="0" max="20" step="1" value="${uur==null?0:uur}" data-veld="uur" aria-label="Uren per week"><span class="waarde" id="uurwaarde">${uur==null?'niet gezet':uur+' uur'}</span></div>
+  <h2>Einddatum</h2><div class="chips">${chips}</div>
+  <input class="veld" type="date" value="${esc(eind||'')}" data-veld="eind" aria-label="Einddatum"><p class="uitleg" style="margin-top:6px">Nu: ${esc(mooiDatum(eind))}</p>
+  <h2>Focus</h2>
+  <input class="veld" type="text" maxlength="140" enterkeyhint="done" value="${esc(focus)}" data-veld="focus" placeholder="Eén regel" aria-label="Focus">
+  <h2>Acties</h2><div class="raster">${knoppen}</div>
+  ${toonWat?`<textarea class="veld" data-veld="wat" placeholder="Wat moet er gebeuren?" aria-label="Wat moet er gebeuren">${esc(w.wat||'')}</textarea>`:''}
+  </main>`;
+}
+
+/* ---------- voet en verzenden ---------- */
+function voet(){
+  const v=document.getElementById('voetknop');if(!v)return;
+  const n=aantal();v.disabled=!n;v.textContent=n?`Verstuur naar Dispatch (${n})`:'Verstuur naar Dispatch';
+}
+function optieTekst(k,o){if(o==='advies')return 'advies volgen ('+k.advies+(k.opties&&k.opties[k.advies]?': '+k.opties[k.advies]:'')+')';if(o==='anders')return 'anders';return o+(k.opties&&k.opties[o]?': '+k.opties[o]:'');}
+function bouwMail(){
+  const moment=nuTekst();
+  const regels=[],lijstJ=[];
+  const actieNaam=Object.fromEntries(ACTIES.map(a=>[a[0],a[1].replace(/^[^A-Za-z]+/,'')]));
+  for(const p of gesorteerd()){
+    const w=S.wijz[p.id];if(leeg(w))continue;
+    const j={id:p.id,naam:p.naam};regels.push('','## '+p.naam);
+    if('prioriteit' in w){j.prioriteit={van:p.prioriteit,naar:w.prioriteit};regels.push('- Prioriteit: '+prioLabel(p.prioriteit)+' → '+prioLabel(w.prioriteit));}
+    if('uurPerWeek' in w){j.uurPerWeek={van:p.uurPerWeek,naar:w.uurPerWeek};regels.push('- Tijd per week: '+(p.uurPerWeek==null?'niet gezet':p.uurPerWeek+' uur')+' → '+w.uurPerWeek+' uur');}
+    if('einddatum' in w){j.einddatum={van:p.einddatum,naar:w.einddatum};regels.push('- Einddatum: '+mooiDatum(p.einddatum)+' → '+mooiDatum(w.einddatum));}
+    if('focus' in w){j.focus={van:p.focus,naar:w.focus};regels.push('- Focus: '+(w.focus||'(leeg)'));}
+    const ea=echteActies(w);if(ea.length){j.acties=ea;regels.push('- Acties: '+ea.map(a=>actieNaam[a]).join(', '));}
+    if(w.wat&&w.wat.trim()){j.watMoetErGebeuren=w.wat.trim();regels.push('- Wat moet er gebeuren: '+w.wat.trim());}
+    if(w.keuzes){j.keuzes=[];for(const kid in w.keuzes){const k=(p.keuzes||[]).find(x=>x.id===kid);const c=w.keuzes[kid];if(!k||!telKeuze(c))continue;const item={id:kid,vraag:k.vraag,keuze:c.keuze};if(c.keuze==='advies')item.adviesIs=k.advies;if(c.tekst&&c.tekst.trim())item.tekst=c.tekst.trim();j.keuzes.push(item);regels.push('- Keuze "'+k.vraag+'": '+optieTekst(k,c.keuze)+(item.tekst?' · '+item.tekst:''));}}
+    lijstJ.push(j);
+  }
+  const json={type:'wijzigingen',app:'peulen-stuur',v:1,gemaakt:moment,basis:S.data.bijgewerkt,wijzigingen:lijstJ};
+  const body=['Peulen Stuur · '+moment,lijstJ.length+' project'+(lijstJ.length===1?'':'en')+' gewijzigd (stand van '+mooiMoment(S.data.bijgewerkt)+').'].concat(regels,['','--- JSON voor Dispatch (niet aanpassen) ---',JSON.stringify(json,null,1),'--- einde ---']).join('\n');
+  return mailVan(moment,body);
+}
+function mailVan(moment,body){const subject='PEULEN-STUUR '+moment;return {subject:subject,body:body,url:'mailto:'+MAIL+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body)};}
+function sleutelMail(sl){
+  const moment=nuTekst();
+  const json={type:'sleutel',app:'peulen-stuur',v:1,gemaakt:moment,sleutel:sl};
+  const body=['Peulen Stuur · nieuwe sleutel · '+moment,'Sleutel-id: '+sl.id+' (moet gelijk zijn aan het id op Pjotrs scherm)','','Dispatch: sla het blok "sleutel" op als publiceer/stuur/sleutel.json en versleutel de stand opnieuw (zie LEESMIJ).','Dit blok bevat geen wachtwoord; zonder wachtwoord is het onbruikbaar.','','--- JSON voor Dispatch (niet aanpassen) ---',JSON.stringify(json,null,1),'--- einde ---'].join('\n');
+  return mailVan(moment,body);
+}
+function openMail(m){S.laatsteMail=m;location.href=m.url;setTimeout(toonVerstuurd,700);}
+function toonVerstuurd(){
+  const isSleutel=S.laatsteMail&&S.laatsteMail.body.indexOf('"type": "sleutel"')>=0;
+  document.getElementById('vel').innerHTML=`<div class="vel" role="dialog" aria-modal="true" aria-labelledby="veltitel"><div>
+   <h2 id="veltitel" style="margin-top:0">Mail klaargezet</h2>
+   <p>Tik in Mail op <b>Verstuur</b>. Kwam Mail niet open? Kopieer de tekst en plak hem in een mail aan jezelf.</p>
+   ${isSleutel?'':'<button class="groot" data-act="verstuurd-ja" style="margin-top:14px">Verstuurd: lijst leegmaken</button>'}
+   <button class="tweede" data-act="kopieer">Kopieer onderwerp en tekst</button>
+   <button class="tweede" data-act="vel-dicht">${isSleutel?'Klaar':'Nog niet verstuurd'}</button></div></div>`;
+  const b=document.querySelector('#vel button');if(b)b.focus();
+}
+
+/* ---------- tekenen ---------- */
+function render(){
+  const app=document.getElementById('app');
+  let h='';
+  if(S.view==='setup')h=schermSetup();
+  else if(S.view==='wacht')h=schermWacht();
+  else if(S.view==='offline')h=schermOffline();
+  else if(S.view==='open')h=schermOpen();
+  else if(S.view==='detail')h=detail();
+  else h=lijst();
+  if(S.view==='lijst'||S.view==='detail')h+=`<div class="voet"><button class="groot" id="voetknop" data-act="verstuur"></button></div>`;
+  app.innerHTML=h;voet();
+}
+
+/* ---------- gebeurtenissen ---------- */
+document.addEventListener('click',async e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;
+  const a=b.dataset.act, p=S.pid&&S.data?project(S.pid):null;
+  if(a==='open'){S.pid=b.dataset.id;S.view='detail';render();window.scrollTo(0,0);}
+  else if(a==='terug'){S.view='lijst';render();}
+  else if(a==='filter'){S.filter=!S.filter;render();}
+  else if(a==='slot'){slot();}
+  else if(a==='herlaad'){if(S.priv&&S.data){await vernieuw(true);}else{start();}}
+  else if(a==='nieuwe-sleutel'){const w=opslag.get('stuur-sleutel-wacht');if(w&&!w.proefOk)opslag.weg('stuur-sleutel-wacht');S.view='setup';render();}
+  else if(a==='stuur-sleutel'){const w=opslag.get('stuur-sleutel-wacht');if(w&&w.proefOk)openMail(sleutelMail(w.sleutel));else{S.view='setup';render();toast('Eerst de proef met Face ID');}}
+  else if(a==='prio'){const v=b.dataset.v==='pauze'?'pauze':+b.dataset.v;zet(p.id,'prioriteit',v);}
+  else if(a==='eind'){const d=new Date();const v=b.dataset.v;if(v==='geen')return zet(p.id,'einddatum',null);if(v==='2w')d.setDate(d.getDate()+14);if(v==='1m')d.setMonth(d.getMonth()+1);if(v==='3m')d.setMonth(d.getMonth()+3);zet(p.id,'einddatum',isoDatum(d));}
+  else if(a==='actie'){const v=b.dataset.v;
+    if(v==='wat'){const heeft=S.wijz[p.id]&&S.wijz[p.id].wat&&S.wijz[p.id].wat.trim();if(heeft){if(!confirm('Tekst bij "Wat moet er gebeuren" weggooien?'))return;delete S.wijz[p.id].wat;opruimen(p.id);bewaarWijz();S.open[p.id]=false;}else S.open[p.id]=!S.open[p.id];render();if(S.open[p.id]){const t=document.querySelector('[data-veld=wat]');if(t)t.focus();}return;}
+    const w=S.wijz[p.id]=S.wijz[p.id]||{};let ac=(w.acties||[]).slice();if(ac.includes(v))ac=ac.filter(x=>x!==v);else{if(GROEP.includes(v))ac=ac.filter(x=>!GROEP.includes(x));ac.push(v);}w.acties=ac;opruimen(p.id);bewaarWijz();render();}
+  else if(a==='keuze'){const kid=b.dataset.k,o=b.dataset.o;const w=S.wijz[p.id]=S.wijz[p.id]||{};w.keuzes=w.keuzes||{};if(w.keuzes[kid]&&w.keuzes[kid].keuze===o)delete w.keuzes[kid];else w.keuzes[kid]={keuze:o,tekst:(w.keuzes[kid]&&w.keuzes[kid].tekst)||''};opruimen(p.id);bewaarWijz();render();if(o==='anders'){const t=document.querySelector('[data-veld=keuzetekst][data-k="'+kid+'"]');if(t)t.focus();}}
+  else if(a==='herstel'){if(!confirm('Alle wijzigingen van '+p.naam+' weggooien?'))return;delete S.wijz[p.id];S.open[p.id]=false;bewaarWijz();render();toast('Wijzigingen weggegooid');}
+  else if(a==='verstuur'){if(aantal())openMail(bouwMail());}
+  else if(a==='verstuurd-ja'){S.wijz={};bewaarWijz();document.getElementById('vel').innerHTML='';S.view='lijst';render();toast('Verstuurd. Dispatch werkt de stand bij.');}
+  else if(a==='kopieer'){const m=S.laatsteMail;try{await navigator.clipboard.writeText(m.subject+'\n\n'+m.body);toast('Gekopieerd');}catch(err){toast('Kopiëren lukte niet');}}
+  else if(a==='vel-dicht'){document.getElementById('vel').innerHTML='';}
+});
+document.addEventListener('input',e=>{
+  const t=e.target, v=t.dataset&&t.dataset.veld;if(!v||!S.pid)return;
+  const p=project(S.pid);
+  if(v==='uur'){const n=+t.value;document.getElementById('uurwaarde').textContent=n+' uur';zet(p.id,'uurPerWeek',n,true);}
+  else if(v==='focus'){zet(p.id,'focus',t.value,true);}
+  else if(v==='wat'){const w=S.wijz[p.id]=S.wijz[p.id]||{};w.wat=t.value;opruimen(p.id);bewaarWijz();voet();}
+  else if(v==='keuzetekst'){const w=S.wijz[p.id];if(w&&w.keuzes&&w.keuzes[t.dataset.k]){w.keuzes[t.dataset.k].tekst=t.value;bewaarWijz();voet();}}
+});
+/* bij typen de vaste knop onderin verbergen, zodat hij het tekstvak niet bedekt */
+document.addEventListener('focusin',e=>{if(e.target.matches('input[type=text],input[type=password],textarea'))document.body.classList.add('typt');});
+document.addEventListener('focusout',()=>document.body.classList.remove('typt'));
+document.addEventListener('change',e=>{
+  const t=e.target;if(t.dataset&&t.dataset.veld==='eind'&&S.pid){zet(S.pid,'einddatum',t.value||null);}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('#vel .vel'))document.getElementById('vel').innerHTML='';});
+document.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const f=e.target, fout=f.querySelector('#fout'), knop=f.querySelector('button[type=submit]');
+  if(f.id==='f-nieuw'){
+    const a=f.password.value,b=f.password2.value;
+    if(a.length<12){fout.textContent='Minstens 12 tekens.';return;}
+    if(a!==b){fout.textContent='De twee wachtwoorden zijn niet gelijk.';return;}
+    knop.disabled=true;knop.textContent='Bezig…';
+    try{const sl=await maakSleutel(a);opslag.set('stuur-sleutel-wacht',{sleutel:sl,proefOk:false});
+      f.remove();
+      /* proef: werkt Face ID-invullen? Pas daarna de sleutelmail. */
+      document.getElementById('app').innerHTML=`<div class="scherm"><h1>Proef: Face ID</h1>
+      <p>Bewaarde Safari je wachtwoord? Tik op het veld, kies het bewaarde wachtwoord (Face ID) en tik op <b>Proef</b>.</p>
+      <form id="f-proef" method="post" action="#" autocomplete="on">
+        <label for="u4">Account</label><input class="veld" id="u4" name="username" autocomplete="username" value="Peulen Stuur" autocapitalize="off" spellcheck="false">
+        <label for="p4">Wachtwoord</label><input class="veld" id="p4" name="password" type="password" autocomplete="current-password" required>
+        <p class="fout" id="fout"></p>
+        <button class="groot" type="submit">Proef</button>
+      </form>
+      <p class="uitleg">Komt er geen bewaard wachtwoord? <button class="link" data-act="nieuwe-sleutel">Opnieuw beginnen</button> en tik bij de vraag van Safari op <b>Bewaar</b>.</p></div>`;
+    }catch(err){knop.disabled=false;knop.textContent='Sleutel maken';fout.textContent='Dit toestel kan geen sleutel maken ('+esc(err.message)+').';}
+  }
+  if(f.id==='f-proef'){
+    const w=opslag.get('stuur-sleutel-wacht');if(!w){S.view='setup';render();return;}
+    knop.disabled=true;knop.textContent='Bezig…';
+    try{await openPrive(w.sleutel,f.password.value);w.proefOk=true;opslag.set('stuur-sleutel-wacht',w);opslag.set('stuur-mijn-id',w.sleutel.id);f.remove();
+      document.getElementById('app').innerHTML=`<div class="scherm"><h1>Het werkt</h1><p>Je sleutel-id is</p><p class="id">${esc(w.sleutel.id)}</p><p>Dit id staat ook in de mail. Stuur nu de sleutel naar Dispatch; daarna versleutelt Dispatch je stand.</p><button class="groot" data-act="stuur-sleutel">Verstuur sleutel naar Dispatch</button><button class="tweede" data-act="herlaad">Opnieuw kijken</button></div>`;
+    }catch(err){knop.disabled=false;knop.textContent='Proef';fout.textContent='Dit is niet het wachtwoord van zojuist. Kies het bewaarde wachtwoord, of begin opnieuw.';}
+  }
+  if(f.id==='f-open'){
+    knop.disabled=true;knop.textContent='Bezig…';fout.textContent='';
+    try{
+      const priv=await openPrive(S.sleutel,f.password.value);
+      if(S.env.sleutelId&&S.env.sleutelId!==S.sleutel.id){throw new Error('anders');}
+      const data=await ontsleutel(S.env,priv);
+      S.priv=priv;S.data=data;opslag.weg('stuur-sleutel-wacht');
+      const oud=opslag.get('stuur-wijz');S.wijz=(oud&&oud.w)||{};
+      for(const id of Object.keys(S.wijz)){if(!project(id))delete S.wijz[id];}
+      f.remove();S.view='lijst';render();
+      if(oud&&oud.basis&&oud.basis!==data.bijgewerkt&&aantal())toast('Je hebt nog onverzonden wijzigingen');
+    }catch(err){
+      knop.disabled=false;knop.textContent='Ontgrendel';
+      fout.textContent=err.message==='wachtwoord'?'Wachtwoord klopt niet.':err.message==='anders'?'De stand is met een andere sleutel versleuteld. Vraag Dispatch opnieuw te versleutelen.':'Openen lukte niet. Probeer "Nieuwe stand ophalen" of vraag Dispatch.';
+    }
+  }
+});
+async function vernieuw(meld){
+  const st=await laad();
+  if(st!=='open'){if(meld)toast('Geen nieuwe stand');return;}
+  try{const d=await ontsleutel(S.env,S.priv);const nieuw=d.bijgewerkt!==S.data.bijgewerkt;S.data=d;for(const id of Object.keys(S.wijz)){if(!project(id))delete S.wijz[id];}render();if(meld||nieuw)toast(nieuw?'Nieuwe stand geladen':'Stand is actueel');}
+  catch(e){slot();}
+}
+function slot(){S.priv=null;S.data=null;S.view='lijst';S.pid=null;document.getElementById('vel').innerHTML='';start();}
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){S.verborgenSinds=Date.now();return;}
+  if(S.data&&S.verborgenSinds&&Date.now()-S.verborgenSinds>SLOT_NA_MS)slot();
+  else if(S.data)vernieuw(false);
+});
+
+/* ---------- icoon voor het beginscherm (PNG uit de SVG, voor iOS) ---------- */
+(function(){
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" fill="#14161a"/><circle cx="256" cy="256" r="150" fill="none" stroke="#f2f2f2" stroke-width="36"/><circle cx="256" cy="256" r="38" fill="#f2f2f2"/><path d="M256 218V106M223 275l-97 56M289 275l97 56" stroke="#f2f2f2" stroke-width="32" stroke-linecap="round"/><circle cx="256" cy="106" r="26" fill="#2fbf71"/><circle cx="126" cy="331" r="26" fill="#f0a020"/><circle cx="386" cy="331" r="26" fill="#e5484d"/></svg>';
+  const img=new Image();
+  img.onload=()=>{try{const c=document.createElement('canvas');c.width=c.height=180;c.getContext('2d').drawImage(img,0,0,180,180);document.getElementById('touchicoon').href=c.toDataURL('image/png');}catch(e){}};
+  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+})();
+
+if(!window.crypto||!crypto.subtle){document.getElementById('app').innerHTML='<div class="scherm"><h1>Peulen Stuur</h1><p>Deze browser kan niet veilig ontsleutelen. Open de pagina via https in Safari.</p></div>';}
+else start();
+</script>
+</body>
+</html>
