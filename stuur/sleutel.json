@@ -1,0 +1,14 @@
+{
+ "v": 1,
+ "alg": "ECDH-P256/HKDF-SHA256/AES-GCM-256",
+ "id": "QcrifkbT9oZO",
+ "gemaakt": "2026-11-21 16:23",
+ "pub": "BMYnzGhwKxO3o3ddl+D0upGQWayRc0csMhzu6/+4NeYYPFYugrN+QJ3gxsJQJjHqPil1UM6TkIGtN0VKosEakdw=",
+ "prive": {
+  "kdf": "PBKDF2-SHA256",
+  "iter": 600000,
+  "salt": "z2G/J2j2UFgjxTq1Io0hhQ==",
+  "iv": "dxoP45B2vQeypan7",
+  "ct": "04FRoFHQex4MWTx4ceHM3kok74c6xfvwqlZeURdzOo5wL7AE2tofhXxDfeRxFAAcmVSuTbk0KdeJIwn3P2agBbv2/hMNmzkjVUMH3RVWbhBL2zSQAtrSr3vbY7Ccd3JKuroEg0a6kSoPkf5GWCdU6V514UbWeqxEEfrHxwreNEPxlpJ3HCcE0zQF47Z1wHBudo3Jlpe568kVXuiioH2y5nltEGJDrBOs/G2KS7v8b5UbkKjO+/FB5oBLyz4qHL83S2OqJNIT/QdmtDqXoT8wQvpNfu3kcvcv9p+X2kGpqIG8woKB"
+ }
+}
