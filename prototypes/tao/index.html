@@ -23,6 +23,7 @@ nav.tabs{display:flex;border-top:1px solid var(--lijn);background:var(--kaart);p
 nav.tabs button{flex:1;border:0;background:none;padding:9px 0 11px;font:500 11px var(--sans);color:var(--zacht);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
 nav.tabs button svg{width:22px;height:22px}
 nav.tabs button.aan{color:var(--ac)}
+nav.tabs button{flex:1 1 0;min-width:0;padding-left:2px;padding-right:2px;overflow-wrap:anywhere;hyphens:auto;-webkit-hyphens:auto;text-align:center}
 .kop{text-align:center;margin:6px 0 14px}
 .kop .vandaag{font-size:13px;color:var(--zacht)}
 .kop .nr{font-family:var(--serif);font-size:44px;font-weight:300;color:var(--ac);line-height:1.1}
@@ -56,7 +57,7 @@ nav.tabs button.aan{color:var(--ac)}
 .eerste.zh{font-family:var(--zh);letter-spacing:.06em}
 .hnoot{margin:0 0 12px}
 .lijst h4{font:700 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--ac);margin:20px 0 6px}
-.rij{display:flex;align-items:center;gap:12px;padding:11px 2px;border-bottom:1px solid var(--lijn);cursor:pointer}
+.rij{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:11px 2px;border-bottom:1px solid var(--lijn);cursor:pointer}
 .rij .n{font-family:var(--serif);color:var(--ac);width:28px;text-align:right;font-size:17px}
 .rij .tx{flex:1;font-family:var(--serif);font-size:15px;color:var(--inkt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rij .tx small{display:block;font-family:var(--zh);color:var(--zacht);font-size:12px}
@@ -64,9 +65,9 @@ nav.tabs button.aan{color:var(--ac)}
 .groot{font-family:var(--serif);font-size:24px;font-weight:400;margin:10px 0 4px}
 .uitleg{color:var(--zacht);font-size:14px;line-height:1.5}
 .instel{background:var(--kaart);border:1px solid var(--lijn);border-radius:16px;padding:4px 14px;margin:14px 0}
-.instel .r{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--lijn);font-size:15px;gap:10px}
+.instel .r{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--lijn);font-size:15px;gap:10px}
 .instel .r:last-child{border-bottom:0}
-.seg{display:flex;border:1px solid var(--lijn);border-radius:10px;overflow:hidden}
+.seg{display:flex;flex-shrink:0;margin-left:auto;border:1px solid var(--lijn);border-radius:10px;overflow:hidden}
 .seg button{border:0;background:var(--kaart);padding:7px 10px;font:500 13px var(--sans);color:var(--zacht);cursor:pointer}
 .seg button.aan{background:var(--ac);color:#fff}
 .sheet-bg{position:absolute;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:flex-end;z-index:20}
@@ -184,7 +185,7 @@ function hoofdstuk(n) {
  if (!vrij(n)) {
   const [eerste, zhRegel] = eersteRegelSlot(d);
   h += `<div class="eerste${zhRegel ? ' zh' : ''}">${esc(eerste)}</div>`;
-  h += `<div class="slot"><h2>De eerste tien zijn gelezen</h2><p>Lees alle 81 hoofdstukken, in het Chinees, het Nederlands en het Engels${NOTEN_TONEN ? ', met de noten van Borel' : ', en elke vertaling die later komt'}.</p><p><b style="color:var(--inkt)">€ 4,99, één keer.</b><br>Geen abonnement, geen reclame, geen account.</p><button class="knop" onclick="koopBlad()">Ontgrendel voor € 4,99</button><button class="link" onclick="herstel()">Aankoop herstellen</button></div>`;
+  h += `<div class="slot"><h2>De eerste tien zijn gelezen</h2><p>Lees alle 81 hoofdstukken, in het Chinees, het Nederlands en het Engels${NOTEN_TONEN ? ', met de noten van Borel' : ', en elke vertaling die later komt'}.</p><p><b style="color:var(--inkt)">€ 4,99, één keer.</b><br>Geen abonnement, geen reclame, geen account.</p><button class="knop" onclick="koopBlad()">Ontgrendel voor € 4,99</button><button class="link" onclick="herstel()">Aankoop herstellen</button></div>`;
   h += `<div class="blad"><button onclick="open(${n - 1})">‹ ${n - 1}</button><button onclick="open(${Math.min(GRATIS, n)})">Terug naar 10</button></div>`;
   return h;
  }
@@ -234,7 +235,7 @@ function meer() {
  <div class="instel">
   <div class="r" style="cursor:pointer" onclick="widget()">Bekijk de widget<span style="color:var(--zacht)">›</span></div>
   <div class="r">Aankoop<span style="color:var(--zacht)">${S.gekocht ? 'Alles open' : 'Gratis: 1 tot 10'}</span></div>
-  ${S.gekocht ? '' : '<div class="r" style="cursor:pointer" onclick="koopBlad()">Ontgrendel alles · € 4,99<span style="color:var(--zacht)">›</span></div>'}
+  ${S.gekocht ? '' : '<div class="r" style="cursor:pointer" onclick="koopBlad()">Ontgrendel alles · € 4,99<span style="color:var(--zacht)">›</span></div>'}
   <div class="r" style="cursor:pointer" onclick="herstel()">Aankoop herstellen<span style="color:var(--zacht)">›</span></div>
  </div>
  <div class="instel">
@@ -255,7 +256,7 @@ function herstel() { toast(S.gekocht ? 'Aankoop is al actief' : 'Geen eerdere aa
 function koopBlad() {
  const bg = document.createElement('div'); bg.className = 'sheet-bg';
  bg.innerHTML = `<div class="sheet"><div class="grip"></div><div class="app"><div class="icoon">道</div><div><b>Weg en Deugd</b><br><span style="font-size:13px;color:#8E8E93">Alle 81 hoofdstukken · eenmalig</span></div></div>
- <div class="prijs"><span>Eenmalige aankoop</span><b>€ 4,99</b></div>
+ <div class="prijs"><span>Eenmalige aankoop</span><b>€ 4,99</b></div>
  <button class="blauw" id="koopknop">Kopen</button>
  <div class="klein">Nagebootst: in dit prototype wordt niets betaald.<br>In de app handelt Apple de betaling af. Gezinsdeling aan.</div>
  <button class="link" style="display:block;margin:12px auto 0" id="annuleer">Annuleer</button></div>`;
