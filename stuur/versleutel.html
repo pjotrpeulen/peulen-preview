@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; form-action 'none'; base-uri 'none'">
+<title>Peulen Stuur · versleutelen (voor Dispatch)</title>
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+body{font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;max-width:900px;margin:0 auto;padding:16px;color:#16181c;background:#f6f6f3}
+h1{font-size:24px}h2{font-size:18px;margin-top:28px;border-top:1px solid #ccd;padding-top:16px}
+textarea{width:100%;min-height:140px;font:13px/1.4 ui-monospace,Menlo,monospace;padding:8px;border:1px solid #aab;border-radius:8px;box-sizing:border-box}
+button{font:inherit;font-weight:600;padding:10px 14px;border-radius:10px;border:1px solid #16181c;background:#16181c;color:#fff;margin:6px 6px 0 0;cursor:pointer}
+button.licht{background:#fff;color:#16181c}
+.ok{color:#1a7f45;font-weight:600}.fout{color:#c62f33;font-weight:600}
+pre{white-space:pre-wrap;background:#fff;border:1px solid #ccd;border-radius:8px;padding:8px;font-size:13px}
+.uitleg{color:#545a65}
+</style>
+</head>
+<body>
+<h1>Peulen Stuur · versleutelen</h1>
+<p class="uitleg">Hulpmiddel voor Dispatch, werkt zonder bash in Chrome. Hier komt nooit een wachtwoord: versleutelen gaat met de <b>publieke</b> sleutel van Pjotr. Ontsleutelen kan alleen Pjotr, in de app.</p>
+
+<h2>1. Sleutel</h2>
+<p class="uitleg">Plak de inhoud van <code>sleutel.json</code>, of plak een hele sleutelmail en tik op "Uit sleutelmail".</p>
+<textarea id="sleutel" spellcheck="false" placeholder='{"v":1,"pub":"...","prive":{...}}'></textarea>
+<button id="knop-haal-sleutel" class="licht">Haal ./sleutel.json</button>
+<button id="knop-uit-mail" class="licht">Uit sleutelmail</button>
+<button id="knop-download-sleutel" class="licht">Download sleutel.json</button>
+<p id="sleutel-melding"></p>
+
+<h2>2. Mail met wijzigingen toepassen (optioneel)</h2>
+<p class="uitleg">Plak de hele mail "PEULEN-STUUR …". Velden (prioriteit, uren, einddatum, focus) worden in de leesbare stand gezet; acties en keuzes komen in de lijst "Te doen". Beantwoorde keuzes (A, B, C, advies) gaan naar <code>besloten</code>; "anders" blijft open tot Dispatch het verwerkt.</p>
+<textarea id="mail" spellcheck="false" placeholder="Plak hier de mail"></textarea>
+<button id="knop-pas-toe" class="licht">Pas toe op de stand hieronder</button>
+<pre id="tedoen" hidden></pre>
+
+<h2>3. Leesbare stand</h2>
+<p class="uitleg">De inhoud van <code>stuur-bron/status.json</code> (staat niet online). Na "Pas toe" staat hier de nieuwe versie: sla die op als <code>stuur-bron/status.json</code>.</p>
+<textarea id="stand" spellcheck="false" style="min-height:260px"></textarea>
+<button id="knop-controleer" class="licht">Controleer</button>
+<button id="knop-download-stand" class="licht">Download leesbare status.json</button>
+<p id="stand-melding"></p>
+
+<h2>4. Versleutelen</h2>
+<button id="knop-versleutel">Versleutel</button>
+<button id="knop-kopieer" class="licht">Kopieer</button>
+<button id="knop-download-uit" class="licht">Download status.json (versleuteld)</button>
+<p class="uitleg">Zet dit als <code>publiceer/stuur/status.json</code>.</p>
+<textarea id="uit" spellcheck="false" readonly></textarea>
+<p id="uit-melding"></p>
+
+<h2>5. Icoon als PNG (eenmalig)</h2>
+<button id="knop-icoon-180" class="licht">Download icoon-180.png</button>
+<button id="knop-icoon-512" class="licht">Download icoon-512.png</button>
+<p class="uitleg">Zet beide in <code>publiceer/stuur/</code>.</p>
+
+<script>
+'use strict';
+const INFO='peulen-stuur v1';
+const te=new TextEncoder();
+const $=id=>document.getElementById(id);
+function b64(u){u=new Uint8Array(u);let s='';for(let i=0;i<u.length;i+=8192)s+=String.fromCharCode.apply(null,u.subarray(i,i+8192));return btoa(s);}
+function unb64(s){const b=atob(s),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}
+function twee(n){return String(n).padStart(2,'0');}
+function nuIso(){const d=new Date();return d.getFullYear()+'-'+twee(d.getMonth()+1)+'-'+twee(d.getDate())+'T'+twee(d.getHours())+':'+twee(d.getMinutes());}
+function meld(id,tekst,ok){const el=$(id);el.textContent=tekst;el.className=ok?'ok':'fout';}
+function download(naam,tekst,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([tekst],{type:type||'application/json'}));a.download=naam;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);}
+function uitMail(tekst){const m=/--- JSON voor Dispatch \(niet aanpassen\) ---\s*([\s\S]*?)\s*--- einde ---/.exec(tekst);return JSON.parse(m?m[1]:tekst);}
+
+async function sleutelId(pubB64){const h=await crypto.subtle.digest('SHA-256',unb64(pubB64));return b64(h).slice(0,12);}
+async function controleerSleutel(sl){
+  if(!sl||sl.v!==1||!sl.pub||!sl.prive||!sl.prive.ct||!sl.prive.salt||!sl.prive.iv)throw new Error('Dit is geen geldige sleutel.');
+  if(sl.prive.iter<100000)throw new Error('Te weinig PBKDF2-rondes.');
+  if(JSON.stringify(sl).match(/wachtwoord|password/i))throw new Error('Sleutel bevat verdachte velden.');
+  const id=await sleutelId(sl.pub);if(sl.id&&sl.id!==id)throw new Error('Sleutel-id klopt niet.');
+  await crypto.subtle.importKey('raw',unb64(sl.pub),{name:'ECDH',namedCurve:'P-256'},true,[]);
+  return id;
+}
+const KLEUREN=['groen','oranje','rood'],FASEN=['Plan','Do','Check','Act'];
+function controleerStand(d){
+  const f=[];
+  if(!d||!Array.isArray(d.projecten))return ['Geen lijst "projecten".'];
+  if(!d.bijgewerkt)f.push('Veld "bijgewerkt" ontbreekt.');
+  const ids=new Set();
+  d.projecten.forEach((p,i)=>{
+    const n=p.naam||('#'+i);
+    if(!p.id||ids.has(p.id))f.push(n+': id ontbreekt of dubbel.');ids.add(p.id);
+    if(!KLEUREN.includes(p.kleur))f.push(n+': kleur moet groen, oranje of rood zijn.');
+    if(!FASEN.includes(p.fase))f.push(n+': fase moet Plan, Do, Check of Act zijn.');
+    if(!(p.prioriteit==='pauze'||[1,2,3,4,5].includes(p.prioriteit)))f.push(n+': prioriteit 1 tot 5 of "pauze".');
+    if(typeof p.wachtOpJou!=='boolean')f.push(n+': wachtOpJou moet true of false zijn.');
+    if(p.wachtOpJou===true&&p.kleur!=='rood')f.push('Let op: '+n+' wacht op Pjotr maar is niet rood (kleurregel).');
+    if(!p.uitkomst||!p.volgende)f.push(n+': uitkomst en volgende zijn verplicht.');
+    if(p.uurPerWeek!=null&&!(p.uurPerWeek>=0&&p.uurPerWeek<=20))f.push(n+': uurPerWeek 0 tot 20 of null.');
+    if(p.einddatum!=null&&!/^\d{4}-\d{2}-\d{2}$/.test(p.einddatum))f.push(n+': einddatum jjjj-mm-dd of null.');
+    (p.keuzes||[]).forEach(k=>{if(!k.id||!k.vraag||!k.opties)f.push(n+': keuze zonder id, vraag of opties.');});
+  });
+  const tekst=JSON.stringify(d);
+  if(/€|\bEUR\b/.test(tekst))f.push('Let op: er staat een bedrag in (geen bedragen in de stand).');
+  if(/[\w.+-]+@[\w-]+\.[\w.]+/.test(tekst))f.push('Let op: er staat een e-mailadres in.');
+  return f;
+}
+async function versleutel(data,sl){
+  const id=await controleerSleutel(sl);
+  const ontvanger=await crypto.subtle.importKey('raw',unb64(sl.pub),{name:'ECDH',namedCurve:'P-256'},true,[]);
+  const eph=await crypto.subtle.generateKey({name:'ECDH',namedCurve:'P-256'},true,['deriveBits']);
+  const epk=new Uint8Array(await crypto.subtle.exportKey('raw',eph.publicKey));
+  const bits=await crypto.subtle.deriveBits({name:'ECDH',public:ontvanger},eph.privateKey,256);
+  const hk=await crypto.subtle.importKey('raw',bits,'HKDF',false,['deriveKey']);
+  const k=await crypto.subtle.deriveKey({name:'HKDF',hash:'SHA-256',salt:epk,info:te.encode(INFO)},hk,{name:'AES-GCM',length:256},false,['encrypt']);
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},k,te.encode(JSON.stringify(data)));
+  return {v:1,versleuteld:true,alg:'ECDH-P256/HKDF-SHA256/AES-GCM-256',sleutelId:id,epk:b64(epk),iv:b64(iv),ct:b64(ct)};
+}
+function pasToe(stand,mail){
+  if(mail.type!=='wijzigingen')throw new Error('Dit is geen wijzigingenmail (type '+mail.type+').');
+  const d=JSON.parse(JSON.stringify(stand)),todo=[];
+  for(const w of mail.wijzigingen||[]){
+    const p=d.projecten.find(x=>x.id===w.id);
+    if(!p){todo.push('ONBEKEND PROJECT '+w.id+' ('+w.naam+'): met de hand nakijken');continue;}
+    for(const veld of ['prioriteit','uurPerWeek','einddatum','focus']){if(w[veld])p[veld]=w[veld].naar;}
+    if(w.acties)todo.push(p.naam+': acties '+w.acties.join(', '));
+    if(w.watMoetErGebeuren)todo.push(p.naam+': wat moet er gebeuren: '+w.watMoetErGebeuren);
+    for(const c of w.keuzes||[]){
+      const k=(p.keuzes||[]).find(x=>x.id===c.id);
+      const uitkomst=c.keuze==='advies'?(c.adviesIs||'advies'):c.keuze;
+      todo.push(p.naam+': keuze "'+c.vraag+'" = '+uitkomst+(c.tekst?' ('+c.tekst+')':''));
+      if(k&&c.keuze!=='anders'){p.keuzes=p.keuzes.filter(x=>x.id!==c.id);(p.besloten=p.besloten||[]).push({id:k.id,vraag:k.vraag,keuze:uitkomst,optie:(k.opties||{})[uitkomst]||null,tekst:c.tekst||null,op:mail.gemaakt});}
+    }
+  }
+  d.bijgewerkt=nuIso();
+  return {stand:d,todo:todo};
+}
+/* voor Dispatch via javascript_tool: window.stuur.versleutel(dataObject, sleutelObject) en window.stuur.pasToe(stand, mailJson) */
+window.stuur={versleutel,pasToe,controleerStand,controleerSleutel,uitMail};
+
+$('knop-haal-sleutel').onclick=async()=>{try{const r=await fetch('sleutel.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw new Error('niet gevonden ('+r.status+')');$('sleutel').value=JSON.stringify(await r.json(),null,1);const id=await controleerSleutel(JSON.parse($('sleutel').value));meld('sleutel-melding','Sleutel geladen, id '+id,true);}catch(e){meld('sleutel-melding','Ophalen lukte niet: '+e.message,false);}};
+$('knop-uit-mail').onclick=async()=>{try{const j=uitMail($('sleutel').value);if(j.type!=='sleutel')throw new Error('geen sleutelmail');$('sleutel').value=JSON.stringify(j.sleutel,null,1);const id=await controleerSleutel(j.sleutel);meld('sleutel-melding','Sleutel uit de mail gehaald, id '+id+'. Sla op als publiceer/stuur/sleutel.json.',true);}catch(e){meld('sleutel-melding','Lukte niet: '+e.message,false);}};
+$('knop-download-sleutel').onclick=async()=>{try{const sl=JSON.parse($('sleutel').value);await controleerSleutel(sl);download('sleutel.json',JSON.stringify(sl,null,1)+'\n');}catch(e){meld('sleutel-melding',e.message,false);}};
+$('knop-controleer').onclick=()=>{try{const d=JSON.parse($('stand').value);const f=controleerStand(d);meld('stand-melding',f.length?f.join(' · '):'In orde: '+d.projecten.length+' projecten.',!f.length);}catch(e){meld('stand-melding','Geen geldige JSON: '+e.message,false);}};
+$('knop-pas-toe').onclick=()=>{try{const r=pasToe(JSON.parse($('stand').value),uitMail($('mail').value));$('stand').value=JSON.stringify(r.stand,null,2);$('tedoen').hidden=false;$('tedoen').textContent='Te doen voor Dispatch:\n- '+(r.todo.join('\n- ')||'(niets)');meld('stand-melding','Toegepast. Sla de leesbare stand op en versleutel opnieuw.',true);}catch(e){meld('stand-melding','Toepassen lukte niet: '+e.message,false);}};
+$('knop-versleutel').onclick=async()=>{try{const d=JSON.parse($('stand').value);const f=controleerStand(d);if(f.some(x=>!x.startsWith('Let op')))throw new Error(f.join(' · '));const uit=await versleutel(d,JSON.parse($('sleutel').value));$('uit').value=JSON.stringify(uit)+'\n';meld('uit-melding','Versleuteld voor sleutel '+uit.sleutelId+' ('+$('uit').value.length+' tekens).'+(f.length?' '+f.join(' · '):''),true);}catch(e){meld('uit-melding','Versleutelen lukte niet: '+e.message,false);}};
+$('knop-kopieer').onclick=async()=>{try{await navigator.clipboard.writeText($('uit').value);meld('uit-melding','Gekopieerd.',true);}catch(e){$('uit').select();meld('uit-melding','Selecteer en kopieer met de hand.',false);}};
+$('knop-download-uit').onclick=()=>{if($('uit').value)download('status.json',$('uit').value);};
+$('knop-download-stand').onclick=()=>{try{JSON.parse($('stand').value);download('status.json',$('stand').value.trim()+'\n');}catch(e){meld('stand-melding','Geen geldige JSON.',false);}};
+const SVG='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" fill="#14161a"/><circle cx="256" cy="256" r="150" fill="none" stroke="#f2f2f2" stroke-width="36"/><circle cx="256" cy="256" r="38" fill="#f2f2f2"/><path d="M256 218V106M223 275l-97 56M289 275l97 56" stroke="#f2f2f2" stroke-width="32" stroke-linecap="round"/><circle cx="256" cy="106" r="26" fill="#2fbf71"/><circle cx="126" cy="331" r="26" fill="#f0a020"/><circle cx="386" cy="331" r="26" fill="#e5484d"/></svg>';
+function icoon(n){const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=c.height=n;c.getContext('2d').drawImage(img,0,0,n,n);c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='icoon-'+n+'.png';document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),500);},'image/png');};img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(SVG);}
+$('knop-icoon-180').onclick=()=>icoon(180);
+$('knop-icoon-512').onclick=()=>icoon(512);
+</script>
+</body>
+</html>
