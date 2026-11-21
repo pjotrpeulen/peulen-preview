@@ -30,6 +30,7 @@ nav.tabs{display:flex;border-top:1px solid var(--lijn);background:var(--kaart);p
 nav.tabs button{flex:1;border:0;background:none;padding:9px 0 11px;font:500 11px -apple-system,Arial,sans-serif;color:var(--zacht);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
 nav.tabs button svg{width:22px;height:22px}
 nav.tabs button.aan{color:var(--ac)}
+nav.tabs button{flex:1 1 0;min-width:0;padding-left:2px;padding-right:2px;overflow-wrap:anywhere;hyphens:auto;-webkit-hyphens:auto;text-align:center}
 .blad{border:1.2px solid var(--rand);border-radius:12px;padding:14px 14px 18px;background:var(--kaart);margin-top:4px}
 .bladkop{display:flex;justify-content:space-between;font-size:12px;color:var(--zacht);margin-bottom:10px}
 .soerakop{text-align:center;border:1px solid var(--lijn);border-radius:10px;padding:10px 8px 8px;margin:0 0 12px;background:var(--papier)}
@@ -53,6 +54,7 @@ nav.tabs button.aan{color:var(--ac)}
 .uitleg{color:var(--zacht);font-size:14px;line-height:1.5}
 .zoek{width:100%;border:1px solid var(--zacht);background:var(--kaart);color:var(--inkt);border-radius:12px;padding:11px 12px;font-size:15px;margin:10px 0 4px}
 .rij{display:flex;align-items:center;gap:12px;padding:12px 2px;border-bottom:1px solid var(--lijn);cursor:pointer}
+.rij .tx{flex:1;min-width:0}.rij .arn{flex-shrink:0;padding-right:6px}
 .rij .n{width:34px;height:34px;border:1.4px solid var(--ac);border-radius:9px;transform:rotate(45deg);display:grid;place-items:center;flex:none;margin:0 4px}
 .rij .n span{transform:rotate(-45deg);font-size:13px;font-weight:600;color:var(--ac)}
 .rij .tx{flex:1}
@@ -61,12 +63,12 @@ nav.tabs button.aan{color:var(--ac)}
 .rij .arn{font-size:22px;color:var(--ac)}
 .rij.uit{cursor:default}.rij.uit b,.rij.uit .n span{color:var(--zacht)}.rij.uit .n{border-style:dashed;border-color:var(--zacht)}
 .instel{background:var(--kaart);border:1px solid var(--lijn);border-radius:16px;padding:2px 14px;margin:14px 0}
-.instel .r{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--lijn);font-size:15px;gap:10px}
+.instel .r{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--lijn);font-size:15px;gap:10px}
 .instel .r:last-child{border-bottom:0}
 .instel .r.k{cursor:pointer}
 .instel .r .pijl{color:var(--zacht)}
 .instel .klein{font-size:12.5px;color:var(--zacht);line-height:1.5;display:block}
-.seg{display:flex;border:1px solid var(--lijn);border-radius:10px;overflow:hidden;flex:none}
+.seg{display:flex;border:1px solid var(--lijn);border-radius:10px;overflow:hidden;flex:none;margin-left:auto}
 .seg button{border:0;background:var(--kaart);padding:7px 11px;font:500 13px -apple-system,Arial,sans-serif;color:var(--zacht);cursor:pointer}
 .seg button.aan{background:var(--ac);color:var(--papier)}
 .schakel{width:50px;height:30px;border-radius:15px;background:var(--zacht);border:0;position:relative;cursor:pointer;flex:none}
