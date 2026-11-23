@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="Stuur">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#14161a">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; frame-src 'self' blob:; object-src blob:; worker-src 'self' blob:; connect-src 'self'; form-action 'none'; base-uri 'none'">
 <title>Peulen Stuur</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icoon.svg" type="image/svg+xml">
@@ -86,6 +86,29 @@ label{display:block;font-weight:600;margin:14px 0 6px}
 .vel>div{background:var(--bg);width:100%;max-width:640px;margin:0 auto;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + var(--veilig-onder))}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + var(--veilig-onder));background:var(--knop);color:var(--knoptekst);padding:10px 16px;border-radius:12px;font-weight:600;z-index:10}
 body.typt .voet{display:none}
+.uitvoer{display:flex;flex-direction:column;gap:8px}
+.u-item{display:block;width:100%;text-align:left;background:var(--kaart);border:1.5px solid var(--lijn);border-radius:14px;padding:11px 13px;min-height:56px;color:inherit;text-decoration:none}
+.u-item[disabled]{opacity:.55}
+.u-titel{display:block;font-weight:700}
+.u-meta{display:block;font-size:13px;font-weight:600;color:var(--accent);margin-top:2px}
+.u-wat{display:block;font-size:15px;color:var(--zacht);margin-top:2px}
+.viewer{position:fixed;inset:0;z-index:11;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0)}
+.v-kop{display:flex;align-items:center;gap:6px;padding:4px 8px;border-bottom:1px solid var(--lijn);min-height:52px}
+.v-kop a.klein{display:inline-flex;align-items:center;text-decoration:none}
+.v-titel{flex:1;min-width:0;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v-romp{flex:1;overflow:auto;-webkit-overflow-scrolling:touch}
+.v-pdf{width:100%;height:100%;border:0;background:#fff}
+.v-tekst{max-width:640px;margin:0 auto;padding:14px 16px calc(30px + var(--veilig-onder))}
+.v-tekst p{margin:2px 0}.v-tekst h2,.v-tekst h3,.v-tekst h4{margin:14px 0 6px;text-transform:none;letter-spacing:0;color:var(--tekst)}.v-tekst h2{font-size:21px}.v-tekst h3{font-size:18px}.v-tekst h4{font-size:16px}
+.v-pdfpag{padding:8px;display:flex;flex-direction:column;gap:8px;align-items:center}
+.v-pagina{width:100%;max-width:900px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.v-pagina canvas{display:block}
+.v-teller{margin:0 0 2px}
+.v-tabel{overflow-x:auto;margin:8px 0}
+.v-tabel table{border-collapse:collapse;font-size:14px;min-width:100%}
+.v-tabel th,.v-tabel td{border:1px solid var(--lijn);padding:5px 7px;text-align:left;vertical-align:top}
+.v-tabel th{background:var(--kaart)}
+.v-tekst code{font-size:14px;background:var(--kaart);padding:0 3px;border-radius:4px}
 .id{font:600 20px ui-monospace,Menlo,monospace;letter-spacing:.04em}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 </style>
@@ -157,8 +180,30 @@ async function ontsleutel(env,priv){
   return JSON.parse(td.decode(pt));
 }
 
+/* Documenten (blok Output): binair formaat 'PSD1' + tijdelijke publieke sleutel (65) + iv (12) + AES-GCM-tekst.
+   Sleutel: ECDH met de privésleutel van Pjotr, HKDF-SHA-256 (zout = tijdelijke sleutel, info = 'peulen-stuur doc v1'). */
+const DOC_INFO='peulen-stuur doc v1';
+async function ontsleutelBin(buf,priv){
+  const u=new Uint8Array(buf);
+  if(u.length<4+65+12+16||u[0]!==80||u[1]!==83||u[2]!==68||u[3]!==49)throw new Error('formaat');
+  const epk=u.slice(4,69),iv=u.slice(69,81),ct=u.slice(81);
+  const pub=await crypto.subtle.importKey('raw',epk,{name:'ECDH',namedCurve:'P-256'},true,[]);
+  const bits=await crypto.subtle.deriveBits({name:'ECDH',public:pub},priv,256);
+  const hk=await crypto.subtle.importKey('raw',bits,'HKDF',false,['deriveKey']);
+  const k=await crypto.subtle.deriveKey({name:'HKDF',hash:'SHA-256',salt:epk,info:te.encode(DOC_INFO)},hk,{name:'AES-GCM',length:256},false,['decrypt']);
+  try{return new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:iv},k,ct));}catch(e){throw new Error('data');}
+}
+
 /* ---------- toestand ---------- */
-const S={sleutel:null,env:null,priv:null,data:null,wijz:{},view:'lijst',pid:null,filter:false,open:{},verborgenSinds:0,laatsteMail:null,bron:''};
+const S={sleutel:null,env:null,priv:null,data:null,wijz:{},view:'lijst',pid:null,filter:false,open:{},verborgenSinds:0,laatsteMail:null,bron:'',docs:null,docsFout:'',blobUrl:null};
+function outputVan(id){return (S.docs&&S.docs.projecten&&S.docs.projecten[id])||[];}
+async function laadDocs(){
+  try{const r=await fetch('docs/index.bin?t='+Date.now(),{cache:'no-store'});
+    if(r.status===404){S.docs=null;S.docsFout='';return;}
+    if(!r.ok)throw new Error('net');
+    S.docs=JSON.parse(td.decode(await ontsleutelBin(await r.arrayBuffer(),S.priv)));S.docsFout='';}
+  catch(e){S.docsFout=e.message==='data'?'De lijst met output is met een andere sleutel versleuteld.':'De lijst met output kon niet geladen worden.';}
+}
 const ACTIES=[['start','▶︎ Start'],['pauze','‖ Pauze'],['stop','■︎ Stop'],['opnieuw','↺ Opnieuw beginnen'],['review','✓ Opnieuw controleren'],['uitgebreid','☰ Uitgebreide status'],['wat','✎︎ Wat moet er gebeuren']];
 const GROEP=['start','pauze','stop','opnieuw'];
 const KLEURNAAM={groen:'Loopt',oranje:'Aandacht',rood:'Vast of wacht'};
@@ -249,7 +294,7 @@ function kaart(p){
   const pr=val(p,'prioriteit');
   return `<button class="kaart k-${esc(p.kleur)}${pr==='pauze'?' pauze':''}" data-act="open" data-id="${esc(p.id)}">
     <div class="kaart-kop"><span class="naam">${esc(p.naam)}</span>${p.wachtOpJou?'<span class="wacht">Wacht op jou</span>':''}</div>
-    <div class="kaart-kop" style="margin-top:4px"><span class="stip"></span><span class="status">${esc(KLEURNAAM[p.kleur])}</span><span class="pil">${esc(p.fase)}</span><span class="pil">${esc(prioLabel(pr))}</span>${!leeg(S.wijz[p.id])?'<span class="gewijzigd">gewijzigd</span>':''}</div>
+    <div class="kaart-kop" style="margin-top:4px"><span class="stip"></span><span class="status">${esc(KLEURNAAM[p.kleur])}</span><span class="pil">${esc(p.fase)}</span><span class="pil">${esc(prioLabel(pr))}</span>${outputVan(p.id).length?`<span class="pil">Output ${outputVan(p.id).length}</span>`:''}${!leeg(S.wijz[p.id])?'<span class="gewijzigd">gewijzigd</span>':''}</div>
     <p class="uitkomst">${esc(p.uitkomst)}</p>
     <p class="volgende"><b>Volgende:</b> ${esc(p.volgende)}</p>
   </button>`;
@@ -284,6 +329,88 @@ function keuzeBlok(p,k){
   const tekst=gekozen==='anders'?`<textarea class="veld" data-veld="keuzetekst" data-k="${esc(k.id)}" placeholder="Wat wil je?" aria-label="Toelichting bij ${esc(k.vraag)}">${esc(w.tekst||'')}</textarea>`:'';
   return `<div class="keuze${gekozen?' gekozen':''}"><h3>${esc(k.vraag)}</h3><p class="ctx">${esc(k.context)}</p><p class="adv"><b>Advies:</b> ${esc(k.adviesTekst||'geen')}</p><div class="opties">${opties}${adv}${anders}</div>${tekst}</div>`;
 }
+const SOORT={pdf:'PDF',md:'Tekst',link:'Openen'};
+function outputBlok(p){
+  const lijst=outputVan(p.id);
+  if(!lijst.length)return S.docsFout?`<h2>Output</h2><p class="uitleg">${esc(S.docsFout)}</p>`:'';
+  return `<h2>Output (${lijst.length})</h2><div class="uitvoer">`+lijst.map((o,i)=>{
+    const niet=o.nietGeplaatst;
+    const binnen=`<span class="u-titel">${esc(o.titel)}</span><span class="u-meta">${esc(SOORT[o.soort]||o.soort)} · ${esc(mooiDatum(o.datum))}${o.soort==='link'?' · ↗':''}</span><span class="u-wat">${esc(niet?'Niet online ('+niet+').':o.wat)}</span>`;
+    if(o.soort==='link')return `<a class="u-item" href="${esc(o.url)}" target="_blank" rel="noopener">${binnen}</a>`;
+    return `<button class="u-item" data-act="doc" data-i="${i}"${niet?' disabled':''}>${binnen}</button>`;
+  }).join('')+'</div>';
+}
+function mdNaarHtml(t){
+  /* tabellen: opeenvolgende regels die met | beginnen; de scheidingsregel |---| valt weg */
+  const regels=esc(t).split('\n'),uit=[];
+  for(let i=0;i<regels.length;i++){
+    if(/^\s*\|/.test(regels[i])){const rij=[];while(i<regels.length&&/^\s*\|/.test(regels[i])){rij.push(regels[i]);i++;}i--;
+      const cel=l=>l.trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
+      const rijen=rij.filter(l=>!/^\s*\|[\s:|-]+\|?\s*$/.test(l)).map(cel);
+      uit.push('<div class="v-tabel"><table>'+rijen.map((r,n)=>'<tr>'+r.map(c=>n===0?`<th>${c}</th>`:`<td>${c}</td>`).join('')+'</tr>').join('')+'</table></div>');continue;}
+    uit.push(regels[i]);
+  }
+  const r=uit.map(l=>{if(l.startsWith('<div class="v-tabel">'))return l;
+    let m;if((m=/^(#{1,4})\s+(.*)$/.exec(l)))return `<h${Math.min(m[1].length+1,4)}>${m[2]}</h${Math.min(m[1].length+1,4)}>`;
+    if(/^\s*[-*]\s+/.test(l))return '<p class="li">• '+l.replace(/^\s*[-*]\s+/,'')+'</p>';
+    if(!l.trim())return '<br>';return '<p>'+l+'</p>';}).join('');
+  return r.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/`([^`]+)`/g,'<code>$1</code>');
+}
+function sluitViewer(){if(S.pdfIo){S.pdfIo.disconnect();S.pdfIo=null;}document.querySelectorAll('#vel canvas').forEach(c=>{c.width=c.height=0;});document.getElementById('vel').innerHTML='';if(S.pdfDoc){try{S.pdfDoc.destroy();}catch(e){}S.pdfDoc=null;}if(S.blobUrl){URL.revokeObjectURL(S.blobUrl);S.blobUrl=null;}S.docOpen=null;}
+/* Pdf tonen met pdf.js (meegeleverd in pdfjs/, Apache-2.0): elke pagina als canvas, pas getekend als hij in beeld komt.
+   Zo werkt scrollen door alle pagina's ook op iOS. Lukt pdf.js niet, dan valt hij terug op een iframe. */
+let pdfLib=null;
+const MAX_PAG=6; /* hooguit zoveel getekende pagina's tegelijk: lange pdf's (zoals het boekconcept) blijven zo binnen het geheugen van een iPhone */
+async function toonPdf(bytes,romp,titel){
+  const viewer=romp.closest?romp.closest('.viewer'):null, nogOpen=()=>!viewer||viewer.isConnected;
+  try{
+    if(!pdfLib){const lib=await import('./pdfjs/pdf.min.mjs');lib.GlobalWorkerOptions.workerSrc=new URL('pdfjs/pdf.worker.min.mjs',location.href).href;pdfLib=lib;}
+    if(!nogOpen())return;
+    if(S.pdfDoc)try{S.pdfDoc.destroy();}catch(e){}
+    const taak=pdfLib.getDocument({data:bytes.slice()});S.pdfDoc=taak;
+    const doc=await taak.promise;if(!nogOpen()){taak.destroy();return;}
+    const breedte=Math.min(romp.clientWidth||360,900)-16, dpr=Math.min(window.devicePixelRatio||1,2);
+    const eerste=await doc.getPage(1), vp1=eerste.getViewport({scale:1}), schaal=breedte/vp1.width;
+    romp.innerHTML=`<div class="v-pdfpag"><p class="uitleg v-teller">${doc.numPages} pagina's · knijp om te zoomen</p>`+Array.from({length:doc.numPages},(_,i)=>`<div class="v-pagina" data-pag="${i+1}" style="height:${Math.round(vp1.height*schaal)}px"></div>`).join('')+'</div>';
+    const getekend=new Map(); /* div -> {taak} */
+    const leeg=(div)=>{const g=getekend.get(div);if(!g)return;try{g.taak&&g.taak.cancel();}catch(e){}const c=div.querySelector('canvas');if(c){div.style.height=div.offsetHeight+'px';c.width=c.height=0;c.remove();}getekend.delete(div);};
+    const teken=async(div)=>{if(getekend.has(div))return;
+      if(getekend.size>=MAX_PAG){const mid=romp.scrollTop+romp.clientHeight/2;let ver=null,afst=-1;for(const d of getekend.keys()){const a=Math.abs(d.offsetTop+d.offsetHeight/2-mid);if(a>afst){afst=a;ver=d;}}if(ver)leeg(ver);}
+      const g={taak:null};getekend.set(div,g);
+      try{const pag=await doc.getPage(+div.dataset.pag);if(getekend.get(div)!==g)return;
+        const vp=pag.getViewport({scale:schaal*dpr});
+        const c=document.createElement('canvas');c.width=Math.floor(vp.width);c.height=Math.floor(vp.height);c.style.width='100%';c.setAttribute('aria-label','Pagina '+div.dataset.pag);
+        div.appendChild(c);div.style.height='auto';g.taak=pag.render({canvasContext:c.getContext('2d'),viewport:vp});await g.taak.promise;}
+      catch(e){if(e&&e.name==='RenderingCancelledException')return;if(getekend.get(div)===g){getekend.delete(div);div.innerHTML='<p class="uitleg" style="padding:12px">Pagina '+div.dataset.pag+' kon niet getekend worden.</p>';}}};
+    const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)teken(e.target);else leeg(e.target);}),{root:romp,rootMargin:'600px 0px'});
+    romp.querySelectorAll('.v-pagina').forEach(d=>io.observe(d));
+    S.pdfIo=io;
+  }catch(e){
+    if(!nogOpen())return;
+    romp.innerHTML=`<p class="uitleg" style="padding:10px 14px">Snelle weergave lukte niet${navigator.share?'; tik op Deel om te openen':''}.</p><iframe class="v-pdf" src="${S.blobUrl}" title="${esc(titel)}"></iframe>`;
+  }
+}
+async function openDoc(p,i){
+  const o=outputVan(p.id)[i];if(!o||!o.doc)return;
+  const vel=document.getElementById('vel');
+  vel.innerHTML=`<div class="viewer" role="dialog" aria-modal="true" aria-label="${esc(o.titel)}"><div class="v-kop"><button class="klein" data-act="viewer-dicht">Sluit</button><span class="v-titel">${esc(o.titel)}</span></div><div class="v-romp"><p class="uitleg" style="padding:20px">Openen…</p></div></div>`;
+  try{
+    const r=await fetch('docs/'+encodeURIComponent(o.doc)+'.bin',{cache:'no-store'});if(!r.ok)throw new Error('net');
+    const bytes=await ontsleutelBin(await r.arrayBuffer(),S.priv);
+    if(!vel.querySelector('.viewer'))return;
+    const type=o.soort==='pdf'?'application/pdf':'text/markdown;charset=utf-8';
+    const naam=(o.titel.replace(/[^\w\- ]+/g,'').trim()||'document')+(o.soort==='pdf'?'.pdf':'.md');
+    S.docOpen={bytes,type,naam};
+    if(S.blobUrl)URL.revokeObjectURL(S.blobUrl);
+    S.blobUrl=URL.createObjectURL(new Blob([bytes],{type}));
+    /* Deel = iOS-deelblad (Quick Look, Bewaar in Bestanden). Alleen zonder deelblad een Open-link (blob in nieuw tabblad). */
+    const knoppen=navigator.share?'<button class="klein" data-act="viewer-deel">Deel</button>':`<a class="klein" href="${S.blobUrl}" target="_blank" rel="noopener">Open</a>`;
+    vel.querySelector('.v-kop').insertAdjacentHTML('beforeend',knoppen);
+    const romp=vel.querySelector('.v-romp');
+    if(o.soort==='pdf')await toonPdf(bytes,romp,o.titel);
+    else romp.innerHTML=`<div class="v-tekst">${mdNaarHtml(td.decode(bytes))}</div>`;
+  }catch(e){const romp=vel.querySelector('.v-romp');if(romp)romp.innerHTML=`<p class="fout" style="padding:20px">${e.message==='data'?'Dit document hoort bij een andere sleutel.':'Openen lukte niet. Probeer het opnieuw met verbinding.'}</p>`;}
+}
 function detail(){
   const p=project(S.pid);if(!p){S.view='lijst';return lijst();}
   const w=S.wijz[p.id]||{};
@@ -298,6 +425,7 @@ function detail(){
   <h1>${esc(p.naam)}</h1>
   <div class="kaart-kop k-${esc(p.kleur)}"><span class="stip"></span><span class="status">${esc(KLEURNAAM[p.kleur])}</span><span class="pil">${esc(p.fase)}</span>${p.wachtOpJou?'<span class="wacht">Wacht op jou</span>':''}</div>
   <div class="blok"><p>${esc(p.uitkomst)}</p><p class="volgende"><b>Volgende:</b> ${esc(p.volgende)}</p>${p.uitgebreid?`<p class="volgende" style="margin-top:10px;white-space:pre-line">${esc(p.uitgebreid)}</p>`:''}</div>
+  ${outputBlok(p)}
   ${(p.keuzes&&p.keuzes.length)?`<h2>Open keuzes (${p.keuzes.length})</h2>`+p.keuzes.map(k=>keuzeBlok(p,k)).join(''):''}
   <h2>Prioriteit</h2><div class="seg" role="group" aria-label="Prioriteit">${prio}</div>
   <h2>Tijd per week</h2>
@@ -392,6 +520,9 @@ document.addEventListener('click',async e=>{
   else if(a==='verstuurd-ja'){S.wijz={};bewaarWijz();document.getElementById('vel').innerHTML='';S.view='lijst';render();toast('Verstuurd. Dispatch werkt de stand bij.');}
   else if(a==='kopieer'){const m=S.laatsteMail;try{await navigator.clipboard.writeText(m.subject+'\n\n'+m.body);toast('Gekopieerd');}catch(err){toast('Kopiëren lukte niet');}}
   else if(a==='vel-dicht'){document.getElementById('vel').innerHTML='';}
+  else if(a==='doc'){openDoc(p,+b.dataset.i);}
+  else if(a==='viewer-dicht'){sluitViewer();}
+  else if(a==='viewer-deel'){const d=S.docOpen;if(!d)return;const f=new File([d.bytes],d.naam,{type:d.type});if(navigator.canShare&&!navigator.canShare({files:[f]})){toast('Delen van dit bestand kan hier niet');return;}try{await navigator.share({files:[f],title:d.naam});}catch(err){if(err&&err.name!=='AbortError')toast('Delen lukte niet');}}
 });
 document.addEventListener('input',e=>{
   const t=e.target, v=t.dataset&&t.dataset.veld;if(!v||!S.pid)return;
@@ -407,7 +538,7 @@ document.addEventListener('focusout',()=>document.body.classList.remove('typt'))
 document.addEventListener('change',e=>{
   const t=e.target;if(t.dataset&&t.dataset.veld==='eind'&&S.pid){zet(S.pid,'einddatum',t.value||null);}
 });
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('#vel .vel'))document.getElementById('vel').innerHTML='';});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(document.querySelector('#vel .viewer'))sluitViewer();else if(document.querySelector('#vel .vel'))document.getElementById('vel').innerHTML='';});
 document.addEventListener('submit',async e=>{
   e.preventDefault();
   const f=e.target, fout=f.querySelector('#fout'), knop=f.querySelector('button[type=submit]');
@@ -443,7 +574,7 @@ document.addEventListener('submit',async e=>{
       const priv=await openPrive(S.sleutel,f.password.value);
       if(S.env.sleutelId&&S.env.sleutelId!==S.sleutel.id){throw new Error('anders');}
       const data=await ontsleutel(S.env,priv);
-      S.priv=priv;S.data=data;opslag.weg('stuur-sleutel-wacht');
+      S.priv=priv;S.data=data;opslag.weg('stuur-sleutel-wacht');await laadDocs();
       const oud=opslag.get('stuur-wijz');S.wijz=(oud&&oud.w)||{};
       for(const id of Object.keys(S.wijz)){if(!project(id))delete S.wijz[id];}
       f.remove();S.view='lijst';render();
@@ -457,10 +588,10 @@ document.addEventListener('submit',async e=>{
 async function vernieuw(meld){
   const st=await laad();
   if(st!=='open'){if(meld)toast('Geen nieuwe stand');return;}
-  try{const d=await ontsleutel(S.env,S.priv);const nieuw=d.bijgewerkt!==S.data.bijgewerkt;S.data=d;for(const id of Object.keys(S.wijz)){if(!project(id))delete S.wijz[id];}render();if(meld||nieuw)toast(nieuw?'Nieuwe stand geladen':'Stand is actueel');}
+  try{const d=await ontsleutel(S.env,S.priv);const nieuw=d.bijgewerkt!==S.data.bijgewerkt;S.data=d;await laadDocs();for(const id of Object.keys(S.wijz)){if(!project(id))delete S.wijz[id];}render();if(meld||nieuw)toast(nieuw?'Nieuwe stand geladen':'Stand is actueel');}
   catch(e){slot();}
 }
-function slot(){S.priv=null;S.data=null;S.view='lijst';S.pid=null;document.getElementById('vel').innerHTML='';start();}
+function slot(){sluitViewer();S.priv=null;S.data=null;S.docs=null;S.view='lijst';S.pid=null;start();}
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden){S.verborgenSinds=Date.now();return;}
   if(S.data&&S.verborgenSinds&&Date.now()-S.verborgenSinds>SLOT_NA_MS)slot();
