@@ -76,6 +76,16 @@ p,li,label,.t{font-size:17px;line-height:1.45}
 @keyframes zwaar{0%,55%,100%{transform:scaleY(1)}68%,80%{transform:scaleY(.3)}}
 @keyframes gaap{0%,55%,100%{transform:scaleY(.18)}68%,80%{transform:scaleY(1)}}
 .chips.samen{justify-content:center;margin-top:12px}
+/* besluit Pjotr 24-11 (1): Doezels hoekje, alleen overdag, naast Doezel. Geen teller, geen getal. */
+.doezelrij{display:flex;justify-content:center;align-items:flex-end}
+.hoekje{width:104px;height:auto;flex:none;margin-left:-14px}
+/* besluit Pjotr 24-11 (2): toon Rustig. Geen gaap, geen wiegen, rustiger ademen, tekst 18 px. */
+.toon-rustig .doezel .gaap{animation:none!important;transform:scaleY(.18)}
+.toon-rustig .doezel .beweeg{animation:none!important}
+.toon-rustig .doezel .adem{animation-duration:16s!important}
+#app.toon-rustig:not(.thema-nacht) p,#app.toon-rustig:not(.thema-nacht) li,#app.toon-rustig:not(.thema-nacht) label,#app.toon-rustig:not(.thema-nacht) .link,#app.toon-rustig:not(.thema-nacht) .lees,#app.toon-rustig:not(.thema-nacht) .chip,#app.toon-rustig:not(.thema-nacht) summary,#app.toon-rustig:not(.thema-nacht) .kaart .label{font-size:18px}
+/* review 112: in Rustig geen labels in hoofdletters */
+#app.toon-rustig .kaart .label{letter-spacing:0}
 @media (prefers-reduced-motion:reduce){.doezel .adem,.doezel .ogen,.doezel .arm,.doezel .beweeg,.doezel .gaap,.cirkel{animation:none!important}}
 /* ballon en kaart */
 .ballon{background:#FFFBF6;border-radius:28px;padding:18px 20px 12px;margin:14px 0 0;position:relative;box-shadow:0 8px 24px rgba(90,62,54,.08)}
@@ -120,6 +130,9 @@ p,li,label,.t{font-size:17px;line-height:1.45}
 .tijdkiezer{display:flex;align-items:center;justify-content:center;gap:14px;margin:18px 0 6px}
 .tijdinvoer{font-family:var(--kop);font-weight:600;font-size:48px;min-height:64px;padding:4px 16px;border-radius:20px;border:2px solid var(--cacao-z);background:#FFFBF6;color:var(--cacao)}
 .tijdinvoer.klein-tijd{font-size:32px;min-height:56px}
+/* review 112: de morgen-kaart en de middagwekker op Welterusten (alleen overdag en 's avonds) */
+.thema-nacht .kaart{background:rgba(201,115,58,.08);border-color:var(--amber)}
+.thema-nacht .tijdinvoer{background:var(--pruim-z);color:#E9B48A;border-color:var(--amber)}
 details{margin:12px 0}
 summary{min-height:44px;display:flex;align-items:center;font-size:17px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .thema-nacht summary{font-size:22px}
@@ -170,7 +183,7 @@ input[type=range]{width:100%;height:44px;accent-color:var(--abrikoos-d)}
    Veiligheidsteksten zijn letterlijk overgenomen uit
    ../overdracht-kasper/teksten.md (zelfde naam).
    ========================================================= */
-const T = {
+const T_BASIS = {
   // vast, veiligheid (letterlijk uit teksten.md)
   DOEL: "Etmaal helpt volwassenen bij een rustig dag- en nachtritme. Etmaal stelt geen diagnose en behandelt geen slaapproblemen of slapeloosheid.",
   VERWIJS_KOP: "Soms is meer hulp nodig. Dat ligt niet aan jou. Ga naar je huisarts als een van deze dingen bij je past:",
@@ -242,6 +255,9 @@ const T = {
   WELKOM_WAKKER: "Ik lig nu wakker",
   WELKOM_BEGIN: "Beginnen",
   WELKOM_HULP: "Hulp nodig? Huisarts en 113",
+  // review 112 (65): Rustig ook vindbaar op Welkom, zonder extra klik in de route
+  WELKOM_RUSTIG: "Rustiger toon",
+  WELKOM_GEWOON: "Gewone toon",
   // wektijd
   WEKTIJD_TITEL: "Je wektijd",
   WEKTIJD_WAAROM: "Eén vaste wektijd is het anker van je ritme.",
@@ -273,6 +289,12 @@ const T = {
   AVOND_NEE: "Komt morgen wel. Ik ben er toch.",
   AVOND_WEKKER: "Wekker morgen: [tijd].",
   AVOND_GEENWEKKER: "Morgen gaat er geen wekker.",
+  // review 112 (28): morgen anders de avond ervoor, gratis (besluit 3). Alleen overdag en 's avonds, nooit 's nachts.
+  MORGEN_GEEN: "Morgen geen wekker.",
+  MORGEN_TOCH: "Toch een wekker?",
+  MORGEN_ALLEEN: "Alleen morgen",
+  MORGEN_GEENKNOP: "Geen wekker morgen",
+  MORGEN_KAART_ZIN: "Eén keer. Daarna weer je gewone wektijd.",
   AVOND_BED: "Naar bed",
   // welterusten
   RUST_TITEL: "Welterusten",
@@ -280,14 +302,13 @@ const T = {
   RUST_WAAROM: "In de nachtstand zie je geen klok.",
   RUST_TOILETKOP: "Moet je 's nachts naar het toilet?",
   RUST_KNOP: "Nachtstand aan",
-  // review 110, S-6: na de dienstlink, alleen overdag
-  RUST_WEKKER: "Je wekker gaat [dag] om je gewone tijd. Ander tijdstip? Kies het onder Meer.",
-  // review 111: met de slimme wekker is "Kies het onder Meer" een link die alleen de tijd van morgen verandert
-  RUST_WEKKER_VRAAG: "Je wekker gaat [dag] om je gewone tijd. Ander tijdstip?",
-  RUST_WEKKER_LINK: "Kies het onder Meer",
-  RUST_WEKKER_ANDERS: "Je wekker gaat [dag] één keer op een andere tijd.",
-  MEER_MORGENKOP: "Alleen morgen",
-  MEER_TERUGRUST: "Terug naar Welterusten",
+  // review 112: de regel en kaart van morgen (MORGEN_*) vervangen RUST_WEKKER_VRAAG, _LINK, _ANDERS en de kaart onder Meer
+  // review 112 (28): na de dienstlink een eenmalige wekker voor vanmiddag, gratis
+  RUST_MIDDAG_LINK: "Wekker voor vanmiddag",
+  RUST_MIDDAG_KNOP: "Zet de wekker",
+  RUST_MIDDAG_ZIN: "Eén keer, alleen vanmiddag.",
+  RUST_MIDDAG_GEZET: "Wekker vanmiddag: [tijd].",
+  RUST_MIDDAG_WEG: "Toch geen wekker",
   NACHT_TIK: "Tik om Doezel te zien",
   // nacht
   NACHT_DOEZEL: "Ik lig even met je wakker. We hoeven niks.",
@@ -328,7 +349,8 @@ const T = {
   NHULP_VAL: "Gevallen of erg duizelig? Bel de huisartsenpost, bij gevaar 112.",
   NHULP_LANG: "Lig je lang wakker en word je onrustig? Je mag even opstaan, iets rustigs doen bij zacht licht, en teruggaan als je slaperig bent. Het is een tip, geen moeten.",
   // wekker
-  WEK_LABEL_SLIM: "Slimme wekker (nagebootst)",
+  // besluit Pjotr 24-11 (5): de betaalde wekker heet de zachte wekker
+  WEK_LABEL_ZACHT: "Zachte wekker (nagebootst)",
   WEK_LABEL_GEWOON: "Gewone wekker (nagebootst)",
   WEK_DOEZEL: "Goeiemorgen. Rustig aan, ik ben ook net wakker.",
   WEK_STOP: "Stop",
@@ -355,6 +377,8 @@ const T = {
   OCHTEND_HOEWAS: "Goedemorgen. Hoe was je nacht?",
   OCHTEND_GINGWEL: "Ging wel",
   OCHTEND_SLECHTKNOP: "Slecht geslapen",
+  // besluit Pjotr 24-11 (7): de vraag komt elke ochtend; Overslaan is één tik, zonder reactie
+  OCHTEND_OVERSLAAN: "Overslaan",
   OCHTEND_CGTZIN: "Gaat dit al even zo? Je huisarts kan helpen, ook met CGT-I.",
   // review 110, S-6
   OCHTEND_DIENSTLINK: "Net van je dienst?",
@@ -382,10 +406,10 @@ const T = {
   DIENST_ZIN: "Na een nachtdienst: zonnebril op de weg naar huis helpt.",
   // review 111: de rijzin in de dienstflow (nieuw, Pjotr keurt goed)
   DIENST_RIJ: "Ben je erg slaperig? Rijd dan niet.",
-  VANDAAG_GEKOCHT: "De slimme wekker is van jou.",
+  VANDAAG_GEKOCHT: "De zachte wekker is van jou.",
   VANDAAG_MEER: "Meer instellen",
   VANDAAG_INFO: "Info",
-  VANDAAG_KOOP: "Slimme wekker",
+  VANDAAG_KOOP: "Zachte wekker",
   // review 110, S-5 [voorstel]: één keer op Vandaag, op dag 13 en dag 15
   VANDAAG_KOOP13: "Je proef loopt tot [datum]. Wat gratis is, blijft daarna gewoon werken.",
   VANDAAG_KOOP15: "Je proef is klaar. Wat gratis is, blijft. De buitentimer hoort bij de aankoop.",
@@ -426,19 +450,25 @@ const T = {
   // review 111: één optioneel avondduwtje, standaard uit, relatief aan de bedtijd
   MEER_AVONDSEIN: "Seintje een uur voor je bedtijd",
   MEER_AVONDSEIN_PROTO: "Nagebootst: het prototype verstuurt niets.",
+  // besluit Pjotr 24-11 (2): de toon
+  MEER_TOON: "Toon",
+  MEER_TOON_GEWOON: "Gewoon",
+  MEER_TOON_RUSTIG: "Rustig",
+  MEER_TOON_ZIN: "Rustig is kalmer en formeler, met grotere tekst en minder beweging.",
   // review 111: Laat geworden? staat op Vanochtend onder Meer
   OCHTEND_MEER: "Meer",
   // aankoop
-  KOOP_TITEL: "Slimme wekker",
+  KOOP_TITEL: "Zachte wekker",
   KOOP_DOEZEL: "Ik wek je zacht, met welke wekker ook.",
   KOOP_WAAROM: "Licht en bewegen na het opstaan zetten je klok gelijk.",
   KOOP_WATKOP: "Met de aankoop krijg je:",
-  // review 111: wat "slim" is, en een echt verschil met de gratis avonddeal
-  KOOP_SLIMMER: "Slim = je plant vooruit en wekt per dag anders. Geen slaapmeting.",
-  KOOP_WAT: ["Morgen anders wekken en 14 dagen vooruit", "Buitentimer met Doezel", "Een avondplan met al je stappen op een rij", "Extra geluid: open haard"],
+  // besluit Pjotr 24-11 (5): wat "zacht" is
+  KOOP_ZACHT: "Zacht = hij bouwt rustig op en je plant vooruit. Geen slaapmeting.",
+  // besluit Pjotr 24-11 (3): morgen anders wekken is gratis; betaald blijven deze vier
+  KOOP_WAT: ["14 dagen vooruit plannen", "De buitentimer met lichtcheck", "Een avondplan met al je stappen op een rij", "Extra geluid: open haard"],
   KOOP_PRIJS: "€ 4,99, één keer, geen abonnement",
   KOOP_GRATISKOP: "Altijd gratis:",
-  KOOP_GRATIS: ["Doezel", "de nachtstand met adem, regen, gedachten parkeren, toilet en hulp", "de gewone wekker en twee keer snoozen, ook zacht", "de avonddeal, elke avond een andere", "Naar buiten als één tik: Ik ben buiten geweest", "de verwijsregel"],
+  KOOP_GRATIS: ["Doezel en zijn hoekje", "de nachtstand met adem, regen, gedachten parkeren, toilet en hulp", "De gewone wekker blijft gratis.", "twee keer snoozen", "morgen anders wekken, ook na de proef", "de avonddeal, elke avond een andere", "Naar buiten als één tik: Ik ben buiten geweest", "de verwijsregel"],
   KOOP_PROEF: "Proef loopt tot [datum].",
   KOOP_KNOP: "Kopen (nagebootst)",
   KOOP_GEKOCHT: "Gekocht. Dank je wel.",
@@ -480,8 +510,46 @@ const T = {
   DOEZEL_ALT_DOEZELIG: "Doezel, met zware oogleden",
   DOEZEL_ALT_SLAPEND: "Doezel ligt opgerold en slaapt",
   DOEZEL_ALT_HALFWAKKER: "Doezel ligt opgerold, half wakker, en houdt je gezelschap",
-  DOEZEL_ALT_BRAK: "Doezel, een beetje brak, met halfdichte ogen"
+  DOEZEL_ALT_BRAK: "Doezel, een beetje brak, met halfdichte ogen",
+
+  // besluit Pjotr 24-11 (1): Doezels hoekje. Af en toe één klein ding erbij; nooit iets weg, geen teller.
+  HOEKJE_ALT: "Doezels hoekje",
+  HOEKJE_ZIN_KUSSEN: "Kijk, een kussen. Ligt goed hier.",
+  HOEKJE_ZIN_PLANTJE: "Kijk, een plantje. Staat goed hier.",
+  HOEKJE_ZIN_LAMPJE: "Kijk, een lampje. Geeft zacht licht.",
+  HOEKJE_ZIN_KLEED: "Kijk, een kleed. Zit fijn.",
+  HOEKJE_ZIN_BOEKEN: "Kijk, een paar boeken. Voor rustige avonden.",
+  HOEKJE_ZIN_MOK: "Kijk, een mok. Voor de thee.",
+
+  // besluit Pjotr 24-11 (2): toon Rustig. Elke getroffen zin heeft een rustige variant NAAM_RUSTIG.
+  // Rustig: geen "Deal", geen "gaar", geen "Hoi"; zonder u, maar formeler en kalmer.
+  WELKOM_DOEZEL_RUSTIG: "Goedendag. Ik ben Doezel. Ik help je op weg naar een rustig ritme.",
+  // review 112 (65): 's avonds geen "Goedendag"; 's nachts zonder groet. In Gewoon gelijk aan WELKOM_DOEZEL.
+  WELKOM_DOEZEL_AVOND: "Hoi, ik ben Doezel. Ik ben zelf ook vaak moe. Zullen we het samen doen?",
+  WELKOM_DOEZEL_AVOND_RUSTIG: "Goedenavond. Ik ben Doezel. Ik help je op weg naar een rustig ritme.",
+  WELKOM_DOEZEL_NACHT: "Hoi, ik ben Doezel. Ik ben zelf ook vaak moe. Zullen we het samen doen?",
+  WELKOM_DOEZEL_NACHT_RUSTIG: "Ik ben Doezel. Ik help je op weg naar een rustig ritme.",
+  // review 112 (65): in Rustig geen labels in hoofdletters
+  AVOND_LABEL_RUSTIG: "Voorstel voor vanavond",
+  AVOND_DEAL_RUSTIG: "Goed, doe ik",
+  AVOND_JA_RUSTIG: "Goed. Ik doe mee.",
+  VANDAAG_GISTEREN_RUSTIG: "Gisteren lukte het voorstel voor de avond.",
+  KOOP_GRATIS_RUSTIG: ["Doezel en zijn hoekje", "de nachtstand met adem, regen, gedachten parkeren, toilet en hulp", "De gewone wekker blijft gratis.", "twee keer snoozen", "morgen anders wekken, ook na de proef", "het voorstel voor de avond, elke avond een ander", "Naar buiten als één tik: Ik ben buiten geweest", "de verwijsregel"],
+  SAMEN_BRAK_RUSTIG: "Een zware nacht. Doe het vandaag rustig aan.",
+  WEK_DOEZEL_RUSTIG: "Goedemorgen. Neem rustig de tijd om op te staan.",
+  OCHTEND_DOEZEL_RUSTIG: "Goedemorgen. Even naar buiten? Vijf minuten is genoeg.",
+  SAMEN_OP_RUSTIG: "Goedemorgen. Sta rustig op, er is geen haast.",
+  SAMEN_OP_BRAK_RUSTIG: "Langzaam aan vandaag. Dat mag.",
+  SAMEN_ENERGIEK_RUSTIG: "Een goed begin van de dag.",
+  BUITEN_GEDAAN_RUSTIG: "Goed gedaan. Dat is een fijn begin.",
+  SAMEN_RITME_RUSTIG: "Er zit een rustig ritme in de avonden.",
+  ADEM_DOEZEL_RUSTIG: "Adem rustig mee. Ik doe het voor.",
+  NACHT_DOEZEL_RUSTIG: "Ik lig even met je wakker. Er hoeft nu niets."
 };
+// besluit Pjotr 24-11 (2): met toon Rustig geeft T de rustige variant (NAAM_RUSTIG) als die er is.
+const T = new Proxy(T_BASIS, {
+  get: (o, k) => (typeof k === "string" && S && S.toon === "rustig" && Object.prototype.hasOwnProperty.call(o, k + "_RUSTIG") ? o[k + "_RUSTIG"] : o[k])
+});
 
 /* demopaneel (niet in de app) */
 const D = {
@@ -510,7 +578,12 @@ const D = {
   DIENSTEN: "Diensten",
   DIENSTENJA: "Diensten = ja",
   GEZPLAS: "Ja (plaspil)",
-  GEZOPEN: "Open"
+  GEZOPEN: "Open",
+  HOEKJE: "Hoekje",
+  HOEKJE_VERDER: "Hoekje: verder",
+  HOEKJE_BEGIN: "Hoekje: begin",
+  TOON: "Toon",
+  TOON_RUSTIG: "Rustig"
 };
 
 /* ---------- toestand ---------- */
@@ -530,7 +603,12 @@ const BEGIN = () => ({
   parkeerTekst: "", geparkeerd: null, parkeerNet: false, viaRust: false, voorZwart: null, rustSlaapt: false, gaapGedaan: false,
   dealIdx: 0, ritmeLaatst: null, onthoudBuiten: false, koopGezien: {},
   // review 111: avondseintje (standaard uit), de tijd van morgen via Welterusten, de tweede tik Gedaan
-  avondSein: false, alleenMorgen: false, dealGedaan: false, gezNet: false
+  avondSein: false, dealGedaan: false, gezNet: false,
+  // review 112: morgen anders de avond ervoor (kaart, concepttijd, eenmalig geen of toch een wekker), de middagwekker na de dienst
+  morgenKaart: false, morgenConcept: null, morgenGeen: false, morgenExtra: false, wekVandaag: null,
+  middagOpen: false, middagConcept: 870, middagTijd: null,
+  // besluiten Pjotr 24-11: het hoekje (aantal dingen, nooit in beeld), de toon
+  hoekje: 0, hoekjeTel: 0, goedeDag: false, hoekjeNieuw: false, hoekjeGetoond: false, toon: "gewoon"
 });
 let S = BEGIN();
 const NACHTSCHERMEN = ["nacht", "adem", "geluid", "toilet", "nachthulp", "vo", "welterusten", "parkeer"];
@@ -547,9 +625,14 @@ const DEALS = ["DIM", "LADER", "SCHRIJF", "DOUCHE"];
 const dealNu = () => DEALS[S.dealIdx % DEALS.length];
 // review 111: opschrijven en douchen doe je pas straks; de gedaan-zin komt na een tweede tik
 const dealTweeTik = (dk) => dk === "SCHRIJF" || dk === "DOUCHE";
+// besluit Pjotr 24-11 (1): het hoekje. Na een paar dagen met een gedane deal of buiten geweest komt er één ding bij.
+// Overslaan haalt er nooit iets af en zet niets terug. Geen teller, getal of reeks in beeld.
+const HOEKJE = ["KUSSEN", "PLANTJE", "LAMPJE", "KLEED", "BOEKEN", "MOK"];
+const HOEKJE_DAGEN = 3;
 
 const isNacht = (sc) => NACHTSCHERMEN.includes(sc || S.scherm) || ((sc || S.scherm) === "welkom" && S.tijd === "nacht");
-const slim = () => S.gekocht || S.proefdag < 15;
+// de zachte wekker (proef of gekocht); morgen anders wekken hoort daar niet meer bij (besluit Pjotr 24-11)
+const zacht = () => S.gekocht || S.proefdag < 15;
 const medsuf = () => S.gez === "ja" && (S.chips.slaappil || S.chips["plaspil of bloeddruk"]);
 const bipepi = () => S.gez === "ja" && (S.chips.bipolair || S.chips.epilepsie);
 // review 109, R-2: een open of overgeslagen vraag geldt als de veilige standaard
@@ -572,7 +655,8 @@ const telLinks = (s) => esc(s).replace(/0800-0113|113\.nl|\b113\b|\b112\b/g, (m)
   m === "113.nl" ? m : `<a class="tel" href="tel:${m.replace("-", "")}">${m}</a>`);
 function morgenIdx() { const d = new Date(); d.setDate(d.getDate() + 1); return d.getDay(); }
 const maIdx = (zondagIdx) => (zondagIdx + 6) % 7;
-const wekkerMorgen = () => S.wekker && S.dagen[maIdx(morgenIdx())] && !S.voUit;
+// review 112: morgenGeen (eenmalig geen wekker) en morgenExtra (eenmalig toch een wekker) gelden alleen voor morgen
+const wekkerMorgen = () => !S.voUit && !S.morgenGeen && (S.morgenExtra || (S.wekker && S.dagen[maIdx(morgenIdx())]));
 const wektijdMorgen = () => (S.morgenTijd != null ? S.morgenTijd : S.wektijd);
 function proefDatum() { const d = new Date(); d.setDate(d.getDate() + Math.max(0, 14 - S.proefdag)); return d.getDate() + " " + T.MAANDEN[d.getMonth()]; }
 const dagNaam = () => T.DAGEN[morgenIdx()];
@@ -594,7 +678,14 @@ function doezelStand(sc) {
   if (S.brak) return e >= 2 ? "wakker" : "brak";
   return e >= 2 ? "energiek" : e === 1 ? "wakker" : "rustig";
 }
-function nieuweDag() { S.op = false; S.buiten = false; S.brak = false; S.reactie = null; S.ochtendInfo = null; S.dienst = false; S.morgenOpen = false; S.nachtVraag = false; S.cgtNu = false; S.alleenMorgen = false; S.dagNr++; }
+// besluit Pjotr 24-11 (7): "Hoe was je nacht?" komt elke ochtend
+function nieuweDag() { S.wekVandaag = wekkerMorgen() ? wektijdMorgen() : null; S.morgenTijd = null; S.morgenGeen = false; S.morgenExtra = false; S.morgenKaart = false; S.middagTijd = null; S.middagOpen = false; S.voUit = false; hoekjeGroei(); S.op = false; S.buiten = false; S.brak = false; S.reactie = null; S.ochtendInfo = null; S.dienst = false; S.morgenOpen = false; S.nachtVraag = true; S.cgtNu = false; S.dagNr++; }
+// besluit Pjotr 24-11 (1): een goede dag telt stil mee; er gaat nooit iets weg
+function hoekjeGroei() {
+  if (!S.goedeDag) return;
+  S.goedeDag = false; S.hoekjeTel++;
+  if (S.hoekjeTel >= HOEKJE_DAGEN && S.hoekje < HOEKJE.length) { S.hoekje++; S.hoekjeTel = 0; S.hoekjeNieuw = true; }
+}
 // het geheugen kijkt alleen naar gisteren; er is geen reeks en geen teller in beeld
 function nieuweAvond() {
   if (S.deal) { S.gisterenDeal = S.deal === "ja"; if (S.deal === "ja") S.dealDagen++; }
@@ -792,7 +883,7 @@ function spreek(tekst) {
   u.lang = v ? v.lang : "nl-NL";
   const vol = S.volume / 100;
   if (isNacht()) { u.rate = 0.82; u.pitch = 0.95; u.volume = 0.5 * vol; }
-  else { u.rate = 0.92; u.pitch = 0.95; u.volume = vol; }
+  else { u.rate = S.toon === "rustig" ? 0.85 : 0.92; u.pitch = 0.95; u.volume = vol; }
   ss.speak(u);
 }
 
@@ -870,12 +961,29 @@ const link = (act, tekst, arg) => `<button class="link" data-act="${act}"${arg !
 const chip = (act, tekst, aan, arg) => `<button class="chip${aan ? " aan" : ""}" aria-pressed="${aan ? "true" : "false"}" data-act="${act}"${arg != null ? ` data-arg="${esc(arg)}"` : ""}>${esc(tekst)}</button>`;
 const schakel = (act, aan, label) => `<button class="schakel${aan ? " aan" : ""}" role="switch" aria-checked="${aan}" aria-label="${esc(label)}" data-act="${act}"></button>`;
 const waarom = (s) => `<p class="waarom">${esc(s)}</p>`;
+// review 112 (65): kaartlabels in hoofdletters, behalve in Rustig
+const labelTekst = (s) => (S.toon === "rustig" ? s : s.toUpperCase());
 const lees = (sleutel) => `<button class="lees" data-act="lees" data-arg="${sleutel}"><i>${ICON_LEES}</i>${esc(T.LEES_VOOR)}</button>`;
 const ballon = (sleutel, tekst) => `<div class="ballon"><p class="zin">${esc(tekst || T[sleutel])}</p>${lees(sleutel)}</div>`;
 const lijst = (arr, ol) => `<${ol ? "ol" : "ul"} class="lijst">${arr.map((x) => `<li>${esc(x)}</li>`).join("")}</${ol ? "ol" : "ul"}>`;
 const p = (s, cls) => `<p${cls ? ` class="${cls}"` : ""}>${esc(s)}</p>`;
 const ptel = (s, cls) => `<p${cls ? ` class="${cls}"` : ""}>${telLinks(s)}</p>`;
-const doezelKnop = (opt) => `<button class="doezelvak" data-act="doezelTik" aria-label="${esc(T.DOEZEL_ALT)}">${doezel(doezelStand(), Object.assign({ oog: S.nachtOog, zwaar: avondDoezel() >= 2, opgerold: isNacht() }, opt))}</button>`;
+const doezelVak = (opt) => `<button class="doezelvak" data-act="doezelTik" aria-label="${esc(T.DOEZEL_ALT)}">${doezel(doezelStand(), Object.assign({ oog: S.nachtOog, zwaar: avondDoezel() >= 2, opgerold: isNacht() }, opt))}</button>`;
+// besluit Pjotr 24-11 (1): het hoekje staat overdag naast Doezel, 's nachts niet
+const doezelKnop = (opt) => (!isNacht() && S.hoekje > 0 ? `<div class="doezelrij">${doezelVak(opt)}${hoekjeSvg()}</div>` : doezelVak(opt));
+const HOEKJE_DING = {
+  KLEED: `<ellipse cx="58" cy="140" rx="54" ry="8" fill="#D9B8A6" opacity=".75"/>`,
+  LAMPJE: `<circle cx="30" cy="62" r="24" fill="#FFC86B" opacity=".2"/><path d="M30 70 v62" stroke="#8A6555" stroke-width="2.6"/><ellipse cx="30" cy="133" rx="10" ry="3" fill="#8A6555"/><path d="M18 70 h24 l-5 -17 h-14z" fill="#F3D3A3"/>`,
+  KUSSEN: `<ellipse cx="44" cy="132" rx="28" ry="11" fill="#E9A98A"/><path d="M20 130 q24 -10 48 0" stroke="#C98466" stroke-width="2" fill="none"/>`,
+  PLANTJE: `<path d="M78 112 h18 l-3 22 h-12z" fill="#B9714A"/><path d="M87 112 C82 96 74 90 66 88 C78 88 86 96 87 108 C88 94 96 84 106 82 C100 90 92 98 88 112" fill="#7E9A6B"/>`,
+  BOEKEN: `<rect x="92" y="130" width="24" height="7" rx="1.5" fill="#8E6A9A"/><rect x="94" y="123" width="20" height="7" rx="1.5" fill="#6F8FA6"/>`,
+  MOK: `<rect x="98" y="110" width="12" height="13" rx="3" fill="#FFF4E6" stroke="#C9733A" stroke-width="1.5"/><path d="M110 113 q5 0 5 4 q0 4 -5 4" stroke="#C9733A" stroke-width="1.5" fill="none"/>`
+};
+const HOEKJE_LAAG = ["KLEED", "LAMPJE", "KUSSEN", "PLANTJE", "BOEKEN", "MOK"];
+function hoekjeSvg() {
+  const er = HOEKJE.slice(0, Math.min(S.hoekje, HOEKJE.length));
+  return `<svg class="hoekje" data-dingen="${er.join(" ").toLowerCase()}" viewBox="0 0 120 150" role="img" aria-label="${esc(T.HOEKJE_ALT)}">${HOEKJE_LAAG.filter((d) => er.includes(d)).map((d) => HOEKJE_DING[d]).join("")}</svg>`;
+}
 // overdag: minder melden (review 109). "Ik ben op" gebeurt vanzelf bij Stop; alleen zonder wekker staat er een kleine knop.
 const samenDag = () => (S.op ? "" : `<div class="chips samen">${chip("ikBenOp", T.SAMEN_KNOP_OP, false)}</div>`);
 // review 111: één tijdkiezer (input type=time) in plaats van stappen van 5 minuten
@@ -895,14 +1003,31 @@ const LEESTEKST = {
   TOILET_LEES: () => [T.TOILET_TITEL].concat(T.TOILET).concat(slaappilNu() ? [T.SLAAPPIL] : []).concat(plaspilNu() ? [T.PLASPIL] : []).join(" "),
   HULP_LEES: () => [T.N5_HULP, T.STOP112, T.NHULP_VAL, T.NHULP_DAG, T.N5_OPEN, T.N5_LIGGEN, T.NHULP_LANG].concat(slaappilNu() ? [T.SLAAPPIL] : []).concat(plaspilNu() ? [T.PLASPIL] : []).join(" ")
 };
-const dagZin = (standaard) => S.reactie || (doezelStand() === "brak" ? "SAMEN_BRAK" : doezelStand() === "energiek" ? "SAMEN_ENERGIEK" : standaard);
+const dagZin = (standaard) => {
+  if (S.reactie) return S.reactie;
+  // besluit Pjotr 24-11 (1): Doezel noemt het nieuwe ding hooguit één keer, kort
+  if (S.hoekjeNieuw && S.hoekje > 0 && !isNacht()) { S.hoekjeGetoond = true; return "HOEKJE_ZIN_" + HOEKJE[S.hoekje - 1]; }
+  return doezelStand() === "brak" ? "SAMEN_BRAK" : doezelStand() === "energiek" ? "SAMEN_ENERGIEK" : standaard;
+};
 
-// review 110, S-6 en review 111: na de dienstlink, overdag. Met de slimme wekker verandert "Kies het onder Meer" alleen morgen.
-function rustWekker() {
-  if (!wekkerMorgen()) return p(T.AVOND_GEENWEKKER, "klein");
-  if (!slim()) return p(T.RUST_WEKKER.replace("[dag]", dagNaam()), "klein");
-  if (S.morgenTijd != null && S.morgenTijd !== S.wektijd) return `<p class="klein">${esc(T.RUST_WEKKER_ANDERS.replace("[dag]", dagNaam()))} ${link("meerMorgen", T.RUST_WEKKER_LINK)}</p>`;
-  return `<p class="klein">${esc(T.RUST_WEKKER_VRAAG.replace("[dag]", dagNaam()))} ${link("meerMorgen", T.RUST_WEKKER_LINK)}</p>`;
+// review 112 (28): morgen anders de avond ervoor, gratis (besluit 3). Op Vanavond en Welterusten, alleen overdag en 's avonds.
+// Eén tikbare regel; die opent een kleine kaart met de tijdkiezer, "Alleen morgen" en (als er een wekker gaat) "Geen wekker morgen".
+function morgenRegel() {
+  if (S.tijd === "nacht") return "";
+  const gaat = wekkerMorgen();
+  const regel = gaat
+    ? `<p class="klein" data-morgenregel="1">${esc(T.AVOND_WEKKER.replace("[tijd]", kloktijd(wektijdMorgen())))} ${link("morgenKaart", T.WEK_MORGEN)}</p>`
+    : `<p class="klein" data-morgenregel="1">${esc(T.MORGEN_GEEN)} ${link("morgenKaart", T.MORGEN_TOCH)}</p>`;
+  const kaart = S.morgenKaart ? `<div class="kaart rustig" data-morgenkaart="1">${wektijdKiezer("morgenConcept", S.morgenConcept != null ? S.morgenConcept : wektijdMorgen())}${p(T.MORGEN_KAART_ZIN, "klein")}
+      ${knop("morgenAlleen", T.MORGEN_ALLEEN)}${gaat ? `<div class="linkrij">${link("morgenGeen", T.MORGEN_GEENKNOP)}</div>` : ""}</div>` : "";
+  return regel + kaart;
+}
+// review 112 (28): na de dienstlink een eenmalige wekker voor vanmiddag, gratis. Alleen overdag.
+function middagBlok() {
+  if (!S.dienst || S.tijd === "nacht") return "";
+  if (S.middagTijd != null) return `<p class="klein" data-middag="1">${esc(T.RUST_MIDDAG_GEZET.replace("[tijd]", kloktijd(S.middagTijd)))} ${link("middagWeg", T.RUST_MIDDAG_WEG)}</p>`;
+  return `<div class="linkrij" data-middag="1" style="justify-content:flex-start">${link("middagOpen", T.RUST_MIDDAG_LINK)}</div>` +
+    (S.middagOpen ? `<div class="kaart rustig" data-middagkaart="1">${wektijdKiezer("middagConcept", S.middagConcept)}${p(T.RUST_MIDDAG_ZIN, "klein")}${knop("middagZet", T.RUST_MIDDAG_KNOP)}</div>` : "");
 }
 function gezBlok() {
   let h = `<p class="klein">${esc(T.GEZ_INLEIDING)}</p><p>${esc(T.GEZVRAAG)}</p>`;
@@ -927,12 +1052,12 @@ const SCHERMEN = {
     return { thema: n ? "nacht" : "dag", html: `
       <h1>${esc(T.WELKOM_TITEL)}</h1>
       ${doezelKnop()}
-      ${ballon("WELKOM_DOEZEL")}
+      ${ballon(S.toon === "rustig" && S.tijd === "avond" ? "WELKOM_DOEZEL_AVOND" : S.toon === "rustig" && n ? "WELKOM_DOEZEL_NACHT" : "WELKOM_DOEZEL")}
       ${waarom(T.WELKOM_WAAROM)}
       <div class="knoppen">
         ${knop("nachtNu", T.WELKOM_WAKKER, n ? "" : "twee")}
         ${knop("beginnen", T.WELKOM_BEGIN, n ? "" : "")}
-        <div class="linkrij">${link("welkomHulp", T.WELKOM_HULP)}</div>
+        <div class="linkrij">${link("welkomHulp", T.WELKOM_HULP)}${n ? "" : link("welkomToon", S.toon === "rustig" ? T.WELKOM_GEWOON : T.WELKOM_RUSTIG)}</div>
       </div>` };
   },
   wektijd() {
@@ -959,7 +1084,7 @@ const SCHERMEN = {
         ${S.gisterenDeal && !S.deal ? `<p class="geheugen">${esc(T.AVOND_GEHEUGEN)}</p>` : ""}
         ${reactie ? `<p class="antwoord">${esc(reactie)}</p>` : knop("deal", T.AVOND_DEAL) + `<div class="linkrij">${link("dealNiet", T.AVOND_NIET)}</div>`}
         ${S.deal === "ja" && dealTweeTik(dk) && !S.dealGedaan ? knop("dealGedaan", T.AVOND_GEDAAN, "twee") : ""}</div>
-      <p data-deel="wekker" class="klein">${esc(wekkerMorgen() ? T.AVOND_WEKKER.replace("[tijd]", kloktijd(wektijdMorgen())) : T.AVOND_GEENWEKKER)}</p>
+      <div data-deel="wekker">${morgenRegel()}</div>
       <div data-deel="bed" class="knoppen">${S.deal ? knop("naarBed", T.AVOND_BED) : `<div class="linkrij">${link("naarBed", T.AVOND_BED)}</div>`}</div>` };
   },
   welterusten() {
@@ -968,7 +1093,8 @@ const SCHERMEN = {
       ${doezelKnop()}
       ${ballon("RUST_DOEZEL")}
       ${waarom(T.RUST_WAAROM)}
-      ${S.dienst && S.tijd !== "nacht" ? rustWekker() : ""}
+      ${morgenRegel()}
+      ${middagBlok()}
       ${S.dienst ? p(T.DIENST_RIJ) : ""}
       <details><summary>${esc(T.RUST_TOILETKOP)}</summary>${lijst(T.TOILET)}${pillen()}</details>
       ${gezVragen() ? `<div class="kaart rustig" data-gez="1">${gezBlok()}</div>` : ""}
@@ -992,7 +1118,7 @@ const SCHERMEN = {
         <details><summary>${esc(T.NACHT_MEER)}</summary>
           ${wekkerMorgen() ? `<div class="linkrij">${link("naar", T.VO_LINK, "vo")}</div>` : ""}
           ${S.voUit ? p(T.VO_UIT.replace("[dag]", dagNaam())) + `<div class="linkrij">${link("voTerug", T.VO_TERUG)}</div>` : ""}
-          ${!S.wekker || (!wekkerMorgen() && !S.voUit) ? p(T.VO_GEEN) : ""}
+          ${!wekkerMorgen() && !S.voUit ? p(T.VO_GEEN) : ""}
         </details>
       </div>` };
   },
@@ -1020,7 +1146,7 @@ const SCHERMEN = {
       <div class="knoppen">
         <div class="nachtgrid">
           ${knop("klank", (S.klank === "regen" ? "● " : "") + T.GELUID_REGEN, "", "regen")}
-          ${slim() ? knop("klank", (S.klank === "haard" ? "● " : "") + T.GELUID_HAARD, "", "haard") : ""}
+          ${zacht() ? knop("klank", (S.klank === "haard" ? "● " : "") + T.GELUID_HAARD, "", "haard") : ""}
         </div>
         ${S.klank ? knop("klankStop", T.GELUID_STOP) : ""}
         <div class="linkrij">${link("naar", T.NACHT_TERUG, "nacht")}</div>
@@ -1034,6 +1160,7 @@ const SCHERMEN = {
       ${lees("TOILET_LEES")}
       <div class="knoppen"><div class="linkrij">${link("naar", T.NACHT_TERUG, "nacht")}</div></div>` };
   },
+  // review 112: Hulp (113, 112, huisartsenpost, huisarts overdag, pillen) bovenaan; de rest onder Meer
   nachthulp() {
     return { thema: "nacht", html: `
       <h1>${esc(T.NHULP_TITEL)}</h1>
@@ -1041,11 +1168,9 @@ const SCHERMEN = {
       ${ptel(T.STOP112)}
       ${ptel(T.NHULP_VAL)}
       ${p(T.NHULP_DAG)}
-      ${p(T.N5_OPEN)}${p(T.N5_LIGGEN)}
-      ${p(T.NHULP_LANG)}
       ${pillen()}
       ${lees("HULP_LEES")}
-      <details><summary>${esc(T.NHULP_VERWIJS)}</summary>${p(T.N5_HUISARTS)}${p(T.VERWIJS_KOP)}${lijst(T.VERWIJS_LIJST)}</details>
+      <details><summary>${esc(T.NHULP_VERWIJS)}</summary>${p(T.N5_OPEN)}${p(T.N5_LIGGEN)}${p(T.NHULP_LANG)}${p(T.N5_HUISARTS)}${p(T.VERWIJS_KOP)}${lijst(T.VERWIJS_LIJST)}</details>
       <div class="knoppen"><div class="linkrij">${link("naar", T.NACHT_TERUG, "nacht")}</div></div>` };
   },
   // review 110, S-2: gedachten parkeren. Donker tekstveld, geen tijd, wordt nooit vanzelf zwart.
@@ -1071,21 +1196,21 @@ const SCHERMEN = {
   wekker() {
     const max = snoozeMax(), over = max - S.snoozes;
     if (S.gesnoozed) return { thema: "ochtend", html: `
-      <p class="proto">${esc(slim() ? T.WEK_LABEL_SLIM : T.WEK_LABEL_GEWOON)}</p>
+      <p class="proto">${esc(zacht() ? T.WEK_LABEL_ZACHT : T.WEK_LABEL_GEWOON)}</p>
       ${doezelKnop()}
       ${ballon("WEK_GESNOOZED")}
       <div class="knoppen">${knop("wekOp", T.WEK_OP, "zon")}<div class="linkrij">${link("wekWeer", T.WEK_DEMO_WEER)}</div></div>` };
     return { thema: "ochtend", html: `
-      <p class="proto">${esc(slim() ? T.WEK_LABEL_SLIM : T.WEK_LABEL_GEWOON)}</p>
-      <p class="wekker-tijd">${kloktijd(S.wektijd)}</p>
+      <p class="proto">${esc(zacht() ? T.WEK_LABEL_ZACHT : T.WEK_LABEL_GEWOON)}</p>
+      <p class="wekker-tijd">${kloktijd(S.wekVandaag != null ? S.wekVandaag : S.wektijd)}</p>
       ${doezelKnop()}
       ${ballon("WEK_DOEZEL")}
-      ${opstaanRustig() ? p(T.OPSTAANRUSTIG, "klein") : ""}
+      ${opstaanRustig() ? p(T.OPSTAANRUSTIG) : ""}
       <div class="knoppen">
         ${knop("wekStop", T.WEK_STOP, "zon")}
         ${over > 0 ? knop("snooze", T.WEK_SNOOZE, "twee") + `<p class="klein" style="text-align:center;margin:0">${esc(max === 2 ? T.SNOOZE2 : T.SNOOZE)}</p>` : ""}
-        ${slim() ? `<div class="linkrij">${link("morgenAnders", T.WEK_MORGEN)}</div>` : ""}
-        ${slim() && S.morgenOpen ? `<div class="kaart rustig" data-morgen="1">${wektijdKiezer("morgenTijd", wektijdMorgen())}${p(T.WEK_MORGEN_ZIN, "klein")}</div>` : ""}
+        <div class="linkrij">${link("morgenAnders", T.WEK_MORGEN)}</div>
+        ${S.morgenOpen ? `<div class="kaart rustig" data-morgen="1">${wektijdKiezer("morgenTijd", wektijdMorgen())}${p(T.WEK_MORGEN_ZIN, "klein")}</div>` : ""}
       </div>` };
   },
   goedemorgen() {
@@ -1098,9 +1223,10 @@ const SCHERMEN = {
          ${bip ? "" : `<div>${link("naarInfo", T.OCHTEND_CGT, "cgt")}</div>`}</div>`
       : S.ochtendInfo === "laat" ? `<div class="kaart rustig">${neutraal || p(slechtRuim() ? T.OCHTEND_LAAT_RUIM : T.OCHTEND_LAAT_ZIN)}</div>` : "";
     // review 110, S-7: na Stop eerst "Hoe was je nacht?", één tik
-    const vraag = S.nachtVraag ? `<div class="chips samen">${chip("nachtAntw", T.OCHTEND_GINGWEL, false, "wel")}${chip("nachtAntw", T.OCHTEND_SLECHTKNOP, false, "slecht")}</div>` : samenDag();
+    // besluit Pjotr 24-11 (7): elke ochtend, met een derde knop Overslaan
+    const vraag = S.nachtVraag ? `<div class="chips samen" data-nachtvraag="1">${chip("nachtAntw", T.OCHTEND_GINGWEL, false, "wel")}${chip("nachtAntw", T.OCHTEND_SLECHTKNOP, false, "slecht")}${chip("nachtAntw", T.OCHTEND_OVERSLAAN, false, "over")}</div>` : samenDag();
     // review 110, S-5: na de proef blijft buiten gratis als één tik; geen aankoopkaart op Vanochtend
-    const buitenKnop = (cls) => slim() ? knop("naar", T.OCHTEND_BUITEN, cls, "buiten")
+    const buitenKnop = (cls) => zacht() ? knop("naar", T.OCHTEND_BUITEN, cls, "buiten")
       : S.buiten ? knop("naar", T.OCHTEND_VERDER, cls, "vandaag") : knop("buitenGeweest", T.OCHTEND_BUITENGEWEEST, cls);
     // review 110, S-6: met diensten = ja is de dienstlink de hoofdknop; anders een kleine link
     const hoofd = S.diensten && !S.dienst ? knop("dienstSlapen", T.DIENST_LINK, "zon") + buitenKnop("twee") : buitenKnop("zon");
@@ -1109,11 +1235,11 @@ const SCHERMEN = {
       ${S.nachtVraag ? "" : `<div class="linkrij" style="justify-content:flex-start">${link("ochtendInfo", T.OCHTEND_SLECHT, "slecht")}</div>`}
       ${info}
       ${doezelKnop()}
-      ${ballon(dagZin("OCHTEND_DOEZEL"))}
+      ${ballon(S.nachtVraag ? "OCHTEND_HOEWAS" : dagZin("OCHTEND_DOEZEL"))}
       ${vraag}
       ${waarom(S.dienst ? T.DIENST_ZIN : T.OCHTEND_WAAROM)}
       ${S.dienst || S.diensten ? p(T.DIENST_RIJ) : ""}
-      ${opstaanRustig() ? p(T.OPSTAANRUSTIG, "klein") : ""}
+      ${opstaanRustig() ? p(T.OPSTAANRUSTIG) : ""}
       <div class="knoppen">
         ${hoofd}
         <div class="linkrij">${link("laterBuiten", T.OCHTEND_LATER)}</div>
@@ -1129,8 +1255,8 @@ const SCHERMEN = {
       ${waarom(T.BUITEN_WAAROM)}
       <p class="timer" aria-live="polite">${m}:${pad2(s)}</p>
       ${gezVragen() ? `<div class="kaart rustig" data-gez="1">${gezBlok()}</div>` : ""}
-      ${p(T.BUITEN_GLAD, "klein")}
-      <p class="klein">${telLinks(T.STOP112)}</p>
+      ${p(T.BUITEN_GLAD)}
+      <p>${telLinks(T.STOP112)}</p>
       <div class="knoppen">
         ${S.buitenAan ? knop("buitenKlaar", T.BUITEN_KLAAR, "zon") : S.buitenKlaar ? knop("naar", T.OCHTEND_VERDER, "zon", "vandaag") : knop("buitenStart", T.BUITEN_START, "zon")}
       </div>` };
@@ -1146,13 +1272,13 @@ const SCHERMEN = {
       ${waarom(S.dienst ? T.DIENST_ZIN : T.VANDAAG_WAAROM)}
       ${S.dienst ? p(T.DIENST_RIJ) : ""}
       <div class="linkrij">${link("dienstSlapen", T.DIENST_LINK)}</div>
-      <div class="kaart rustig"><p class="label">${esc(T.VANDAAG_WEKTIJD.toUpperCase())}</p>
+      <div class="kaart rustig"><p class="label">${esc(labelTekst(T.VANDAAG_WEKTIJD))}</p>
         <p class="voorstel">${kloktijd(S.wektijd)}, ${esc(dagen)}</p>
         ${p(S.wekker ? T.VANDAAG_WEKKER_AAN : T.VANDAAG_WEKKER_UIT, "klein")}</div>
       ${S.gisterenDeal ? `<div class="kaart rustig">${p(T.VANDAAG_GISTEREN)}</div>` : ""}
       ${proef ? p(proef, "klein") : ""}
       ${koopRegelNu() ? `<div class="kaart rustig" data-koopregel="1">${p((S.proefdag === 13 ? T.VANDAAG_KOOP13 : T.VANDAAG_KOOP15).replace("[datum]", proefDatum()), "klein")}${link("naar", T.VANDAAG_KOOPLINK, "aankoop")}</div>` : ""}
-      ${S.geparkeerd != null ? `<div class="kaart rustig"><p class="label">${esc(T.VANDAAG_PARKEERKOP.toUpperCase())}</p>${S.geparkeerd ? p(S.geparkeerd) : ""}${link("parkeerWeg", T.VANDAAG_PARKEERWEG)}</div>` : ""}
+      ${S.geparkeerd != null ? `<div class="kaart rustig"><p class="label">${esc(labelTekst(T.VANDAAG_PARKEERKOP))}</p>${S.geparkeerd ? p(S.geparkeerd) : ""}${link("parkeerWeg", T.VANDAAG_PARKEERWEG)}</div>` : ""}
       <div class="knoppen">
         ${S.proefdag >= 15 ? knop("naar", T.VANDAAG_MEER, "twee", "meer") : ""}
         <div class="linkrij">${S.proefdag >= 15 ? "" : link("naar", T.VANDAAG_MEER, "meer")}${link("naar", T.VANDAAG_INFO, "info")}${link("naar", T.VANDAAG_KOOP, "aankoop")}</div>
@@ -1174,7 +1300,6 @@ const SCHERMEN = {
     return { thema: "dag", nav: "meer", html: `
       <h1>${esc(T.MEER_TITEL)}</h1>
       ${waarom(T.MEER_WAAROM)}
-      ${S.alleenMorgen && slim() && wekkerMorgen() ? `<div class="kaart rustig" data-morgen="1"><p class="label">${esc(T.MEER_MORGENKOP.toUpperCase())}</p>${wektijdKiezer("morgenTijd", wektijdMorgen())}${p(T.WEK_MORGEN_ZIN, "klein")}<div class="linkrij">${link("naar", T.MEER_TERUGRUST, "welterusten")}</div></div>` : ""}
       <h2>${esc(T.MEER_WEKKER)}</h2>
       <div class="rij"><label>${esc(T.WEKTIJD_WEKKER)}</label>${schakel("wekker", S.wekker, T.WEKTIJD_WEKKER)}</div>
       ${wektijdKiezer("wektijd", S.wektijd)}
@@ -1187,6 +1312,9 @@ const SCHERMEN = {
       <div class="rij"><label>${esc(T.MEER_DIENSTEN)}</label>${schakel("diensten", S.diensten, T.MEER_DIENSTEN)}</div>
       <div class="rij"><label>${esc(T.MEER_AVONDSEIN)}</label>${schakel("avondSein", S.avondSein, T.MEER_AVONDSEIN)}</div>
       ${S.avondSein ? `<p class="proto" data-sein="1">${esc(T.MEER_AVONDSEIN_PROTO)}</p>` : ""}
+      <h2>${esc(T.MEER_TOON)}</h2>
+      <div class="chips">${chip("toon", T.MEER_TOON_GEWOON, S.toon !== "rustig", "gewoon")}${chip("toon", T.MEER_TOON_RUSTIG, S.toon === "rustig", "rustig")}</div>
+      ${p(T.MEER_TOON_ZIN, "klein")}
       <h2>${esc(T.MEER_GEZ)}</h2>${gezBlok()}
       <h2>${esc(T.MEER_STEM)}</h2>
       <div class="rij"><label>${esc(T.MEER_STEMAAN)}</label>${schakel("stem", S.stem, T.MEER_STEMAAN)}</div>
@@ -1199,7 +1327,7 @@ const SCHERMEN = {
       ${doezelKnop()}
       ${ballon("KOOP_DOEZEL")}
       ${waarom(T.KOOP_WAAROM)}
-      <div class="kaart">${p(T.KOOP_SLIMMER, "klein")}${p(T.KOOP_WATKOP)}${lijst(T.KOOP_WAT)}<p class="voorstel">${esc(T.KOOP_PRIJS)}</p></div>
+      <div class="kaart">${p(T.KOOP_ZACHT, "klein")}${p(T.KOOP_WATKOP)}${lijst(T.KOOP_WAT)}<p class="voorstel">${esc(T.KOOP_PRIJS)}</p></div>
       <p>${esc(T.KOOP_GRATISKOP)}</p>${lijst(T.KOOP_GRATIS)}
       ${S.proefdag < 15 && !S.gekocht ? p(T.KOOP_PROEF.replace("[datum]", proefDatum())) : ""}
       <div class="knoppen">${S.gekocht ? p(T.KOOP_GEKOCHT) : knop("koop", T.KOOP_KNOP)}</div>` };
@@ -1220,7 +1348,7 @@ let laatsteHtml = "";
 function shell(r) {
   if (r.zwart) return r.html; // helemaal zwart: geen statusbalk, geen knop in beeld
   const nacht = r.thema === "nacht";
-  const klok = nacht ? "" : (S.scherm === "wekker" ? kloktijd(S.wektijd) : { avond: "22.04", nacht: "", ochtend: "07.18", dag: "13.30" }[S.tijd]);
+  const klok = nacht ? "" : (S.scherm === "wekker" ? kloktijd(S.wekVandaag != null ? S.wekVandaag : S.wektijd) : { avond: "22.04", nacht: "", ochtend: "07.18", dag: "13.30" }[S.tijd]);
   const nav = r.nav ? `<nav class="nav">${[["nu", T.NAV_NU, "home"], ["vandaag", T.NAV_VANDAAG, "vandaag"], ["info", T.NAV_INFO, "info"], ["meer", T.NAV_MEER, "meer"]]
     .map(([k, t, doel]) => `<button class="${r.nav === k ? "actief" : ""}" data-act="${doel === "home" ? "home" : "naar"}" data-arg="${doel}">${esc(t)}</button>`).join("")}</nav>` : "";
   return `<div class="statusbalk"><span>${klok}</span>
@@ -1232,7 +1360,7 @@ function render() {
   const r = SCHERMEN[S.scherm]();
   laatsteHtml = shell(r);
   app.innerHTML = laatsteHtml;
-  app.className = "thema-" + r.thema;
+  app.className = "thema-" + r.thema + (S.toon === "rustig" ? " toon-rustig" : "");
   const demo = document.getElementById("demo");
   if (demo) demo.innerHTML = demoHtml();
 }
@@ -1252,6 +1380,8 @@ function go(scherm) {
   // Welterusten: eerst 10 s doezelig, dan slaapt Doezel (review 110)
   if (scherm === "welterusten" && S.scherm !== "welterusten") { S.rustSlaapt = false; clearTimeout(timers.rust); timers.rust = setTimeout(() => act("rustSlaap"), RUST_SLAAP_MS); }
   S.reactie = null; S.parkeerNet = false; S.gezNet = false;
+  if (scherm !== S.scherm) { S.morgenKaart = false; S.middagOpen = false; }
+  if (S.hoekjeGetoond) { S.hoekjeNieuw = false; S.hoekjeGetoond = false; }
   S.scherm = scherm; render();
 }
 function ademStap() {
@@ -1291,19 +1421,31 @@ const ACTS = {
   },
   parkeerWeg: () => { S.geparkeerd = null; S.parkeerTekst = ""; render(); },
   // review 110, S-7: één tik na Stop
+  // besluit Pjotr 24-11 (7): Overslaan geeft geen reactie en verandert Doezel niet
   nachtAntw: (a) => {
     S.nachtVraag = false;
     if (a === "slecht") { S.brak = true; S.ochtendInfo = "slecht"; slechtTel(); S.reactie = "SAMEN_BRAK"; }
-    else S.reactie = "SAMEN_OP";
+    else if (a === "over") { if (S.reactie === "OCHTEND_HOEWAS") S.reactie = null; }
+    else S.reactie = S.op ? "SAMEN_OP" : null;
     render();
   },
+  toon: (a) => { S.toon = a === "rustig" ? "rustig" : "gewoon"; render(); },
   // review 110, S-5: na de proef blijft buiten gratis als één tik, en Doezel wordt energiek
-  buitenGeweest: () => { S.op = true; S.buiten = true; S.reactie = S.onthoudBuiten ? "SAMEN_ENERGIEK" : "SAMEN_ONTHOUD_BUITEN"; S.onthoudBuiten = true; render(); },
-  morgenAnders: () => { S.morgenOpen = !S.morgenOpen; if (S.morgenTijd == null) S.morgenTijd = S.wektijd; render(); },
+  buitenGeweest: () => { S.op = true; S.buiten = true; S.goedeDag = true; S.reactie = S.onthoudBuiten ? "SAMEN_ENERGIEK" : "SAMEN_ONTHOUD_BUITEN"; S.onthoudBuiten = true; render(); },
+  morgenAnders: () => { S.morgenOpen = !S.morgenOpen; if (S.morgenTijd == null) S.morgenTijd = S.wektijd; if (S.morgenOpen) { S.morgenExtra = true; S.morgenGeen = false; } render(); }, // review 112b: ook op een dag zonder wekker gaat hij dan
   // review 111: de tijd komt uit de tijdkiezer ("HH:MM")
-  morgenTijd: (a) => { const m = uitInvoer(a); if (m != null) S.morgenTijd = m; render(); },
-  // review 111: "Kies het onder Meer" na de dienstlink verandert alleen de tijd van morgen
-  meerMorgen: () => { S.alleenMorgen = true; if (S.morgenTijd == null) S.morgenTijd = S.wektijd; go("meer"); },
+  morgenTijd: (a) => { const m = uitInvoer(a); if (m != null) { S.morgenTijd = m; S.morgenExtra = true; S.morgenGeen = false; } render(); },
+  // review 112 (28): de regel van morgen opent de kaart; "Alleen morgen" zet een eenmalige tijd (ook als er morgen geen wekker ging)
+  morgenKaart: () => { if (S.tijd === "nacht") return; S.morgenKaart = !S.morgenKaart; S.morgenConcept = wektijdMorgen(); render(); },
+  morgenConcept: (a) => { const m = uitInvoer(a); if (m != null) S.morgenConcept = m; render(); },
+  morgenAlleen: () => { S.morgenTijd = S.morgenConcept != null ? S.morgenConcept : wektijdMorgen(); S.morgenExtra = true; S.morgenGeen = false; S.voUit = false; S.morgenKaart = false; render(); },
+  morgenGeen: () => { S.morgenGeen = true; S.morgenExtra = false; S.morgenKaart = false; render(); },
+  // review 112 (28): na de dienstlink een eenmalige wekker voor vanmiddag
+  middagOpen: () => { if (S.tijd === "nacht" || !S.dienst) return; S.middagOpen = !S.middagOpen; render(); },
+  middagConcept: (a) => { const m = uitInvoer(a); if (m != null) S.middagConcept = m; render(); },
+  middagZet: () => { S.middagTijd = S.middagConcept; S.middagOpen = false; render(); },
+  middagWeg: () => { S.middagTijd = null; render(); },
+  welkomToon: () => { S.toon = S.toon === "rustig" ? "gewoon" : "rustig"; render(); },
   avondSein: () => { S.avondSein = !S.avondSein; render(); },
   welkomHulp: () => go(S.tijd === "nacht" ? "nachthulp" : "hulpdag"),
   wektijd: (a) => { const m = uitInvoer(a); if (m != null) S.wektijd = m; render(); },
@@ -1319,7 +1461,7 @@ const ACTS = {
   // de deal is zelf de dim- of scherm-actie (review 109, R-6)
   deal: () => {
     ritmeZeg();
-    S.deal = "ja";
+    S.deal = "ja"; S.goedeDag = true;
     const dk = dealNu();
     if (dk === "LADER") { S.schermWeg = true; S.reactie = "SAMEN_SCHERM"; }
     else if (dk === "DIM") { S.gedimd = true; S.reactie = "SAMEN_DIM"; }
@@ -1360,7 +1502,7 @@ const ACTS = {
     S.buitenAan = true; render();
     timers.buiten = setInterval(() => { S.buitenSec = Math.max(0, S.buitenSec - 1); if (S.buitenSec === 0) { ACTS.buitenKlaar(); return; } render(); }, 1000);
   },
-  buitenKlaar: () => { stopLopend(); S.buitenKlaar = true; S.buiten = true; if (!S.onthoudBuiten) { S.onthoudBuiten = true; S.reactie = "SAMEN_ONTHOUD_BUITEN"; } render(); },
+  buitenKlaar: () => { stopLopend(); S.buitenKlaar = true; S.buiten = true; S.goedeDag = true; if (!S.onthoudBuiten) { S.onthoudBuiten = true; S.reactie = "SAMEN_ONTHOUD_BUITEN"; } render(); },
   tweeSnooze: () => { S.tweeSnooze = !S.tweeSnooze; render(); },
   wekGeluid: (a) => { S.wekGeluid = a; render(); },
   wekTest: () => { if (!S.geluid) { S.geluid = true; audioStart(); } wekStart(true); render(); },
@@ -1387,13 +1529,20 @@ const ACTS = {
     else if (a === "slapend") { S.tijd = "avond"; go("welterusten"); S.rustSlaapt = true; }
     else if (a === "halfwakker") { S.tijd = "nacht"; S.nachtFase = "wakker"; go("nacht"); }
     else {
-      S.tijd = "ochtend"; nieuweDag(); go("goedemorgen");
+      S.tijd = "ochtend"; nieuweDag(); S.nachtVraag = false; go("goedemorgen");
       if (a === "wakker") { S.op = true; S.reactie = "SAMEN_OP"; }
       if (a === "energiek") { S.op = true; S.buiten = true; S.reactie = "SAMEN_ENERGIEK"; }
       if (a === "brak") { S.brak = true; S.ochtendInfo = "slecht"; S.reactie = "SAMEN_BRAK"; }
     }
     render();
   },
+  // besluit Pjotr 24-11 (1): het hoekje een stap verder, of terug naar het begin (alleen in de demo)
+  demoHoekje: (a) => {
+    if (a === "begin") { S.hoekje = 0; S.hoekjeTel = 0; S.hoekjeNieuw = false; S.hoekjeGetoond = false; }
+    else if (S.hoekje < HOEKJE.length) { S.hoekje++; S.hoekjeTel = 0; S.hoekjeNieuw = true; }
+    render();
+  },
+  demoToon: () => { S.toon = S.toon === "rustig" ? "gewoon" : "rustig"; render(); },
   demoProef: (a) => { if (a === "koop") S.gekocht = !S.gekocht; else S.proefdag = Number(a); render(); },
   demoGez: (a) => { S.gez = a === "open" ? null : a === "plas" ? "ja" : a; S.chips = a === "ja" ? { slaappil: true } : a === "plas" ? { "plaspil of bloeddruk": true } : {}; render(); },
   demoOpnieuw: () => { stopLopend(); klankStop(false); wekStop(); const g = S.geluid; S = BEGIN(); S.geluid = g; render(); },
@@ -1425,6 +1574,8 @@ function demoHtml() {
   <div class="groep"><b>${esc(D.PROEF)}</b><div class="chips">${c("demoProef", D.DAG1, S.proefdag === 1, 1)}${c("demoProef", D.DAG13, S.proefdag === 13, 13)}${c("demoProef", D.DAG15, S.proefdag === 15, 15)}${c("demoProef", D.GEKOCHT, S.gekocht, "koop")}</div></div>
   <div class="groep"><b>${esc(D.AVOND)}</b><div class="chips">${c("demoAvond", D.GISTEREN, S.gisterenDeal, "gisteren")}${c("demoAvond", D.RITME, S.dealDagen >= 7, "ritme")}</div></div>
   <div class="groep"><b>${esc(D.GEZ)}</b><div class="chips">${c("demoGez", D.GEZJA, S.gez === "ja" && !!S.chips.slaappil, "ja")}${c("demoGez", D.GEZPLAS, S.gez === "ja" && !!S.chips["plaspil of bloeddruk"], "plas")}${c("demoGez", D.GEZNEE, S.gez === "nee", "nee")}${c("demoGez", D.GEZOPEN, S.gez === null, "open")}</div></div>
+  <div class="groep"><b>${esc(D.HOEKJE)}</b><div class="chips">${c("demoHoekje", D.HOEKJE_VERDER, false, "verder")}${c("demoHoekje", D.HOEKJE_BEGIN, false, "begin")}</div></div>
+  <div class="groep"><b>${esc(D.TOON)}</b><div class="chips">${c("demoToon", D.TOON_RUSTIG, S.toon === "rustig")}</div></div>
   <div class="groep"><b>${esc(D.DIENSTEN)}</b><div class="chips">${c("demoDiensten", D.DIENSTENJA, S.diensten)}</div></div>
   <div class="groep"><b>${esc(D.SPRING)}</b><select data-input="spring">${Object.keys(SCHERMEN).map((k) => `<option value="${k}"${S.scherm === k ? " selected" : ""}>${k}</option>`).join("")}</select></div>
   <div class="groep"><b>${esc(D.STANDEN)}</b><div class="chips">${STANDEN.map((k) => c("demoStand", D.STAND[k], doezelStand() === k, k)).join("")}</div><p>${esc(D.STANDEN_UITLEG)}</p></div>
@@ -1451,7 +1602,7 @@ document.addEventListener("input", (e) => {
 });
 if (window.speechSynthesis && window.speechSynthesis.getVoices) window.speechSynthesis.getVoices();
 render();
-window.Etmaal = { T, D, SCHERMEN, NACHTSCHERMEN, NACHT_STIL_SCHERMEN, STANDEN, NACHT_ZWART_MS, NACHT_STIL_MS, RUST_SLAAP_MS, DEALS, doezelStand, act, go, render, html: () => laatsteHtml, toestand: () => S, zet: (o) => Object.assign(S, o) };
+window.Etmaal = { T, T_BASIS, HOEKJE, HOEKJE_DAGEN, D, SCHERMEN, NACHTSCHERMEN, NACHT_STIL_SCHERMEN, STANDEN, NACHT_ZWART_MS, NACHT_STIL_MS, RUST_SLAAP_MS, DEALS, doezelStand, act, go, render, html: () => laatsteHtml, toestand: () => S, zet: (o) => Object.assign(S, o) };
 </script>
 </body>
 </html>
