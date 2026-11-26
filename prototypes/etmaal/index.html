@@ -22,16 +22,23 @@ a{color:inherit}
 .eiland{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:122px;height:34px;border-radius:20px;background:#000;z-index:5;pointer-events:none}
 #app{position:absolute;inset:0;border-radius:52px;overflow:hidden;display:flex;flex-direction:column}
 .binnen{flex:1;overflow-y:auto;padding:0 24px 24px;display:flex;flex-direction:column}
+/* review 113, B1: een vast skelet. render() vervangt alleen kop, boven, onder en voet; Doezel (#doezelvast) blijft staan */
+#kop,#voet{flex:none}
+.deel{display:contents}
+.verborgen{display:none!important}
 .statusbalk{height:54px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 18px 0 34px;font-family:var(--kop);font-weight:600;font-size:17px}
-.geluidknop{width:44px;height:44px;border-radius:22px;border:0;background:rgba(90,62,54,.08);display:flex;align-items:center;justify-content:center;margin-right:2px}
-.geluidknop svg{width:24px;height:24px}
-.geluidknop.aan{background:var(--abrikoos)}
+/* review 114, U2: de geluidknop is alleen een icoon van 44 px, rechts in de titelrij (geen eigen rij meer).
+   Het label staat in aria-label; bij een tik komt kort een melding (2 s). */
+.geluidknop{position:absolute;top:58px;right:16px;z-index:4;width:44px;height:44px;border-radius:22px;border:1.5px solid var(--cacao-z);background:#FFFBF6;display:inline-flex;align-items:center;justify-content:center;padding:0;color:var(--cacao)}
+.geluidknop svg{width:24px;height:24px;flex:none}
+.geluidknop.aan{background:var(--abrikoos);border-color:#A65A2E;color:#3E2A24}
+.binnen h1{padding-right:52px}
 /* thema's */
-.thema-dag{background:linear-gradient(180deg,#FFF7EE 0%,#FFF1E2 100%)}
-.thema-avond{background:linear-gradient(180deg,#FFF1E2 0%,#F9DCC8 70%,#F4CDBB 100%)}
-.thema-ochtend{background:linear-gradient(180deg,#FFD9A8 0%,#FFF7EC 65%)}
-.thema-nacht{background:radial-gradient(120% 70% at 50% 34%,#3A2218 0%,var(--pruim) 55%,var(--pruim-z) 100%);color:var(--amber-l);font-size:22px}
-.thema-nacht .geluidknop{background:rgba(201,115,58,.14)}
+.thema-dag{background:linear-gradient(180deg,#FFF7EE 0%,#FFF1E2 100%);--bodem:#FFF1E2}
+.thema-avond{background:linear-gradient(180deg,#FFF1E2 0%,#F9DCC8 70%,#F4CDBB 100%);--bodem:#F4CDBB}
+.thema-ochtend{background:linear-gradient(180deg,#FFD9A8 0%,#FFF7EC 65%);--bodem:#FFF7EC}
+.thema-nacht{background:radial-gradient(120% 70% at 50% 34%,#3A2218 0%,var(--pruim) 55%,var(--pruim-z) 100%);color:var(--amber-l);font-size:22px;--bodem:#170F19}
+.thema-nacht .geluidknop{background:rgba(201,115,58,.14);border-color:var(--amber);color:#E9B48A}
 .thema-nacht .geluidknop.aan{background:rgba(201,115,58,.45)}
 /* tekst */
 h1{font-family:var(--kop);font-weight:600;font-size:30px;margin:8px 0 6px;letter-spacing:-.3px}
@@ -45,8 +52,10 @@ p,li,label,.t{font-size:17px;line-height:1.45}
 .geheugen{font-style:italic;text-align:center;color:var(--cacao-z);font-size:17px;margin:8px 0}
 /* doezel */
 .doezelvak{display:flex;justify-content:center;margin:6px 0 0;border:0;background:none;padding:0}
-.doezel{width:190px;height:auto;overflow:visible}
+/* review 113, B1: overdag is Doezel 150 px breed (was 190) */
+.doezel{width:150px;height:auto;overflow:visible}
 .doezel.groot{width:240px}
+#doezelvast.ademtrek{margin-top:-30px}
 .doezel .adem{transform-box:view-box;transform-origin:50% 90%;animation:adem var(--adem,10s) ease-in-out infinite}
 .doezel .beweeg{transform-box:view-box;transform-origin:50% 95%}
 .doezel .ogen{transform-box:fill-box;transform-origin:50% 50%;animation:knipper 8s infinite}
@@ -75,10 +84,53 @@ p,li,label,.t{font-size:17px;line-height:1.45}
 @keyframes knik{0%,60%,100%{transform:rotate(0)}75%{transform:rotate(-3deg) translateY(2px)}}
 @keyframes zwaar{0%,55%,100%{transform:scaleY(1)}68%,80%{transform:scaleY(.3)}}
 @keyframes gaap{0%,55%,100%{transform:scaleY(.18)}68%,80%{transform:scaleY(1)}}
+/* review 113, B1: elke stand heeft eigen ogen en een eigen mond. Alles staat in hetzelfde SVG-element; alleen de klasse wisselt, met 600 ms overgang.
+   review 114, U1: Doezel blijft overal dezelfde tint (abrikoos). De standen verschillen in helderheid, gloed, oogvorm en ademtempo:
+   energiek helderder (#F6B48A) met een warme gloed, doezelig gedempter, brak lichtgrijs-abrikoos, slapend ('s nachts) donkerder.
+   Het lijf heeft een rand van 2 px in cacao, zodat hij op elk verloop minstens 3 : 1 haalt (op 30 % haalde de rand dat niet; het is 60 %). */
+.doezel .lijf{transition:fill .6s ease}
+.doezel .buik,.doezel .glans,.doezel .gloed,.doezel .dgloed{transition:opacity .6s ease}
+.doezel .vorm{opacity:0;transition:opacity .6s ease}
+.doezel.dag .lijf{stroke:#5A3E36;stroke-opacity:.6;stroke-width:2}
+.doezel.dag .lijf{fill:#EFA67C}
+.doezel.dag.st-rustig .lijf{fill:#EFA67C}
+.doezel.dag.st-wakker .lijf{fill:#F4AD80}
+.doezel.dag.st-energiek .lijf{fill:#F6B48A}
+.doezel.dag.st-doezelig .lijf{fill:#DDA287}
+.doezel.dag.st-brak .lijf{fill:#D9B3A3}
+.doezel.dag .dgloed{opacity:0}
+.doezel.dag.st-wakker .dgloed{opacity:.35}
+.doezel.dag.st-energiek .dgloed{opacity:.9}
+/* review 114, U1: bij een standwissel een klein pufje en ogen die opengaan (geen fade alleen) */
+.doezelvak{position:relative;z-index:1}
+.doezelvak.pufje svg.doezel.dag{animation:pufje .3s ease-out}
+.doezelvak.pufje svg.doezel.dag .ogen{animation:ogenOpen .4s ease-out}
+@keyframes pufje{0%{transform:scale(1)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
+@keyframes ogenOpen{0%{transform:scaleY(.15)}100%{transform:scaleY(1)}}
+.doezel.dag .buik{opacity:.28}
+.doezel.dag.st-energiek .buik{opacity:.36}
+.doezel.dag.st-brak .buik{opacity:.22}
+.doezel.dag .glans{opacity:.2}
+.doezel.dag.st-energiek .glans{opacity:.38}
+.doezel.dag.st-doezelig .glans,.doezel.dag.st-brak .glans{opacity:.12}
+.doezel.dag.st-rustig .oog-rustig,.doezel.dag.st-rustig .mond-rustig,.doezel.dag.st-wakker .oog-wakker,.doezel.dag.st-wakker .mond-wakker,.doezel.dag.st-energiek .oog-energiek,.doezel.dag.st-energiek .mond-energiek,.doezel.dag.st-doezelig .oog-doezelig,.doezel.dag.st-doezelig .mond-doezelig,.doezel.dag.st-brak .oog-brak,.doezel.dag.st-brak .mond-brak{opacity:1}
+.doezel .oog-doezelig g{transition:opacity .6s ease}
+.doezel .oog-doezelig .zw{opacity:0}
+.doezel.zwaar .oog-doezelig .zw{opacity:1}
+.doezel.zwaar .oog-doezelig .lt{opacity:0}
+.doezel.nacht .lijf{fill:#A9653F}
+.doezel.nacht.st-slapend .lijf{fill:#8A4F30}
+.doezel.nacht.st-slapend .noog-slapend,.doezel.nacht.st-halfwakker .noog-half,.doezel.nacht.st-halfwakker.oog .noog-een,.doezel.nacht.st-doezelig .noog-doezelig{opacity:1}
+.doezel.nacht.st-halfwakker.oog .noog-half{opacity:0}
 .chips.samen{justify-content:center;margin-top:12px}
 /* besluit Pjotr 24-11 (1): Doezels hoekje, alleen overdag, naast Doezel. Geen teller, geen getal. */
-.doezelrij{display:flex;justify-content:center;align-items:flex-end}
-.hoekje{width:104px;height:auto;flex:none;margin-left:-14px}
+/* review 113, B1 en B4: het hoekje is groter (elk ding minstens 24 px) en een nieuw ding komt in 600 ms in beeld */
+/* review 114, U2: het hoekje staat half achter Doezel en is lager (viewBox zonder de lege bovenkant); Doezel staat in het midden,
+   zodat het puntje van de ballon naar hem wijst */
+.doezelrij{display:flex;justify-content:center;align-items:flex-end;position:relative}
+.hoekje{width:140px;height:auto;flex:none;position:absolute;left:50%;bottom:0;margin-left:18px;z-index:0}
+.hoekje .nieuw{animation:dingIn .6s ease-out}
+@keyframes dingIn{0%{opacity:0;transform:translateY(6px)}100%{opacity:1;transform:translateY(0)}}
 /* besluit Pjotr 24-11 (2): toon Rustig. Geen gaap, geen wiegen, rustiger ademen, tekst 18 px. */
 .toon-rustig .doezel .gaap{animation:none!important;transform:scaleY(.18)}
 .toon-rustig .doezel .beweeg{animation:none!important}
@@ -86,7 +138,10 @@ p,li,label,.t{font-size:17px;line-height:1.45}
 #app.toon-rustig:not(.thema-nacht) p,#app.toon-rustig:not(.thema-nacht) li,#app.toon-rustig:not(.thema-nacht) label,#app.toon-rustig:not(.thema-nacht) .link,#app.toon-rustig:not(.thema-nacht) .lees,#app.toon-rustig:not(.thema-nacht) .chip,#app.toon-rustig:not(.thema-nacht) summary,#app.toon-rustig:not(.thema-nacht) .kaart .label{font-size:18px}
 /* review 112: in Rustig geen labels in hoofdletters */
 #app.toon-rustig .kaart .label{letter-spacing:0}
-@media (prefers-reduced-motion:reduce){.doezel .adem,.doezel .ogen,.doezel .arm,.doezel .beweeg,.doezel .gaap,.cirkel{animation:none!important}}
+/* review 113, A2: op Adem één tempo voor Doezel, de cirkel en de toon (4 in, 6 uit = 10 s, piek op 40 %), ook in Rustig */
+/* review 113, B1: Doezel staat nu buiten het ademvak (in #doezelvast); de regel hangt aan het scherm (scherm-adem) */
+#app.scherm-adem .doezel .adem{animation:adem 10s ease-in-out infinite!important}
+@media (prefers-reduced-motion:reduce){.doezel .adem,.doezel .ogen,.doezel .arm,.doezel .beweeg,.doezel .gaap,.cirkel,.hoekje .nieuw,#app.scherm-adem .doezel .adem,.doezelvak.pufje svg.doezel.dag,.doezelvak.pufje svg.doezel.dag .ogen{animation:none!important}.doezel *{transition:none!important}}
 /* ballon en kaart */
 .ballon{background:#FFFBF6;border-radius:28px;padding:18px 20px 12px;margin:14px 0 0;position:relative;box-shadow:0 8px 24px rgba(90,62,54,.08)}
 .ballon:before{content:"";position:absolute;top:-9px;left:50%;margin-left:-10px;border:10px solid transparent;border-top:0;border-bottom-color:#FFFBF6}
@@ -106,7 +161,8 @@ p,li,label,.t{font-size:17px;line-height:1.45}
 .kaart .voorstel{font-family:var(--kop);font-size:20px;font-weight:500;line-height:1.35;margin:0}
 .antwoord{font-family:var(--kop);font-size:18px;margin:10px 0 0;color:var(--cacao)}
 /* knoppen */
-.knoppen{margin-top:auto;padding-top:18px;display:flex;flex-direction:column;gap:10px}
+/* review 113, B1: de hoofdknop staat vast onderaan (sticky), met daaronder een kleine regel met de tweede keuze */
+.knoppen{margin-top:auto;padding-top:18px;padding-bottom:8px;display:flex;flex-direction:column;gap:10px;position:sticky;bottom:0;z-index:2;background:linear-gradient(180deg,rgba(255,255,255,0),var(--bodem,transparent) 18px)}
 .knop{min-height:60px;border-radius:30px;border:0;background:linear-gradient(180deg,#F7B78F,var(--abrikoos-d));font-family:var(--kop);font-weight:600;font-size:21px;color:#3E2A24;box-shadow:0 8px 18px rgba(227,138,90,.28),inset 0 2px 0 rgba(255,255,255,.35);width:100%;padding:0 20px;border:1.5px solid #A65A2E}
 .knop.zon{background:linear-gradient(180deg,var(--geel),var(--abrikoos))}
 .knop.twee{background:#FFFBF6;box-shadow:none;border:1.5px solid var(--cacao-z)}
@@ -143,11 +199,14 @@ ul.lijst li,ol.lijst li{margin:4px 0}
 .ademvak{display:flex;flex-direction:column;align-items:center;margin:10px 0}
 .cirkel{width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(201,115,58,.45),rgba(201,115,58,.08) 70%);border:1.5px solid rgba(201,115,58,.5);display:flex;align-items:center;justify-content:center;animation:ademcirkel 10s ease-in-out infinite;font-family:var(--kop);font-size:26px;color:#E9B48A}
 @keyframes ademcirkel{0%{transform:scale(.62)}40%{transform:scale(1)}100%{transform:scale(.62)}}
+/* review 113, A2: na 10 minuten dooft de cirkel in 30 s uit; daarna wordt het scherm zwart */
+.cirkel.uitdoof{animation:ademcirkel 10s ease-in-out infinite,uitdoof 30s linear forwards}
+@keyframes uitdoof{0%{opacity:1}100%{opacity:0}}
 /* nav */
 .nav{flex:none;display:flex;justify-content:space-around;padding:6px 10px 22px;background:rgba(255,251,246,.85);border-top:1px solid rgba(90,62,54,.08)}
 .nav button{min-height:48px;min-width:64px;border:0;background:none;font-size:17px;font-weight:600;color:var(--cacao-z);border-radius:16px}
 .nav button.actief{color:var(--cacao);background:rgba(244,169,124,.25)}
-.toast{position:absolute;left:20px;right:20px;bottom:96px;background:var(--cacao);color:#FFF4E6;padding:14px 18px;border-radius:20px;font-size:17px;z-index:6}
+.toast{position:absolute;left:20px;right:20px;top:104px;pointer-events:none;background:var(--cacao);color:#FFF4E6;padding:14px 18px;border-radius:20px;font-size:17px;z-index:6}
 .wekker-tijd{font-family:var(--kop);font-weight:500;font-size:84px;text-align:center;margin:10px 0 0;letter-spacing:-2px}
 .proto{display:inline-block;font-size:17px;background:rgba(90,62,54,.08);border-radius:12px;padding:4px 10px;margin:4px 0}
 .thema-nacht .proto{background:rgba(201,115,58,.12)}
@@ -170,10 +229,16 @@ input[type=range]{width:100%;height:44px;accent-color:var(--abrikoos-d)}
 .demo select{width:100%;min-height:40px;font-size:15px;border-radius:12px;border:1.5px solid rgba(90,62,54,.25);background:#fff;padding:0 8px}
 .demo .knop{min-height:46px;font-size:17px}
 .demo p{font-size:14px;color:var(--cacao-z);margin:6px 0 0}
+/* echte functies (25-11): de band bovenaan (niet in de app), het kleine camerabeeld van de lichtcheck */
+.band{flex-basis:100%;max-width:760px;margin:0 auto;background:var(--cacao);color:#FFF4E6;border-radius:16px;padding:10px 16px;font-size:15px;line-height:1.4;text-align:center}
+.lichtplek{float:right;margin:0 0 6px 10px}
+.lichtvideo{width:64px;height:48px;border-radius:10px;object-fit:cover;display:block;background:#000}
+body > .lichtvideo{position:fixed;left:0;bottom:0;width:2px;height:2px;opacity:.01;pointer-events:none}
+.demo .aftel{font-family:var(--kop);font-size:16px;color:var(--cacao);font-weight:600}
 </style>
 </head>
 <body>
-<div role="note" style="background:#E0B26B;color:#23272F;text-align:center;font-weight:600;font-size:15px;padding:10px 14px">Prototype · stem en geluiden komen uit je browser; de wekker en lichtmeting zijn nagebootst</div>
+<div class="band" id="band" role="note"></div>
 <div class="telefoon" aria-label="Telefoon"><div class="eiland"></div><div id="app"></div></div>
 <aside class="demo" id="demo" aria-label="Demopaneel"></aside>
 <script>
@@ -247,6 +312,19 @@ const T_BASIS = {
   SLECHT_RISICO: "Heb je bipolair of epilepsie? Slaap dan gerust wat langer.",
   // review 110, S-4: eigen tekst voor plaspil en bloeddrukpillen (nieuw, Pjotr en Kasper keuren goed)
   PLASPIL: "Plaspil of bloeddrukpillen? Sta extra rustig op: eerst zitten, dan staan.",
+  // review 113, A3 (advies van de sessie, wacht op Pjotr): het vroege signaal bij bipolair, letterlijk BIPSIGNAAL uit teksten.md
+  BIPSIGNAAL: "Merk je dat je weinig slaap nodig hebt en vol energie bent? Neem dan contact op met je behandelaar.",
+  // review 113, A3 (advies van de sessie, wacht op Pjotr): te vroeg wakker. Geen advies om vroeg naar buiten te gaan.
+  // review 114, W1: steviger tekst; de hoofdknop wordt "Rustig aan beginnen", Naar buiten een kleine link "Later naar buiten"
+  VROEG_ZIN: "Licht later op de dag is fijn. Vroeg in fel licht hoeft niet. Gebeurt het steeds? Je huisarts kan helpen.",
+  // review 114, W3 (wacht op Pjotr): bij de chip bipolair verwijst de zin naar de behandelaar
+  VROEG_ZIN_BIP: "Licht later op de dag is fijn. Vroeg in fel licht hoeft niet. Gebeurt het steeds? Bespreek het met je behandelaar.",
+  VROEG_CHIP: "Vaak veel te vroeg wakker",
+  VROEG_LINK: "Te vroeg wakker?",
+  VROEG_HOOFD: "Rustig aan beginnen",
+  VROEG_BUITENLINK: "Later naar buiten",
+  // review 114, W1: 's nachts onder Meer; zet een vlag voor de ochtend, zonder tijd
+  VROEG_NACHT_OK: "Goed. Straks doen we rustig aan, zonder fel licht.",
 
   // welkom
   WELKOM_TITEL: "Etmaal",
@@ -269,6 +347,9 @@ const T_BASIS = {
   GEZ_OVERSLAAN: "Overslaan",
   GEZ_CHIPKOP: "Tik aan wat past:",
   GEZ_DANK: "Dank je. Ik houd er rekening mee.",
+  // review 113, A1: "Ja" zonder chip telt als open; GEZ_DANK pas na een gekozen chip
+  GEZ_DANK_KORT: "Dank je.",
+  GEZ_GEENCHIP: "Niets gekozen? Dan houd ik de voorzichtige stand aan.",
   // vanavond
   AVOND_TITEL: "Vanavond",
   AVOND_DOEZEL: "Ik zet het licht alvast wat zachter. Doe je mee?",
@@ -302,6 +383,8 @@ const T_BASIS = {
   RUST_WAAROM: "In de nachtstand zie je geen klok.",
   RUST_TOILETKOP: "Moet je 's nachts naar het toilet?",
   RUST_KNOP: "Nachtstand aan",
+  // review 114 (heftig): 's avonds op Welterusten geen kloktijd; de tijd staat pas in de kaart na "Morgen anders?"
+  RUST_WEKKER_AAN: "Wekker morgen staat aan.",
   // review 112: de regel en kaart van morgen (MORGEN_*) vervangen RUST_WEKKER_VRAAG, _LINK, _ANDERS en de kaart onder Meer
   // review 112 (28): na de dienstlink een eenmalige wekker voor vanmiddag, gratis
   RUST_MIDDAG_LINK: "Wekker voor vanmiddag",
@@ -309,6 +392,8 @@ const T_BASIS = {
   RUST_MIDDAG_ZIN: "Eén keer, alleen vanmiddag.",
   RUST_MIDDAG_GEZET: "Wekker vanmiddag: [tijd].",
   RUST_MIDDAG_WEG: "Toch geen wekker",
+  // review 113, A1: na een dagslaap en vanuit de nacht, overdag, een uitgang op Nacht en Welterusten (zonder tijd)
+  DAG_OP: "Ik ben op",
   NACHT_TIK: "Tik om Doezel te zien",
   // nacht
   NACHT_DOEZEL: "Ik lig even met je wakker. We hoeven niks.",
@@ -322,6 +407,11 @@ const T_BASIS = {
   // review 110, S-2 en laag (28): extra onder Meer
   NACHT_PARKEER: "Gedachten parkeren",
   NACHT_NETTHUIS: "Net thuis? Naar bed",
+  // review 114 (28): na middernacht de wekker later zetten, zonder kloktijd
+  NACHT_LATER: "Wekker later?",
+  LATER_KEUZES: [[30, "Een half uur later"], [60, "Een uur later"], [90, "Anderhalf uur later"]],
+  LATER_ZIN: "Je wekker gaat [n] minuten later.",
+  LATER_TERUG: "Zoals het was",
   PARKEER_ZIN: "Schrijf het op. Het ligt hier tot morgen; jij hoeft het niet vast te houden.",
   PARKEER_LABEL: "Wat zit je dwars?",
   PARKEER_KNOP: "Neerleggen",
@@ -348,11 +438,16 @@ const T_BASIS = {
   // review 111: lichamelijke hulp 's nachts en een route voor lang wakker liggen (nieuw, Pjotr en Kasper keuren goed)
   NHULP_VAL: "Gevallen of erg duizelig? Bel de huisartsenpost, bij gevaar 112.",
   NHULP_LANG: "Lig je lang wakker en word je onrustig? Je mag even opstaan, iets rustigs doen bij zacht licht, en teruggaan als je slaperig bent. Het is een tip, geen moeten.",
+  // review 114 (65): de huisartsenpost na de valregel (nagebootst; de echte app toont het nummer uit je instellingen)
+  NHULP_POST: "Je huisartsenpost: het nummer staat in je eigen app-instellingen.",
+  NHULP_POST_PROTO: "Nagebootst: in het prototype staat hier nog geen nummer.",
   // wekker
   // besluit Pjotr 24-11 (5): de betaalde wekker heet de zachte wekker
   WEK_LABEL_ZACHT: "Zachte wekker (nagebootst)",
   WEK_LABEL_GEWOON: "Gewone wekker (nagebootst)",
   WEK_DOEZEL: "Goeiemorgen. Rustig aan, ik ben ook net wakker.",
+  // review 113, A1: de middagwekker na een nachtdienst; zonder "Goeiemorgen"
+  WEK_MIDDAG: "Goedemiddag. Rustig aan, ik ben ook net wakker.",
   WEK_STOP: "Stop",
   WEK_SNOOZE: "Nog 9 minuten",
   WEK_GESNOOZED: "Nog even liggen. Ik maak je zo weer wakker.",
@@ -363,6 +458,8 @@ const T_BASIS = {
   // goedemorgen
   OCHTEND_TITEL: "Vanochtend",
   OCHTEND_DOEZEL: "Goeiemorgen. Even samen naar buiten? Vijf minuten is genoeg.",
+  // review 113, A3 (advies van de sessie, wacht op Pjotr): bij te vroeg wakker geen duw naar buiten
+  OCHTEND_DOEZEL_VROEG: "Goeiemorgen. Rustig aan, er is geen haast.",
   OCHTEND_WAAROM: "Daglicht vroeg op de dag zet je klok gelijk.",
   OCHTEND_BUITEN: "Naar buiten",
   OCHTEND_LATER: "Liever later",
@@ -390,6 +487,25 @@ const T_BASIS = {
   BUITEN_KLAAR: "Klaar",
   BUITEN_GEDAAN: "Mooi. Daar knappen we allebei van op.",
   BUITEN_GLAD: "Donker of glad? Wacht tot het lichter is, of zet je bij een raam.",
+  // review 114, U3: de timer wordt niet elke seconde voorgelezen; alleen bij start en eind (voor de schermlezer)
+  BUITEN_SR_START: "De timer loopt, vijf minuten.",
+  BUITEN_SR_KLAAR: "De timer is klaar.",
+  // echte functies (25-11): de lichtcheck op Buiten. Eerst de lichtsensor, anders een schatting via de camera, anders nagebootst.
+  LICHT_KOP: "Hoe licht is het?",
+  LICHT_UITLEG: "Etmaal kijkt alleen hoe licht het is. Er wordt niets opgeslagen of verstuurd. Je kunt het altijd stoppen.",
+  LICHT_KNOP: "Camera gebruiken",
+  LICHT_STOP: "Stop",
+  LICHT_BEZIG: "Even kijken.",
+  LICHT_BANDEN: { donker: "Donker", schemer: "Schemer", binnen: "Binnenlicht", daglicht: "Daglicht", fel: "Fel daglicht" },
+  LICHT_LUX: "Ongeveer [n] lux",
+  LICHT_LABEL_CAMERA: "schatting via camera, geen echte meting",
+  LICHT_LABEL_SENSOR: "gemeten met de lichtsensor van je toestel",
+  LICHT_LABEL_NA: "nagebootst",
+  LICHT_GESTOPT: "De camera staat uit.",
+  LICHT_KLAAR_TIJD: "Twee minuten zijn om. De camera staat uit.",
+  LICHT_GEWEIGERD: "Geen toegang tot de camera. Geen probleem: ik doe de meting na.",
+  LICHT_GEEN_CAMERA: "Deze browser geeft hier geen camera. Ik doe de meting na.",
+  LICHT_GEEN_HTTPS: "De camera werkt alleen via een beveiligde verbinding (https). Ik doe de meting na.",
   // vandaag
   VANDAAG_TITEL: "Vandaag",
   VANDAAG_DOEZEL: "Ik doe het rustig aan vandaag. Jij ook, als het kan.",
@@ -442,6 +558,8 @@ const T_BASIS = {
   MEER_BEL: "Lage bel",
   MEER_TEST: "Test",
   MEER_GEZ: "Gezondheid",
+  // review 113, A3 (advies van de sessie, wacht op Pjotr)
+  MEER_VRAGEN: "Vragen",
   MEER_STEM: "Stem",
   MEER_STEMAAN: "Doezel praat",
   MEER_VOLUME: "Volume",
@@ -459,13 +577,15 @@ const T_BASIS = {
   OCHTEND_MEER: "Meer",
   // aankoop
   KOOP_TITEL: "Zachte wekker",
-  KOOP_DOEZEL: "Ik wek je zacht, met welke wekker ook.",
+  // review 114, L1: de oude zin (zacht bij elke wekker) vervalt; het zachte wekgeluid hoort bij de aankoop
+  KOOP_DOEZEL: "Ik wek je altijd. Met de zachte wekker bouw ik rustiger op.",
   KOOP_WAAROM: "Licht en bewegen na het opstaan zetten je klok gelijk.",
   KOOP_WATKOP: "Met de aankoop krijg je:",
   // besluit Pjotr 24-11 (5): wat "zacht" is
   KOOP_ZACHT: "Zacht = hij bouwt rustig op en je plant vooruit. Geen slaapmeting.",
   // besluit Pjotr 24-11 (3): morgen anders wekken is gratis; betaald blijven deze vier
-  KOOP_WAT: ["14 dagen vooruit plannen", "De buitentimer met lichtcheck", "Een avondplan met al je stappen op een rij", "Extra geluid: open haard"],
+  // review 114, L1: het zachte, opbouwende wekgeluid staat nu als eerste punt onder "Met de aankoop" (hoort bij W4/B3, wacht op Pjotr)
+  KOOP_WAT: ["Het zachte, opbouwende wekgeluid", "14 dagen vooruit plannen", "De buitentimer met lichtcheck", "Een avondplan met al je stappen op een rij", "Extra geluid: open haard"],
   KOOP_PRIJS: "€ 4,99, één keer, geen abonnement",
   KOOP_GRATISKOP: "Altijd gratis:",
   KOOP_GRATIS: ["Doezel en zijn hoekje", "de nachtstand met adem, regen, gedachten parkeren, toilet en hulp", "De gewone wekker blijft gratis.", "twee keer snoozen", "morgen anders wekken, ook na de proef", "de avonddeal, elke avond een andere", "Naar buiten als één tik: Ik ben buiten geweest", "de verwijsregel"],
@@ -483,6 +603,25 @@ const T_BASIS = {
   GELUID_UITLABEL: "Geluid uit",
   GELUID_WEKKER: "Geluid uit geldt voor Doezel en de geluiden. De wekker gaat gewoon af.",
   GEEN_STEM: "Deze browser heeft geen stem. Je ziet de tekst wel.",
+  // review 113, B2: aanzetten geeft een tikje en deze zin; bij de eerste start één keer de vraag op Welkom
+  GELUID_STAAT_AAN: "Geluid staat aan.",
+  GELUID_VRAAG: "Geluid aan?",
+  GELUID_VRAAG_ZIN: "Dan hoor je Doezel en de geluiden. De wekker gaat altijd af.",
+  GELUID_JA: "Ja, geluid aan",
+  GELUID_NEE: "Nu niet",
+  STEM_UIT: "De stem staat uit. Zet hem aan onder Meer instellen.",
+  MEER_VOLUME_ZIN: "Voor de stem, de geluiden, Adem en Doezel. De wekker blijft altijd hoorbaar.",
+  // review 113, B3 (advies, wacht op Pjotr): de zachte wekker krijgt een eigen, zachter geluid
+  MEER_ZACHT: "Zacht",
+  MEER_WEKZACHT_ZIN: "Zacht hoort bij de aankoop. Hij begint heel zacht en bouwt rustiger en langer op dan de speeldoos.",
+  // review 113, B4: het avondseintje vraagt één keer de bedtijd; op Vanavond hooguit één keer per week het aanbod
+  SEIN_VRAAG: "Hoe laat ga je meestal naar bed?",
+  SEIN_ZET: "Klaar",
+  SEIN_OVERSLAAN: "Overslaan",
+  SEIN_OVERSLAAN_ZIN: "Overslaan mag. Dan reken ik met je wektijd min 8 uur.",
+  SEIN_OM: "Seintje om [tijd], een uur voor je bedtijd.",
+  SEIN_AANBOD: "Seintje aanzetten?",
+  SEIN_AAN: "Seintje staat aan. Het prototype verstuurt niets.",
   MAANDEN: ["januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november", "december"],
   DAGEN: ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"],
   DOEZEL_ALT: "Doezel",
@@ -520,6 +659,11 @@ const T_BASIS = {
   HOEKJE_ZIN_KLEED: "Kijk, een kleed. Zit fijn.",
   HOEKJE_ZIN_BOEKEN: "Kijk, een paar boeken. Voor rustige avonden.",
   HOEKJE_ZIN_MOK: "Kijk, een mok. Voor de thee.",
+  // review 113, B4: na de zes dingen volgen seizoensdingen; het hoekje wordt nooit vol
+  HOEKJE_ZIN_HERFSTBLAD: "Kijk, een herfstblad. Mooie kleur.",
+  HOEKJE_ZIN_WINTERLAMPJE: "Kijk, een winterlampje. Lekker warm.",
+  HOEKJE_ZIN_LENTETAKJE: "Kijk, een lentetakje. Het bloeit al.",
+  HOEKJE_ZIN_ZOMERSCHELP: "Kijk, een schelp. Die hoort bij de zomer.",
 
   // besluit Pjotr 24-11 (2): toon Rustig. Elke getroffen zin heeft een rustige variant NAAM_RUSTIG.
   // Rustig: geen "Deal", geen "gaar", geen "Hoi"; zonder u, maar formeler en kalmer.
@@ -537,6 +681,8 @@ const T_BASIS = {
   KOOP_GRATIS_RUSTIG: ["Doezel en zijn hoekje", "de nachtstand met adem, regen, gedachten parkeren, toilet en hulp", "De gewone wekker blijft gratis.", "twee keer snoozen", "morgen anders wekken, ook na de proef", "het voorstel voor de avond, elke avond een ander", "Naar buiten als één tik: Ik ben buiten geweest", "de verwijsregel"],
   SAMEN_BRAK_RUSTIG: "Een zware nacht. Doe het vandaag rustig aan.",
   WEK_DOEZEL_RUSTIG: "Goedemorgen. Neem rustig de tijd om op te staan.",
+  WEK_MIDDAG_RUSTIG: "Goedemiddag. Neem rustig de tijd om op te staan.",
+  OCHTEND_DOEZEL_VROEG_RUSTIG: "Goedemorgen. Neem rustig de tijd.",
   OCHTEND_DOEZEL_RUSTIG: "Goedemorgen. Even naar buiten? Vijf minuten is genoeg.",
   SAMEN_OP_RUSTIG: "Goedemorgen. Sta rustig op, er is geen haast.",
   SAMEN_OP_BRAK_RUSTIG: "Langzaam aan vandaag. Dat mag.",
@@ -583,8 +729,24 @@ const D = {
   HOEKJE_VERDER: "Hoekje: verder",
   HOEKJE_BEGIN: "Hoekje: begin",
   TOON: "Toon",
-  TOON_RUSTIG: "Rustig"
+  TOON_RUSTIG: "Rustig",
+  // echte functies (25-11): een echte wekker zolang dit scherm open is, Adem naar het einde, en welke stem er praat
+  ECHT: "Echt in de demo",
+  WEK_1: "Wekker over 1 minuut (demo)",
+  WEK_5: "Wekker over 5 minuten",
+  WEK_WEG: "Wekker annuleren",
+  WEK_AFTEL: "Wekker gaat af over [t]",
+  WEK_UITLEG: "Een echte wekker zolang dit scherm open is. Een vergrendeld scherm kan hem pauzeren.",
+  ADEM_EINDE: "Adem: snel naar het einde",
+  STEM: "Stem",
+  STEM_GEKOZEN: "Gekozen stem: [naam]",
+  STEM_GEEN_NL: "geen Nederlandse stem gevonden",
+  STEM_GEEN_API: "Deze browser heeft geen spraak (speechSynthesis).",
+  STEM_TEST: "Stem testen",
+  STEM_ZIN: "Dit is de stem van Doezel in het prototype."
 };
+// echte functies (25-11): de band bovenaan de pagina (niet in de app). Ook in LEES-MIJ.md.
+const BAND = "Prototype · werkt echt: stem, geluid, adem, lichtschatting via camera, wekker zolang dit scherm open is. In de echte app: wekker ook bij vergrendeld scherm (AlarmKit), lichtmeting met kalibratie.";
 
 /* ---------- toestand ---------- */
 const BEGIN = () => ({
@@ -592,7 +754,8 @@ const BEGIN = () => ({
   dagen: [true, true, true, true, true, false, false], tweeSnooze: false, snoozes: 0, gesnoozed: false,
   gez: null, chips: {}, stem: true, volume: 80, geluid: false, proefdag: 1, gekocht: false,
   deal: null, voUit: false, nachtOog: false, ademAan: false, ademFase: "in", klank: null, eb: "kort",
-  buitenSec: 300, buitenAan: false, buitenKlaar: false, wekGeluid: "speeldoos", ochtendInfo: null, toast: null,
+  // review 113, B2: wekGeluid null = de standaard (Rustig: Lage bel; B3: met de zachte wekker "zacht"; anders de speeldoos)
+  buitenSec: 300, buitenAan: false, buitenKlaar: false, wekGeluid: null, ochtendInfo: null, toast: null,
   // samen met Doezel: alleen acties van vandaag, elke dag opnieuw
   op: false, buiten: false, brak: false, schermWeg: false, gedimd: false, reactie: null,
   // review 109: nachtstand (slaapt, zwart, wakker), dienst, morgen anders, avondgeheugen
@@ -608,11 +771,31 @@ const BEGIN = () => ({
   morgenKaart: false, morgenConcept: null, morgenGeen: false, morgenExtra: false, wekVandaag: null,
   middagOpen: false, middagConcept: 870, middagTijd: null,
   // besluiten Pjotr 24-11: het hoekje (aantal dingen, nooit in beeld), de toon
-  hoekje: 0, hoekjeTel: 0, goedeDag: false, hoekjeNieuw: false, hoekjeGetoond: false, toon: "gewoon"
+  // review 113, B4: het hoekje staat er vanaf dag 1, met één ding (het kussen)
+  hoekje: 1, hoekjeTel: 0, goedeDag: false, hoekjeNieuw: false, hoekjeGetoond: false, toon: "gewoon",
+  // review 113, B2 en B4: de vraag "Geluid aan?" (één keer), het avondseintje met de bedtijd (null = wektijd min 8 uur),
+  // het aanbod op Vanavond (hooguit één keer per week, dagNr van de laatste keer)
+  geluidGevraagd: false, bedtijd: null, bedConcept: null, bedVraag: false, bedGevraagd: false, seinAanbodDag: null, seinNet: false,
+  // review 113: de middagwekker gaat af (wekMiddag), Adem dooft uit, te vroeg wakker (chip of vandaag), BIPSIGNAAL één keer overdag
+  // klokTest: alleen voor de rooktest, een vaste "nu" in ms (null = de klok van het toestel)
+  wekMiddag: false, ademUitdoof: false, vroeg: false, vroegVandaag: false, bipGezien: null, klokTest: null,
+  // review 114: te vroeg wakker 's nachts aangetikt (geldt voor de ochtend), BIPSIGNAAL (dagNr van de laatste keer, hooguit eens per 30 dagen),
+  // de opstaaregel bij Overslaan (dagNr waarop hij al stond), de wekker later na middernacht (minuten en de tijd van vóór die keuze),
+  // en de seizoensdingen in het hoekje (het seizoen van de dag waarop ze kwamen; ze blijven zo)
+  vroegMorgen: false, opstaanDag: null, laterMin: null, laterBasis: null, hoekjeSeizoen: [],
+  // review 114 (heftig): "Meer" 's nachts blijft open als je erin iets kiest
+  nachtMeerOpen: false,
+  // echte functies (25-11): de lichtcheck op Buiten. lichtModus: null (kaart met uitleg), "start", "sensor", "camera", "na" (nagebootst) of "uit".
+  // Er wordt niets bewaard behalve de laatste band en schatting op dit scherm.
+  lichtModus: null, lichtBand: null, lichtLux: null, lichtY: null, lichtMelding: null
 });
 let S = BEGIN();
 const NACHTSCHERMEN = ["nacht", "adem", "geluid", "toilet", "nachthulp", "vo", "welterusten", "parkeer"];
-const timers = { adem: null, buiten: null, toast: null, nacht: null, rust: null };
+const timers = { adem: null, buiten: null, toast: null, nacht: null, rust: null, ademEind: null, ademZwart: null, pufje: null, licht: null, lichtMax: null, lichtWacht: null };
+// review 113, A2: Adem stopt na 10 minuten vanzelf; de cirkel en de toon doven in 30 s uit, daarna zwart
+const ADEM_MAX_MS = 600000, ADEM_UITDOOF_MS = 30000;
+// review 113, A2: één ademtempo (4 tellen in, 6 tellen uit), ook in Rustig
+const ADEM_IN_MS = 4000, ADEM_UIT_MS = 6000;
 // review 109, R-1: na "Nachtstand aan" na 20 s zwart; na een tik na 60 s zonder tik weer zwart
 const NACHT_ZWART_MS = 20000, NACHT_STIL_MS = 60000;
 // review 110, S-1: Hulp (en Gedachten parkeren) wordt nooit vanzelf zwart
@@ -629,21 +812,62 @@ const dealTweeTik = (dk) => dk === "SCHRIJF" || dk === "DOUCHE";
 // Overslaan haalt er nooit iets af en zet niets terug. Geen teller, getal of reeks in beeld.
 const HOEKJE = ["KUSSEN", "PLANTJE", "LAMPJE", "KLEED", "BOEKEN", "MOK"];
 const HOEKJE_DAGEN = 3;
+// review 113, B4: na de zes vaste dingen volgen seizoensdingen, steeds in deze volgorde. Het hoekje wordt nooit vol.
+const SEIZOEN = ["HERFSTBLAD", "WINTERLAMPJE", "LENTETAKJE", "ZOMERSCHELP"];
+// review 114, U4: een seizoensding volgt de echte datum van het toestel (in het prototype: de klok van de demo, of klokTest in de rooktest).
+// Herfst is september tot en met november, winter december tot en met februari, lente maart tot en met mei, zomer juni tot en met augustus.
+// Het ding onthoudt het seizoen van de dag waarop het kwam (S.hoekjeSeizoen), dus er verandert en verdwijnt nooit iets.
+const seizoenNu = () => { const m = klokNu().getMonth(); return m >= 8 && m <= 10 ? "HERFSTBLAD" : m === 11 || m <= 1 ? "WINTERLAMPJE" : m <= 4 ? "LENTETAKJE" : "ZOMERSCHELP"; };
+const hoekjeDing = (i) => (i < HOEKJE.length ? HOEKJE[i] : (S.hoekjeSeizoen && S.hoekjeSeizoen[i - HOEKJE.length]) || seizoenNu());
+function hoekjeErbij() {
+  S.hoekje++;
+  if (S.hoekje > HOEKJE.length) { if (!Array.isArray(S.hoekjeSeizoen)) S.hoekjeSeizoen = []; S.hoekjeSeizoen[S.hoekje - 1 - HOEKJE.length] = seizoenNu(); }
+}
+const hoekjeDingen = () => Array.from({ length: Math.max(0, S.hoekje) }, (_, i) => hoekjeDing(i));
+// review 113, B4: het avondseintje. Zonder bedtijd rekent de app met de wektijd min 8 uur; het seintje komt een uur eerder.
+const bedtijdNu = () => (S.bedtijd != null ? S.bedtijd : (S.wektijd - 480 + 1440) % 1440);
+const seinTijd = () => (bedtijdNu() - 60 + 1440) % 1440;
+const seinAanbodNu = () => !S.avondSein && S.tijd !== "nacht" && (S.seinAanbodDag == null || S.dagNr - S.seinAanbodDag >= 7);
+// review 113, B3 (advies, wacht op Pjotr): de zachte wekker bouwt in 90 s op, de gewone speeldoos in 40 s
+const WEK_ZACHT_S = 90, WEK_GEWOON_S = 40;
+// review 114, W4 (advies, wacht op Pjotr): de zachte wekker begint zacht maar hoorbaar en bouwt lineair op tot duidelijk hoorbaar,
+// ongeveer 70 % van het volume. Na 40 s is hij nooit zachter dan de speeldoos op dat moment (die is dan op zijn eind, 0,32).
+// De grondtoon is minstens 220 Hz, zodat een telefoonspeaker hem laat horen. Daarna herhaalt hij tot Stop.
+const WEK_ZACHT_BEGIN = 0.06, WEK_ZACHT_EIND = 0.7, WEK_GEWOON_EIND = 0.32, WEK_ZACHT_GRONDTOON = 220;
+const wekZachtNiveau = (s) => WEK_ZACHT_BEGIN + (WEK_ZACHT_EIND - WEK_ZACHT_BEGIN) * Math.min(1, Math.max(0, s) / WEK_ZACHT_S);
 
 const isNacht = (sc) => NACHTSCHERMEN.includes(sc || S.scherm) || ((sc || S.scherm) === "welkom" && S.tijd === "nacht");
 // de zachte wekker (proef of gekocht); morgen anders wekken hoort daar niet meer bij (besluit Pjotr 24-11)
 const zacht = () => S.gekocht || S.proefdag < 15;
+// review 113, B2: in de toon Rustig is de standaard wektoon de Lage bel.
+// B3 (advies, wacht op Pjotr): met de zachte wekker (proef of gekocht) is in Gewoon "zacht" de standaard; zonder valt "zacht" terug.
+const wekGeluidNu = () => {
+  const keus = S.wekGeluid, basis = S.toon === "rustig" ? "bel" : "speeldoos";
+  if (keus === "zacht") return zacht() ? "zacht" : basis;
+  if (keus) return keus;
+  return S.toon !== "rustig" && zacht() ? "zacht" : basis;
+};
 const medsuf = () => S.gez === "ja" && (S.chips.slaappil || S.chips["plaspil of bloeddruk"]);
 const bipepi = () => S.gez === "ja" && (S.chips.bipolair || S.chips.epilepsie);
 // review 109, R-2: een open of overgeslagen vraag geldt als de veilige standaard
-const gezOpen = () => S.gez === null || S.gez === "over";
+// review 113, A1: "Ja" zonder gekozen chip telt ook als open (PLASPIL, OPSTAANRUSTIG en "houd je vast" blijven staan)
+const gezChipGekozen = () => Object.keys(S.chips || {}).some((c) => !!S.chips[c]);
+const gezOpen = () => S.gez === null || S.gez === "over" || (S.gez === "ja" && !gezChipGekozen());
+// review 113, A3 (advies van de sessie, wacht op Pjotr): te vroeg wakker (chip onder Meer of vandaag aangetikt), en het signaal bij bipolair
+const vroegNu = () => !!(S.vroeg || S.vroegVandaag);
+const bipNu = () => S.gez === "ja" && !!S.chips.bipolair;
+// review 114, W3 (wacht op Pjotr): overdag op Vandaag hooguit één keer per 30 dagen (was: één keer ooit)
+const BIP_DAGEN = 30;
+const bipRegelNu = () => bipNu() && S.tijd !== "nacht" && (S.bipGezien == null || S.dagNr - S.bipGezien >= BIP_DAGEN);
 // review 110, S-3: alleen een bevestigd ja (bipolair of epilepsie) geeft de RUIM-tekst; open geeft geen uitslaapadvies
 const slechtRuim = () => bipepi();
 // review 110, S-4: SLAAPPIL alleen bij de chip slaappil; PLASPIL bij de chip plaspil of bloeddruk, of als de vraag open is
 const slaappilNu = () => S.gez === "ja" && !!S.chips.slaappil;
 const plaspilNu = () => gezOpen() || (S.gez === "ja" && !!S.chips["plaspil of bloeddruk"]);
 const pillen = () => (slaappilNu() ? p(T.SLAAPPIL) : "") + (plaspilNu() ? p(T.PLASPIL) : "");
-const opstaanRustig = () => gezOpen() || medsuf();
+// review 114, W2: elk "Ja" geeft de opstaaregel, ook met alleen de chip stemming of anders (vroeger alleen slaappil of plaspil).
+// Licht: sla je de vraag over, dan staat de regel hooguit één keer per dag (S.opstaanDag, gezet in go()).
+const opstaanRustig = () => S.gez === "ja" || (gezOpen() && !(S.gez === "over" && S.opstaanDag === S.dagNr));
 // de vraag komt nooit 's nachts; wel op Welterusten (eerste nachtstand) en bij de eerste keer Naar buiten
 // review 111: na "Ja" blijven de vervolgchips op dit scherm staan (gezNet), tot je verder gaat
 const gezVragen = () => (S.gez === null || (S.gez === "ja" && S.gezNet)) && S.tijd !== "nacht";
@@ -653,11 +877,28 @@ const kloktijd = (m) => pad2(Math.floor(m / 60) % 24) + "." + pad2(m % 60);
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const telLinks = (s) => esc(s).replace(/0800-0113|113\.nl|\b113\b|\b112\b/g, (m) =>
   m === "113.nl" ? m : `<a class="tel" href="tel:${m.replace("-", "")}">${m}</a>`);
-function morgenIdx() { const d = new Date(); d.setDate(d.getDate() + 1); return d.getDay(); }
+// review 113, A1: de "volgende ochtend" is de eerstvolgende wekker na nu. Tussen middernacht en de wektijd is dat vandaag,
+// daarna morgen. Dit geldt voor wekkerMorgen(), de dagnaam in "Volgende wekker uitzetten" en VO_GEEN.
+const klokNu = () => (S.klokTest != null ? new Date(S.klokTest) : new Date());
+function volgendeIdx() {
+  const d = klokNu(), minuut = d.getHours() * 60 + d.getMinutes();
+  const wt = S.morgenTijd != null ? S.morgenTijd : S.wektijd;
+  if (minuut >= wt) d.setDate(d.getDate() + 1);
+  return d.getDay();
+}
+function morgenIdx() { return volgendeIdx(); }
 const maIdx = (zondagIdx) => (zondagIdx + 6) % 7;
 // review 112: morgenGeen (eenmalig geen wekker) en morgenExtra (eenmalig toch een wekker) gelden alleen voor morgen
 const wekkerMorgen = () => !S.voUit && !S.morgenGeen && (S.morgenExtra || (S.wekker && S.dagen[maIdx(morgenIdx())]));
 const wektijdMorgen = () => (S.morgenTijd != null ? S.morgenTijd : S.wektijd);
+// review 113, A1: de middagwekker na een nachtdienst heeft voorrang als wekker voor vandaag
+const wekTijdNu = () => (S.wekMiddag && S.middagTijd != null ? S.middagTijd : S.wekVandaag != null ? S.wekVandaag : S.wektijd);
+// review 113, A1: overdag een uitgang op Nacht en Welterusten (na een dagslaap of vanuit de nacht); 's avonds en 's nachts niet
+const dagUitgang = () => S.tijd === "ochtend" || S.tijd === "dag";
+// review 114 (28): na middernacht kun je 's nachts onder Meer de wekker later zetten (30, 60 of 90 minuten), zonder kloktijd.
+// In het prototype telt de demonacht als na middernacht; met klokTest (rooktest) telt de klok (tussen 00.00 en 12.00).
+const naMiddernacht = () => S.tijd === "nacht" && (S.klokTest == null || klokNu().getHours() < 12);
+const laterNu = () => naMiddernacht() && wekkerMorgen();
 function proefDatum() { const d = new Date(); d.setDate(d.getDate() + Math.max(0, 14 - S.proefdag)); return d.getDate() + " " + T.MAANDEN[d.getMonth()]; }
 const dagNaam = () => T.DAGEN[morgenIdx()];
 const homeScherm = () => (S.eerste ? "welkom" : { avond: "vanavond", nacht: "nacht", ochtend: "goedemorgen", dag: "vandaag" }[S.tijd]);
@@ -679,12 +920,14 @@ function doezelStand(sc) {
   return e >= 2 ? "energiek" : e === 1 ? "wakker" : "rustig";
 }
 // besluit Pjotr 24-11 (7): "Hoe was je nacht?" komt elke ochtend
-function nieuweDag() { S.wekVandaag = wekkerMorgen() ? wektijdMorgen() : null; S.morgenTijd = null; S.morgenGeen = false; S.morgenExtra = false; S.morgenKaart = false; S.middagTijd = null; S.middagOpen = false; S.voUit = false; hoekjeGroei(); S.op = false; S.buiten = false; S.brak = false; S.reactie = null; S.ochtendInfo = null; S.dienst = false; S.morgenOpen = false; S.nachtVraag = true; S.cgtNu = false; S.dagNr++; }
+// review 114: "Te vroeg wakker?" van vannacht geldt voor deze ochtend; de wekker later (na middernacht) is eenmalig
+function nieuweDag() { S.wekVandaag = wekkerMorgen() ? wektijdMorgen() : null; S.wekMiddag = false; S.vroegVandaag = !!S.vroegMorgen; S.vroegMorgen = false; S.laterMin = null; S.laterBasis = null; S.morgenTijd = null; S.morgenGeen = false; S.morgenExtra = false; S.morgenKaart = false; S.middagTijd = null; S.middagOpen = false; S.voUit = false; hoekjeGroei(); S.op = false; S.buiten = false; S.brak = false; S.reactie = null; S.ochtendInfo = null; S.dienst = false; S.morgenOpen = false; S.nachtVraag = true; S.cgtNu = false; S.dagNr++; }
 // besluit Pjotr 24-11 (1): een goede dag telt stil mee; er gaat nooit iets weg
+// review 113, B4: geen bovengrens meer; na de zes vaste dingen komen de seizoensdingen
 function hoekjeGroei() {
   if (!S.goedeDag) return;
   S.goedeDag = false; S.hoekjeTel++;
-  if (S.hoekjeTel >= HOEKJE_DAGEN && S.hoekje < HOEKJE.length) { S.hoekje++; S.hoekjeTel = 0; S.hoekjeNieuw = true; }
+  if (S.hoekjeTel >= HOEKJE_DAGEN) { hoekjeErbij(); S.hoekjeTel = 0; S.hoekjeNieuw = true; }
 }
 // het geheugen kijkt alleen naar gisteren; er is geen reeks en geen teller in beeld
 function nieuweAvond() {
@@ -703,25 +946,36 @@ function slechtTel() {
 }
 
 /* ---------- geluid (WebAudio) ---------- */
-let AC = null, master = null, ruisCache = {};
+// review 113, B2: één volumeregelaar (S.volume) voor de stem, de geluiden, Adem en Doezels geluidjes (via master).
+// De wekker loopt via een eigen bus (wekBus) en blijft dus altijd hoorbaar.
+let AC = null, master = null, wekBus = null, ruisCache = {};
 function audioStart() {
   if (!AC) {
     const C = window.AudioContext || window.webkitAudioContext;
     if (!C) return null;
-    AC = new C(); master = AC.createGain(); master.gain.value = 0.9; master.connect(AC.destination);
+    AC = new C(); master = AC.createGain(); master.connect(AC.destination);
+    wekBus = AC.createGain(); wekBus.gain.value = 0.9; wekBus.connect(AC.destination);
+    volumeZet();
   }
   if (AC.state === "suspended" && AC.resume) AC.resume();
   return AC;
 }
+function volumeZet() { if (master) master.gain.value = 0.9 * Math.max(0, Math.min(100, Number(S.volume) || 0)) / 100; }
 const kan = () => S.geluid && audioStart();
+// echte functies (25-11): de lus van 3 s loopt nu naadloos. De bruine ruis van de haard sprong aan het eind van de buffer
+// terug naar het begin; dat gaf elke 3 seconden een plofje. Nu loopt het begin in 0,25 s over uit wat na het eind zou komen.
+const RUIS_OVERLOOP_S = 0.25;
 function ruis(soort) {
   if (ruisCache[soort]) return ruisCache[soort];
-  const n = AC.sampleRate * 3, b = AC.createBuffer(1, n, AC.sampleRate), d = b.getChannelData(0);
+  const n = AC.sampleRate * 3, x = Math.floor(AC.sampleRate * RUIS_OVERLOOP_S), b = AC.createBuffer(1, n, AC.sampleRate), d = b.getChannelData(0);
+  const ruw = new Float32Array(n + x);
   let last = 0;
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < n + x; i++) {
     const w = Math.random() * 2 - 1;
-    if (soort === "bruin") { last = (last + 0.02 * w) / 1.02; d[i] = last * 3.5; } else d[i] = w;
+    if (soort === "bruin") { last = (last + 0.02 * w) / 1.02; ruw[i] = last * 3.5; } else ruw[i] = w;
   }
+  // d[n - 1] = ruw[n - 1] en de lus gaat verder met d[0] = ruw[n]: er is geen sprong meer
+  for (let i = 0; i < n; i++) d[i] = i < x ? ruw[i] * (i / x) + ruw[n + i] * (1 - i / x) : ruw[i];
   return (ruisCache[soort] = b);
 }
 let klankN = null;
@@ -771,21 +1025,34 @@ function klankStop(rerender) {
   klankN = null; S.klank = null;
   if (rerender) render();
 }
+// review 113, A2: de ademtonen lopen via een eigen bus, zodat ze na 10 minuten in 30 s kunnen uitdoven
+let ademBus = null;
+function ademBusNu() {
+  if (!ademBus) { ademBus = AC.createGain(); ademBus.gain.value = 1; ademBus.connect(master); }
+  return ademBus;
+}
+function ademBusVol(doel, ms) {
+  if (!AC) return;
+  const b = ademBusNu(), t = AC.currentTime;
+  b.gain.cancelScheduledValues(t);
+  if (ms) { b.gain.setValueAtTime(b.gain.value || 1, t); b.gain.linearRampToValueAtTime(Math.max(doel, 0.0001), t + ms / 1000); }
+  else b.gain.setValueAtTime(doel, t);
+}
 function ademToon(fase) {
   if (!kan()) return;
-  const t = AC.currentTime, dur = fase === "in" ? 4 : 6;
+  const t = AC.currentTime, dur = (fase === "in" ? ADEM_IN_MS : ADEM_UIT_MS) / 1000, bus = ademBusNu();
   const o = AC.createOscillator(), g = AC.createGain(), lp = AC.createBiquadFilter();
   o.type = "triangle";
   o.frequency.setValueAtTime(fase === "in" ? 174 : 247, t);
   o.frequency.exponentialRampToValueAtTime(fase === "in" ? 247 : 165, t + dur);
   lp.type = "lowpass"; lp.frequency.value = 700;
   g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.09, t + dur * 0.35); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  o.connect(lp); lp.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.1);
+  o.connect(lp); lp.connect(g); g.connect(bus); o.start(t); o.stop(t + dur + 0.1);
   if (fase === "uit") {
     const z = AC.createBufferSource(), zf = AC.createBiquadFilter(), zg = AC.createGain();
     z.buffer = ruis("wit"); zf.type = "bandpass"; zf.frequency.value = 900; zf.Q.value = 0.7;
     zg.gain.setValueAtTime(0.0001, t); zg.gain.exponentialRampToValueAtTime(0.035, t + 1.2); zg.gain.exponentialRampToValueAtTime(0.0001, t + 5.5);
-    z.connect(zf); zf.connect(zg); zg.connect(master); z.start(t); z.stop(t + 6);
+    z.connect(zf); zf.connect(zg); zg.connect(bus); z.start(t); z.stop(t + 6);
   }
 }
 function tingel(f, t, dest, sterkte) {
@@ -799,11 +1066,13 @@ function tingel(f, t, dest, sterkte) {
 let wekN = null;
 function wekStart(test) {
   wekStop();
-  // de geluidknop dempt Doezel en de geluiden, nooit de wekker (review 109)
+  // de geluidknop dempt Doezel en de geluiden, nooit de wekker (review 109); het volume ook niet (review 113, B2)
   if (!audioStart()) return;
+  const soort = wekGeluidNu();
+  if (soort === "zacht") { wekZacht(test); return; }
   const t0 = AC.currentTime, g = AC.createGain();
-  g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.32, t0 + (test ? 3 : 40)); g.connect(master);
-  const noten = S.wekGeluid === "bel" ? [261.6, 293.7, 329.6, 392, 440, 523.3] : [523.3, 587.3, 659.3, 784, 880, 1046.5];
+  g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(WEK_GEWOON_EIND, t0 + (test ? 3 : WEK_GEWOON_S)); g.connect(wekBus);
+  const noten = soort === "bel" ? [261.6, 293.7, 329.6, 392, 440, 523.3] : [523.3, 587.3, 659.3, 784, 880, 1046.5];
   const melodie = [0, 2, 4, 3, 2, 1, 0, 2, 3, 5, 4, 2, 1, 3, 2, 0];
   let i = 0;
   wekN = { g, timer: null };
@@ -815,6 +1084,40 @@ function wekStart(test) {
   stap();
   if (test) wekN.stop = setTimeout(wekStop, 6000);
 }
+// review 113, B3 (advies, wacht op Pjotr): de zachte wekker. Lage, warme tonen die in 90 s van bijna stil naar zacht
+// opbouwen, met af en toe Doezels zachte "goeiemorgen" (vier lage tonen; de echte app krijgt een opgenomen stem).
+// Bij de test in Meer instellen bouwt hij in 8 s op, zodat je het verschil met de speeldoos (3 s) hoort.
+function zachteToon(f, t, dur, vol, dest) {
+  const o = AC.createOscillator(), g = AC.createGain(), lp = AC.createBiquadFilter();
+  o.type = "sine"; o.frequency.setValueAtTime(f, t);
+  lp.type = "lowpass"; lp.frequency.value = 900;
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + dur * 0.35); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(lp); lp.connect(g); g.connect(dest); o.start(t); o.stop(t + dur + 0.05);
+}
+function zachteGoeiemorgen(t, dest) {
+  // "goei-e-mor-gen": vier zachte, lage tonen met een kleine buiging, zoals Doezel het zou neuriën
+  let tt = t;
+  for (const [f, fEind, d] of [[293.7, 329.6, 0.32], [329.6, 293.7, 0.22], [261.6, 293.7, 0.3], [246.9, 220, 0.6]]) { noot(f, tt, d, 0.12, "triangle", fEind, dest); tt += d + 0.04; }
+}
+// review 114, W4 (advies, wacht op Pjotr): lineair van zacht maar hoorbaar (0,06) naar duidelijk hoorbaar (0,7) in 90 s;
+// na 40 s al boven de speeldoos (0,32). Akkoorden met de grondtoon op minstens 220 Hz. Hij herhaalt tot Stop.
+const WEK_ZACHT_AKKOORDEN = [[220, 277.2, 329.6], [246.9, 293.7, 370], [220, 277.2, 440], [261.6, 329.6, 392]];
+function wekZacht(test) {
+  const t0 = AC.currentTime, g = AC.createGain();
+  g.gain.setValueAtTime(WEK_ZACHT_BEGIN, t0); g.gain.linearRampToValueAtTime(WEK_ZACHT_EIND, t0 + (test ? 8 : WEK_ZACHT_S)); g.connect(wekBus);
+  const akkoorden = WEK_ZACHT_AKKOORDEN;
+  let i = 0;
+  wekN = { g, timer: null, zacht: true };
+  const stap = () => {
+    if (!wekN) return;
+    const t = AC.currentTime + 0.02;
+    akkoorden[i % akkoorden.length].forEach((f, k) => zachteToon(f, t + k * 0.15, 3.8, 0.2, g));
+    if (i % 4 === 1) zachteGoeiemorgen(t + 1.4, g);
+    i++; wekN.timer = setTimeout(stap, 3800);
+  };
+  stap();
+  if (test) wekN.stop = setTimeout(wekStop, 10000);
+}
 function wekStop() {
   if (wekN && AC) {
     const n = wekN; clearTimeout(n.timer); clearTimeout(n.stop);
@@ -823,6 +1126,9 @@ function wekStop() {
   wekN = null;
 }
 function dealTik() { if (kan()) { const g = AC.createGain(); g.gain.value = 0.35; g.connect(master); tingel(1318.5, AC.currentTime + 0.01, g, 0.6); } }
+// review 113, B2: geluid aanzetten geeft een zacht tikje (het deal-tikje op 0,2) en de stem zegt "Geluid staat aan."
+function zachtTik() { if (kan()) { const g = AC.createGain(); g.gain.value = 0.2; g.connect(master); tingel(1318.5, AC.currentTime + 0.01, g, 0.6); } }
+function geluidAanMelding() { audioStart(); zachtTik(); spreek(T.GELUID_STAAT_AAN); }
 
 /* geluiden van Doezel (alleen met geluid aan) */
 function noot(f, t, dur, vol, type, fEind, dest) {
@@ -872,84 +1178,330 @@ function standGeluid(stand) {
 }
 
 /* ---------- stem (Web Speech) ---------- */
-function spreek(tekst) {
+// review 113, B2: de stemmen worden ook opgehaald als de browser ze later laadt (voiceschanged)
+let stemmenLijst = [];
+function stemNl() {
+  const ss = window.speechSynthesis;
+  const nu = (ss && ss.getVoices && ss.getVoices()) || [];
+  if (nu.length) stemmenLijst = nu;
+  // echte functies (25-11): eerst nl-NL, dan nl-BE, dan een andere Nederlandse stem
+  const zoek = (re) => stemmenLijst.find((x) => re.test(String((x && x.lang) || "")));
+  return zoek(/^nl[-_]NL/i) || zoek(/^nl[-_]BE/i) || zoek(/^nl\b/i);
+}
+// echte functies (25-11): voor het demopaneel, welke stem er praat
+function stemInfo() {
+  if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) return D.STEM_GEEN_API;
+  const v = stemNl();
+  return v ? D.STEM_GEKOZEN.replace("[naam]", (v.name || v.lang) + " (" + v.lang + ")") : D.STEM_GEEN_NL;
+}
+function stemDemoZet() { const el = document.getElementById("demoStem"); if (el) el.textContent = stemInfo(); }
+// echte functies (25-11): Adem zegt kort "In" en "Uit", op hetzelfde moment als de toon en het begin van de cirkelfase
+// (4 tellen in, 6 uit, ook in Rustig). Alleen met de stem en het geluid aan; niet tijdens het uitdoven. Zacht, zoals 's nachts.
+function ademStem(fase) {
+  if (!S.stem || !S.geluid || S.ademUitdoof) return;
+  const ss = window.speechSynthesis;
+  if (!ss || !window.SpeechSynthesisUtterance) return;
+  ss.cancel();
+  const v = stemNl(), u = new window.SpeechSynthesisUtterance(fase === "in" ? T.ADEM_IN : T.ADEM_UIT);
+  if (v) u.voice = v;
+  u.lang = v ? v.lang : "nl-NL";
+  u.rate = 0.82; u.pitch = 0.95; u.volume = 0.5 * S.volume / 100;
+  ss.speak(u);
+}
+// review 113, B2: lange teksten in stukken voorlezen (per zin, hooguit ongeveer 160 tekens), zodat de stem niet halverwege afbreekt
+function stukken(tekst) {
+  const zinnen = String(tekst).match(/[^.!?]+[.!?]*\s*/g) || [String(tekst)];
+  const uit = [];
+  let nu = "";
+  for (const z of zinnen) {
+    if (nu && (nu + z).length > 160) { uit.push(nu.trim()); nu = ""; }
+    nu += z;
+  }
+  if (nu.trim()) uit.push(nu.trim());
+  return uit;
+}
+// review 114 (65): normaalVolume = true leest 's nachts op het gewone volume (Hulp), niet op de helft
+function spreek(tekst, normaalVolume) {
   if (!S.stem) return;
   const ss = window.speechSynthesis;
   if (!ss || !window.SpeechSynthesisUtterance) { toon(T.GEEN_STEM); return; }
   ss.cancel();
-  const u = new window.SpeechSynthesisUtterance(tekst);
-  const v = (ss.getVoices() || []).find((x) => /^nl[-_](NL|BE)/i.test(x.lang));
-  if (v) u.voice = v;
-  u.lang = v ? v.lang : "nl-NL";
-  const vol = S.volume / 100;
-  if (isNacht()) { u.rate = 0.82; u.pitch = 0.95; u.volume = 0.5 * vol; }
-  else { u.rate = S.toon === "rustig" ? 0.85 : 0.92; u.pitch = 0.95; u.volume = vol; }
-  ss.speak(u);
+  const v = stemNl(), vol = S.volume / 100, nacht = isNacht();
+  for (const stuk of stukken(tekst)) {
+    const u = new window.SpeechSynthesisUtterance(stuk);
+    if (v) u.voice = v;
+    u.lang = v ? v.lang : "nl-NL";
+    if (nacht) { u.rate = 0.82; u.pitch = 0.95; u.volume = (normaalVolume ? 1 : 0.5) * vol; }
+    else { u.rate = S.toon === "rustig" ? 0.85 : 0.92; u.pitch = 0.95; u.volume = vol; }
+    ss.speak(u);
+  }
+}
+
+/* ---------- lichtcheck op Buiten (echte functies, 25-11) ----------
+   1. AmbientLightSensor als de browser die heeft (echte lux).
+   2. Anders de camera: het beeld op een canvas van 64 x 48, één keer per seconde de gemiddelde luminantie
+      (0,2126 R + 0,7152 G + 0,0722 B), omgezet naar een grove band en een ruwe lux-schatting. Geen echte meting.
+   3. Werkt dat niet (geen camera, geweigerd, iframe zonder toestemming, geen https), dan een korte melding en nagebootst.
+   Er wordt niets opgeslagen of verstuurd. De stream stopt bij Stop, bij een ander scherm, na 2 minuten en als de pagina verborgen raakt. */
+const LICHT_MAX_MS = 120000, LICHT_STAP_MS = 1000, LICHT_WACHT_MS = 3000, LICHT_W = 64, LICHT_H = 48;
+// ankers voor de ruwe schatting: luminantie (0 tot 255) tegen lux, logaritmisch daartussen. Bewust grof (de camera regelt zelf de belichting bij).
+const LICHT_ANKERS = [[0, 1], [15, 10], [60, 100], [140, 1000], [200, 10000], [255, 50000]];
+const lichtBandVanY = (y) => (y < 15 ? "donker" : y < 60 ? "schemer" : y < 140 ? "binnen" : y <= 200 ? "daglicht" : "fel");
+const lichtBandVanLux = (lux) => (lux < 10 ? "donker" : lux < 100 ? "schemer" : lux < 1000 ? "binnen" : lux <= 10000 ? "daglicht" : "fel");
+function luxVanY(y) {
+  y = Math.max(0, Math.min(255, Number(y) || 0));
+  for (let i = 1; i < LICHT_ANKERS.length; i++) {
+    const [y0, l0] = LICHT_ANKERS[i - 1], [y1, l1] = LICHT_ANKERS[i];
+    if (y <= y1) return Math.exp(Math.log(l0) + (Math.log(l1) - Math.log(l0)) * (y - y0) / (y1 - y0));
+  }
+  return LICHT_ANKERS[LICHT_ANKERS.length - 1][1];
+}
+// twee cijfers (bijvoorbeeld 340 of 2300): het blijft een schatting
+function luxRond(l) {
+  if (!(l > 0)) return 0;
+  const m = Math.pow(10, Math.max(0, Math.floor(Math.log10(l)) - 1));
+  return Math.round(l / m) * m;
+}
+function lichtYVanPixels(data) {
+  let som = 0, n = 0;
+  for (let i = 0; i + 2 < data.length; i += 4) { som += 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]; n++; }
+  return n ? som / n : 0;
+}
+const lichtNu = { stream: null, video: null, canvas: null, ctx: null, sensor: null };
+const lichtBandTekst = () => (S.lichtBand ? T.LICHT_BANDEN[S.lichtBand] : T.LICHT_BEZIG);
+const lichtLuxTekst = () => (S.lichtLux != null ? T.LICHT_LUX.replace("[n]", S.lichtLux) : "");
+function lichtBlok() {
+  const m = S.lichtModus;
+  const kop = `<p class="label">${esc(labelTekst(T.LICHT_KOP))}</p>`;
+  if (m == null || m === "uit") return `<div class="kaart rustig" data-licht="${m || "kaart"}">${kop}${p(T.LICHT_UITLEG, "klein")}${m === "uit" ? p(S.lichtMelding || T.LICHT_GESTOPT, "klein") : ""}${knop("lichtStart", T.LICHT_KNOP, "twee")}</div>`;
+  const label = m === "sensor" ? T.LICHT_LABEL_SENSOR : m === "camera" ? T.LICHT_LABEL_CAMERA : m === "na" ? T.LICHT_LABEL_NA : "";
+  const meting = m === "start" ? p(T.LICHT_BEZIG, "klein")
+    : `<p class="voorstel" id="lichtband">${esc(lichtBandTekst())}</p><p class="klein" id="lichtlux">${esc(lichtLuxTekst())}</p><p class="proto" data-lichtlabel="1">${esc(label)}</p>`;
+  return `<div class="kaart rustig" data-licht="${m}">${kop}${m === "camera" ? '<span class="lichtplek" id="lichtplek"></span>' : ""}${meting}${S.lichtMelding ? p(S.lichtMelding, "klein") : ""}
+      <div class="linkrij" style="justify-content:flex-start">${link("lichtStop", T.LICHT_STOP)}</div></div>`;
+}
+function stopTracks(stream) { try { (stream && stream.getTracks ? stream.getTracks() : []).forEach((t) => t.stop()); } catch (e) { /* al gestopt */ } }
+function lichtSensorWeg() {
+  const s = lichtNu.sensor; lichtNu.sensor = null;
+  if (s) { try { s.onreading = null; s.onerror = null; if (s.stop) s.stop(); } catch (e) { /* al gestopt */ } }
+}
+// alles uit: sensor, stream (track.stop()), video, timers. De toestand van het scherm blijft.
+function lichtMediaWeg() {
+  clearInterval(timers.licht); timers.licht = null; clearTimeout(timers.lichtWacht); timers.lichtWacht = null;
+  lichtSensorWeg();
+  if (lichtNu.stream) { stopTracks(lichtNu.stream); lichtNu.stream = null; }
+  const v = lichtNu.video;
+  if (v) {
+    try { if (v.pause) v.pause(); } catch (e) { /* niets */ }
+    v.srcObject = null;
+    if (v.parentNode && v.parentNode.removeChild) v.parentNode.removeChild(v);
+    lichtNu.video = null;
+  }
+}
+// bij Stop en na 2 minuten: de kaart blijft, met de melding dat de camera uit staat
+function lichtStop(reden) {
+  const was = S.lichtModus;
+  lichtMediaWeg();
+  clearTimeout(timers.lichtMax); timers.lichtMax = null;
+  if (was == null || was === "uit") return;
+  S.lichtModus = "uit"; S.lichtMelding = reden === "tijd" ? T.LICHT_KLAAR_TIJD : null;
+}
+// bij een ander scherm of Eerste start opnieuw: alles uit en terug naar de kaart met uitleg
+function lichtUit() {
+  lichtMediaWeg();
+  clearTimeout(timers.lichtMax); timers.lichtMax = null;
+  S.lichtModus = null; S.lichtBand = null; S.lichtLux = null; S.lichtY = null; S.lichtMelding = null;
+}
+function lichtStart() {
+  lichtMediaWeg();
+  S.lichtModus = "start"; S.lichtBand = null; S.lichtLux = null; S.lichtY = null; S.lichtMelding = null;
+  clearTimeout(timers.lichtMax); timers.lichtMax = setTimeout(() => act("lichtStop", "tijd"), LICHT_MAX_MS);
+  if (!lichtSensorStart()) lichtCameraStart();
+}
+// 1. de lichtsensor; geeft false als die er niet is of niet start
+function lichtSensorStart() {
+  if (!("AmbientLightSensor" in window)) return false;
+  try {
+    const s = new window.AmbientLightSensor({ frequency: 1 });
+    lichtNu.sensor = s;
+    s.onreading = () => { if (lichtNu.sensor === s) lichtZetLux(s.illuminance, "sensor"); };
+    s.onerror = () => { if (lichtNu.sensor !== s) return; lichtSensorWeg(); if (S.lichtModus === "start") lichtCameraStart(); };
+    s.start();
+    // komt er binnen 3 s geen meting, dan alsnog de camera
+    clearTimeout(timers.lichtWacht);
+    timers.lichtWacht = setTimeout(() => { if (lichtNu.sensor === s && S.lichtModus === "start") { lichtSensorWeg(); lichtCameraStart(); } }, LICHT_WACHT_MS);
+    return true;
+  } catch (e) { lichtSensorWeg(); return false; }
+}
+const lichtFoutTekst = (e) => {
+  const naam = (e && e.name) || "";
+  return /NotAllowed|Security|PermissionDenied/i.test(naam) ? T.LICHT_GEWEIGERD : T.LICHT_GEEN_CAMERA;
+};
+// 2. de camera; iOS Safari vraagt playsinline (en muted) op de video
+function lichtCameraStart() {
+  const nav = window.navigator, md = nav && nav.mediaDevices;
+  if (window.isSecureContext === false) { lichtNa(T.LICHT_GEEN_HTTPS); return; }
+  if (!md || typeof md.getUserMedia !== "function") { lichtNa(T.LICHT_GEEN_CAMERA); return; }
+  let belofte;
+  try { belofte = md.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false }); }
+  catch (e) { lichtNa(lichtFoutTekst(e)); return; }
+  Promise.resolve(belofte).then((stream) => {
+    // intussen gestopt of een ander scherm: meteen weer uit
+    if (S.lichtModus !== "start" || S.scherm !== "buiten") { stopTracks(stream); return; }
+    const video = lichtVideo();
+    if (!video) { stopTracks(stream); lichtNa(T.LICHT_GEEN_CAMERA); return; }
+    lichtNu.stream = stream;
+    video.srcObject = stream;
+    try { const pl = video.play && video.play(); if (pl && pl.catch) pl.catch(() => {}); } catch (e) { /* speelt bij de volgende stap */ }
+    S.lichtModus = "camera"; render();
+    clearInterval(timers.licht); timers.licht = setInterval(lichtCameraStap, LICHT_STAP_MS);
+  }, (e) => { if (S.lichtModus === "start") lichtNa(lichtFoutTekst(e)); });
+}
+function lichtVideo() {
+  if (lichtNu.video) return lichtNu.video;
+  if (typeof document.createElement !== "function") return null;
+  const v = document.createElement("video");
+  v.setAttribute("playsinline", ""); v.setAttribute("muted", ""); v.setAttribute("aria-hidden", "true");
+  v.muted = true; v.playsInline = true; v.autoplay = true;
+  v.className = "lichtvideo";
+  lichtNu.video = v;
+  lichtPlaats();
+  return v;
+}
+// het kleine camerabeeld staat in de kaart; zonder kaart (heel even, voor de render) onzichtbaar in de pagina
+function lichtPlaats() {
+  const v = lichtNu.video;
+  if (!v) return;
+  const plek = document.getElementById("lichtplek");
+  const doel = plek && typeof plek.appendChild === "function" ? plek : document.body;
+  if (doel && typeof doel.appendChild === "function" && v.parentNode !== doel) {
+    doel.appendChild(v);
+    try { const pl = v.play && v.play(); if (pl && pl.catch) pl.catch(() => {}); } catch (e) { /* niets */ }
+  }
+}
+function lichtCameraStap() {
+  const v = lichtNu.video;
+  if (!v || !lichtNu.stream) return;
+  if (!lichtNu.canvas) {
+    if (typeof document.createElement !== "function") return;
+    const c = document.createElement("canvas"); c.width = LICHT_W; c.height = LICHT_H;
+    lichtNu.canvas = c; lichtNu.ctx = c.getContext ? c.getContext("2d", { willReadFrequently: true }) : null;
+  }
+  const ctx = lichtNu.ctx;
+  if (!ctx || !(v.readyState >= 2)) return;
+  try {
+    ctx.drawImage(v, 0, 0, LICHT_W, LICHT_H);
+    lichtZetY(lichtYVanPixels(ctx.getImageData(0, 0, LICHT_W, LICHT_H).data), "camera");
+  } catch (e) { /* één beeld mislukt: de volgende seconde opnieuw */ }
+}
+// 3. nagebootst: een rustige waarde die bij de demotijd past, met een klein beetje beweging
+function lichtNa(melding) {
+  lichtMediaWeg();
+  S.lichtModus = "na"; S.lichtBand = null; S.lichtMelding = melding || null;
+  lichtNaStap();
+  timers.licht = setInterval(lichtNaStap, LICHT_STAP_MS);
+}
+function lichtNaStap() {
+  const basis = { ochtend: 165, dag: 175, avond: 40, nacht: 8 }[S.tijd] || 120;
+  lichtZetY(Math.max(0, Math.min(255, basis + (Math.random() - 0.5) * 8)), "na");
+}
+function lichtZetY(y, bron) {
+  const opnieuw = S.lichtBand == null || S.lichtModus !== bron;
+  S.lichtModus = bron; S.lichtY = y; S.lichtBand = lichtBandVanY(y); S.lichtLux = luxRond(luxVanY(y));
+  lichtToon(opnieuw);
+}
+function lichtZetLux(lux, bron) {
+  if (!(lux >= 0)) return;
+  clearTimeout(timers.lichtWacht); timers.lichtWacht = null;
+  const opnieuw = S.lichtBand == null || S.lichtModus !== bron;
+  S.lichtModus = bron; S.lichtY = null; S.lichtBand = lichtBandVanLux(lux); S.lichtLux = luxRond(lux);
+  lichtToon(opnieuw);
+}
+// elke seconde alleen de twee regels bijwerken (zoals de buitentimer); de eerste keer het hele scherm
+function lichtToon(opnieuw) {
+  if (S.scherm !== "buiten") return;
+  const b = document.getElementById("lichtband"), l = document.getElementById("lichtlux");
+  if (opnieuw || !b || !l) { render(); return; }
+  b.textContent = lichtBandTekst(); l.textContent = lichtLuxTekst();
 }
 
 /* ---------- Doezel (inline SVG) ----------
    Standen: rustig, wakker, energiek, doezelig, slapend, halfwakker, brak.
    Het verschil zit in oogleden, ademtempo (CSS), kleurhelderheid en een kleine beweging. */
-const KLEUR = {
-  rustig: ["#F7B892", "#E98F62"], wakker: ["#F9BC95", "#EC925F"], energiek: ["#FFC79B", "#F3955A"],
-  doezelig: ["#EDB194", "#D98D69"], brak: ["#EEB495", "#D98E68"]
-};
+// review 113, B1: één SVG-element per vorm (dag of nacht) met alle standen erin. Alleen de klasse wisselt (st-*),
+// en de kleur, de ogen en de mond lopen in 600 ms over (CSS). Zo blijft het element staan en lopen de animaties door.
+// De kleuren per stand staan in de CSS (.doezel.dag.st-* .lijf): per paar minstens 15 % verschil in een kleurkanaal.
+const DAG_STANDEN = ["rustig", "wakker", "energiek", "doezelig", "brak"];
+const NACHT_OGEN = ["slapend", "half", "een", "doezelig"];
 const altStand = (st) => T["DOEZEL_ALT_" + st.toUpperCase()] || T.DOEZEL_ALT;
-function doezel(stand, opt) {
-  opt = opt || {};
-  if (stand === "slapend" || stand === "halfwakker" || (stand === "doezelig" && opt.opgerold)) {
-    const half = stand !== "slapend";
-    const oog = stand === "doezelig"
-      ? `<path d="M85 102 h16 a8 2.4 0 0 1 -16 0z M117 102 h16 a8 2.4 0 0 1 -16 0z" fill="#2A1812"/><path d="M84 101.5 h18 M116 101.5 h18" stroke="#B8774C" stroke-width="3" stroke-linecap="round"/>`
-      : !half
-      ? `<path d="M84 103 q9 7 18 0 M116 103 q9 7 18 0" stroke="#2A1812" stroke-width="3.2" fill="none" stroke-linecap="round"/>`
-      : opt.oog
-        ? `<path d="M85 101 h16 a8 3.5 0 0 1 -16 0z" fill="#2A1812"/><path d="M84 101 h18" stroke="#B8774C" stroke-width="2.6" stroke-linecap="round"/><ellipse cx="125" cy="103" rx="7" ry="5.5" fill="#2A1812"/><circle cx="127" cy="101" r="1.5" fill="#E0A574"/><path d="M116 99.5 h18" stroke="#B8774C" stroke-width="2.6" stroke-linecap="round"/>`
-        : `<path d="M85 101 h16 a8 3.6 0 0 1 -16 0z M117 101 h16 a8 3.6 0 0 1 -16 0z" fill="#2A1812"/><path d="M84 101 h18 M116 101 h18" stroke="#B8774C" stroke-width="2.6" stroke-linecap="round"/>`;
-    const lijf = half ? ["#A9653F", "#83492D"] : ["#9C5B37", "#7A4329"];
-    return `<svg class="doezel groot nacht st-${stand}" data-stand="${stand}" viewBox="0 0 240 180" role="img" aria-label="${esc(altStand(stand))}">
-<defs><radialGradient id="gloed-${stand}" cx="50%" cy="58%" r="50%"><stop offset="0" stop-color="#C9733A" stop-opacity=".5"/><stop offset="1" stop-color="#C9733A" stop-opacity="0"/></radialGradient>
-<linearGradient id="lijf-${stand}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${lijf[0]}"/><stop offset="1" stop-color="${lijf[1]}"/></linearGradient></defs>
-<ellipse class="gloed" cx="120" cy="104" rx="120" ry="78" fill="url(#gloed-${stand})"/>
+const DK = "#3E2A24", LID = "#C9733A";
+const LIJF_DAG = "M58 46 C74 32 96 28 116 30 C130 22 146 20 156 28 C146 30 142 38 148 48 C168 64 178 84 178 110 C178 150 148 170 100 170 C52 170 22 150 22 110 C22 82 36 60 58 46Z";
+const LIJF_NACHT = "M34 118 C30 84 62 64 108 62 C124 52 142 50 152 56 C146 60 146 66 152 70 C186 78 208 96 208 120 C208 146 178 156 120 156 C64 156 36 146 34 118Z";
+// per stand een eigen oog- en mondvorm
+const DAG_VORM = {
+  // rustig: ogen voor 60 % open (review 113, 6-ux), zodat hij overdag niet verveeld kijkt; zachte mond
+  rustig: {
+    oog: `<ellipse cx="75" cy="98" rx="10" ry="6" fill="${DK}"/><ellipse cx="125" cy="98" rx="10" ry="6" fill="${DK}"/><path d="M63 92 q12 -4 24 0 M113 92 q12 -4 24 0" stroke="${LID}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`,
+    mond: `<path d="M93 122 q7 4 14 0" stroke="${DK}" stroke-width="3" fill="none" stroke-linecap="round"/>`
+  },
+  // wakker: ronde open ogen met één lichtje, een glimlach
+  wakker: {
+    oog: `<ellipse cx="75" cy="97" rx="10" ry="9.5" fill="${DK}"/><ellipse cx="125" cy="97" rx="10" ry="9.5" fill="${DK}"/><circle cx="78.5" cy="93.5" r="2.6" fill="#fff" opacity=".9"/><circle cx="128.5" cy="93.5" r="2.6" fill="#fff" opacity=".9"/>`,
+    mond: `<path d="M91 120 q9 7 18 0" stroke="${DK}" stroke-width="3" fill="none" stroke-linecap="round"/>`
+  },
+  // energiek: grote ogen met twee lichtjes, een open lach
+  energiek: {
+    oog: `<ellipse cx="75" cy="95" rx="11" ry="12" fill="${DK}"/><ellipse cx="125" cy="95" rx="11" ry="12" fill="${DK}"/><circle cx="79" cy="90.5" r="3.3" fill="#fff" opacity=".95"/><circle cx="129" cy="90.5" r="3.3" fill="#fff" opacity=".95"/><circle cx="71.5" cy="99.5" r="1.5" fill="#fff" opacity=".7"/><circle cx="121.5" cy="99.5" r="1.5" fill="#fff" opacity=".7"/>`,
+    mond: `<path d="M89 118 q11 13 22 0 z" fill="#5A2E22"/>`
+  },
+  // doezelig: zware oogleden (zwaarder na twee avondacties), een gaap
+  doezelig: {
+    oog: `<g class="lt"><path d="M63 99 h24 a12 4.5 0 0 1 -24 0z M113 99 h24 a12 4.5 0 0 1 -24 0z" fill="${DK}"/></g><g class="zw"><path d="M63 99 h24 a12 3 0 0 1 -24 0z M113 99 h24 a12 3 0 0 1 -24 0z" fill="${DK}"/></g><path d="M61 98.5 h28 M111 98.5 h28" stroke="${LID}" stroke-width="3.4" stroke-linecap="round"/>`,
+    mond: `<ellipse class="gaap" cx="100" cy="124" rx="7" ry="8" fill="#5A2E22"/>`
+  },
+  // brak: halfdichte, iets hangende ogen en een golvende mond (niet verdrietig, niet ziek)
+  brak: {
+    oog: `<path d="M63 98 h24 a12 5.5 0 0 1 -24 0z M113 98 h24 a12 5.5 0 0 1 -24 0z" fill="${DK}"/><path d="M61 96.5 l28 2 M111 98.5 l28 -2" stroke="${LID}" stroke-width="3" stroke-linecap="round"/>`,
+    mond: `<path d="M92 123 q4 -2.5 8 0 q4 2.5 8 0" stroke="${DK}" stroke-width="3" fill="none" stroke-linecap="round"/>`
+  }
+};
+const NACHT_VORM = {
+  slapend: `<path d="M84 103 q9 7 18 0 M116 103 q9 7 18 0" stroke="#2A1812" stroke-width="3.2" fill="none" stroke-linecap="round"/>`,
+  half: `<path d="M85 101 h16 a8 3.6 0 0 1 -16 0z M117 101 h16 a8 3.6 0 0 1 -16 0z" fill="#2A1812"/><path d="M84 101 h18 M116 101 h18" stroke="#B8774C" stroke-width="2.6" stroke-linecap="round"/>`,
+  een: `<path d="M85 101 h16 a8 3.5 0 0 1 -16 0z" fill="#2A1812"/><path d="M84 101 h18" stroke="#B8774C" stroke-width="2.6" stroke-linecap="round"/><ellipse cx="125" cy="103" rx="7" ry="5.5" fill="#2A1812"/><circle cx="127" cy="101" r="1.5" fill="#E0A574"/><path d="M116 99.5 h18" stroke="#B8774C" stroke-width="2.6" stroke-linecap="round"/>`,
+  doezelig: `<path d="M85 102 h16 a8 2.4 0 0 1 -16 0z M117 102 h16 a8 2.4 0 0 1 -16 0z" fill="#2A1812"/><path d="M84 101.5 h18 M116 101.5 h18" stroke="#B8774C" stroke-width="3" stroke-linecap="round"/>`
+};
+// overdag: rustig, wakker, energiek, doezelig (Vanavond) en brak. cls: extra klassen (gegaapt, zwaar, verborgen).
+function doezelDagSvg(stand, cls, id) {
+  const ogen = DAG_STANDEN.map((s) => `<g class="oog-${s} vorm">${DAG_VORM[s].oog}</g>`).join("");
+  const monden = DAG_STANDEN.map((s) => `<g class="mond-${s} vorm">${DAG_VORM[s].mond}</g>`).join("");
+  return `<svg class="doezel dag st-${stand}${cls || ""}" data-stand="${stand}" viewBox="0 0 200 186" role="img" aria-label="${esc(altStand(stand))}">
+<defs><linearGradient id="dz-schaduw-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset=".4" stop-color="#5A3E36" stop-opacity="0"/><stop offset="1" stop-color="#5A3E36" stop-opacity=".25"/></linearGradient>
+<radialGradient id="dz-dgloed-${id}" cx="50%" cy="55%" r="50%"><stop offset="0" stop-color="#F4A97C" stop-opacity=".55"/><stop offset="1" stop-color="#F4A97C" stop-opacity="0"/></radialGradient></defs>
+<ellipse class="dgloed" cx="100" cy="104" rx="100" ry="86" fill="url(#dz-dgloed-${id})"/>
+<ellipse cx="100" cy="176" rx="62" ry="7" fill="#5A3E36" opacity=".1"/>
 <g class="beweeg"><g class="adem">
-<path d="M34 118 C30 84 62 64 108 62 C124 52 142 50 152 56 C146 60 146 66 152 70 C186 78 208 96 208 120 C208 146 178 156 120 156 C64 156 36 146 34 118Z" fill="url(#lijf-${stand})"/>
+<path class="lijf" d="${LIJF_DAG}"/><path d="${LIJF_DAG}" fill="url(#dz-schaduw-${id})"/>
+<ellipse class="buik" cx="100" cy="136" rx="46" ry="26" fill="#FFF4E6"/>
+<ellipse class="glans" cx="74" cy="58" rx="22" ry="9" fill="#fff" transform="rotate(-22 74 58)"/>
+<g class="ogen">${ogen}</g>
+${monden}
+</g></g></svg>`;
+}
+// 's nachts opgerold: slapend, half wakker (met cls " oog": één oog open) en doezelig (Welterusten)
+function doezelNachtSvg(stand, cls, id) {
+  const ogen = NACHT_OGEN.map((s) => `<g class="noog-${s} vorm">${NACHT_VORM[s]}</g>`).join("");
+  return `<svg class="doezel groot nacht st-${stand}${cls || ""}" data-stand="${stand}" viewBox="0 0 240 180" role="img" aria-label="${esc(altStand(stand))}">
+<defs><radialGradient id="dz-gloed-${id}" cx="50%" cy="58%" r="50%"><stop offset="0" stop-color="#C9733A" stop-opacity=".5"/><stop offset="1" stop-color="#C9733A" stop-opacity="0"/></radialGradient>
+<linearGradient id="dz-nschaduw-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset=".3" stop-color="#3A1E12" stop-opacity="0"/><stop offset="1" stop-color="#3A1E12" stop-opacity=".35"/></linearGradient></defs>
+<ellipse class="gloed" cx="120" cy="104" rx="120" ry="78" fill="url(#dz-gloed-${id})"/>
+<g class="beweeg"><g class="adem">
+<path class="lijf" d="${LIJF_NACHT}"/><path d="${LIJF_NACHT}" fill="url(#dz-nschaduw-${id})"/>
 <path d="M200 128 C214 134 210 150 194 150 C178 150 164 144 156 138" fill="none" stroke="#6A3923" stroke-width="4" stroke-linecap="round" opacity=".55"/>
-<g class="ogen">${oog}</g>
+<g class="ogen">${ogen}</g>
 <ellipse cx="108" cy="134" rx="22" ry="9" fill="#AE6A42"/>
 <path d="M98 132 v4 M108 131 v5 M118 132 v4" stroke="#7A4329" stroke-width="2" stroke-linecap="round" opacity=".6"/>
 </g></g></svg>`;
-  }
-  const k = KLEUR[stand] || KLEUR.rustig;
-  const D = "#3E2A24", LID = "#C9733A";
-  let ogen, mond, extra = "", kantel = "";
-  if (stand === "wakker") {
-    ogen = `<ellipse cx="75" cy="97" rx="10" ry="9" fill="${D}"/><ellipse cx="125" cy="97" rx="10" ry="9" fill="${D}"/><circle cx="78.5" cy="93.5" r="2.4" fill="#fff" opacity=".85"/><circle cx="128.5" cy="93.5" r="2.4" fill="#fff" opacity=".85"/>`;
-    mond = `<path d="M92 121 q8 6 16 0" stroke="${D}" stroke-width="3" fill="none" stroke-linecap="round"/>`;
-  } else if (stand === "energiek") {
-    ogen = `<ellipse cx="75" cy="96" rx="10.5" ry="11" fill="${D}"/><ellipse cx="125" cy="96" rx="10.5" ry="11" fill="${D}"/><circle cx="79" cy="92" r="3" fill="#fff" opacity=".9"/><circle cx="129" cy="92" r="3" fill="#fff" opacity=".9"/>`;
-    mond = `<path d="M91 121 q9 7 18 0" stroke="${D}" stroke-width="3" fill="none" stroke-linecap="round"/>`;
-  } else if (stand === "doezelig") {
-    const ry = opt.zwaar ? 3 : 4.5;
-    ogen = `<path d="M63 99 h24 a12 ${ry} 0 0 1 -24 0z M113 99 h24 a12 ${ry} 0 0 1 -24 0z" fill="${D}"/><path d="M61 98.5 h28 M111 98.5 h28" stroke="${LID}" stroke-width="3.4" stroke-linecap="round"/>`;
-    mond = `<ellipse class="gaap" cx="100" cy="124" rx="7" ry="8" fill="#5A2E22"/>`;
-  } else if (stand === "brak") {
-    ogen = `<path d="M63 98 h24 a12 5.5 0 0 1 -24 0z M113 98 h24 a12 5.5 0 0 1 -24 0z" fill="${D}"/><path d="M61 98 h28 M111 98 h28" stroke="${LID}" stroke-width="3" stroke-linecap="round"/>`;
-    mond = `<path d="M93 122 h14" stroke="${D}" stroke-width="3" fill="none" stroke-linecap="round"/>`;
-  } else {
-    ogen = `<path d="M62 96 h26 a13 8 0 0 1 -26 0z M112 96 h26 a13 8 0 0 1 -26 0z" fill="${D}"/><path d="M61 96 h28 M111 96 h28" stroke="${LID}" stroke-width="2.5" stroke-linecap="round"/>`;
-    mond = `<path d="M93 122 q7 4 14 0" stroke="${D}" stroke-width="3" fill="none" stroke-linecap="round"/>`;
-  }
-  const arm = opt.zwaai ? `<path class="arm" d="M168 112 C180 100 186 88 186 74" stroke="${k[1]}" stroke-width="15" stroke-linecap="round" fill="none"/>` : "";
-  return `<svg class="doezel st-${stand}${S.gaapGedaan ? " gegaapt" : ""}" data-stand="${stand}" viewBox="0 0 200 186" role="img" aria-label="${esc(altStand(stand))}">
-<defs><linearGradient id="lijf-${stand}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${k[0]}"/><stop offset="1" stop-color="${k[1]}"/></linearGradient></defs>
-${extra}<ellipse cx="100" cy="176" rx="62" ry="7" fill="#5A3E36" opacity=".1"/>
-<g class="beweeg"><g${kantel}><g class="adem">${arm}
-<path d="M58 46 C74 32 96 28 116 30 C130 22 146 20 156 28 C146 30 142 38 148 48 C168 64 178 84 178 110 C178 150 148 170 100 170 C52 170 22 150 22 110 C22 82 36 60 58 46Z" fill="url(#lijf-${stand})"/>
-<ellipse cx="100" cy="136" rx="46" ry="26" fill="#FFF4E6" opacity="${stand === "energiek" ? ".36" : stand === "brak" ? ".22" : ".28"}"/>
-<ellipse cx="74" cy="58" rx="22" ry="9" fill="#fff" opacity="${stand === "energiek" ? ".3" : stand === "brak" || stand === "doezelig" ? ".12" : ".2"}" transform="rotate(-22 74 58)"/>
-<g class="ogen">${ogen}</g>
-${mond}
-</g></g></g></svg>`;
 }
 
 /* ---------- bouwstenen ---------- */
@@ -964,33 +1516,60 @@ const waarom = (s) => `<p class="waarom">${esc(s)}</p>`;
 // review 112 (65): kaartlabels in hoofdletters, behalve in Rustig
 const labelTekst = (s) => (S.toon === "rustig" ? s : s.toUpperCase());
 const lees = (sleutel) => `<button class="lees" data-act="lees" data-arg="${sleutel}"><i>${ICON_LEES}</i>${esc(T.LEES_VOOR)}</button>`;
-const ballon = (sleutel, tekst) => `<div class="ballon"><p class="zin">${esc(tekst || T[sleutel])}</p>${lees(sleutel)}</div>`;
+// review 113, B2: leesSleutel laat "Lees voor" meer voorlezen dan de zin (bijvoorbeeld de opstaa-regel op het wekscherm)
+const ballon = (sleutel, tekst, leesSleutel) => `<div class="ballon"><p class="zin">${esc(tekst || T[sleutel])}</p>${lees(leesSleutel || sleutel)}</div>`;
 const lijst = (arr, ol) => `<${ol ? "ol" : "ul"} class="lijst">${arr.map((x) => `<li>${esc(x)}</li>`).join("")}</${ol ? "ol" : "ul"}>`;
 const p = (s, cls) => `<p${cls ? ` class="${cls}"` : ""}>${esc(s)}</p>`;
 const ptel = (s, cls) => `<p${cls ? ` class="${cls}"` : ""}>${telLinks(s)}</p>`;
-const doezelVak = (opt) => `<button class="doezelvak" data-act="doezelTik" aria-label="${esc(T.DOEZEL_ALT)}">${doezel(doezelStand(), Object.assign({ oog: S.nachtOog, zwaar: avondDoezel() >= 2, opgerold: isNacht() }, opt))}</button>`;
-// besluit Pjotr 24-11 (1): het hoekje staat overdag naast Doezel, 's nachts niet
-const doezelKnop = (opt) => (!isNacht() && S.hoekje > 0 ? `<div class="doezelrij">${doezelVak(opt)}${hoekjeSvg()}</div>` : doezelVak(opt));
+// review 113, B1: een scherm zet alleen een plek voor Doezel neer. render() knipt het scherm daar in tweeën (boven en onder)
+// en Doezel zelf staat er vast tussen (#doezelvast), buiten de innerHTML die render() vervangt.
+// besluit Pjotr 24-11 (1): het hoekje staat overdag naast Doezel, 's nachts niet (zie doezelNu)
+const DOEZEL_PLEK = "<!--doezel-->";
+const doezelKnop = () => DOEZEL_PLEK;
+// review 113, B1 en B4: het hoekje is groter (140 px breed; elk ding minstens 24 px) en groeit door met seizoensdingen.
+// HOEKJE_VAK: de omtrek van elk ding (x, y, breedte, hoogte) in de viewBox van 120 breed; de rooktest rekent die om naar px.
+const HOEKJE_BREED = 140;
 const HOEKJE_DING = {
-  KLEED: `<ellipse cx="58" cy="140" rx="54" ry="8" fill="#D9B8A6" opacity=".75"/>`,
-  LAMPJE: `<circle cx="30" cy="62" r="24" fill="#FFC86B" opacity=".2"/><path d="M30 70 v62" stroke="#8A6555" stroke-width="2.6"/><ellipse cx="30" cy="133" rx="10" ry="3" fill="#8A6555"/><path d="M18 70 h24 l-5 -17 h-14z" fill="#F3D3A3"/>`,
-  KUSSEN: `<ellipse cx="44" cy="132" rx="28" ry="11" fill="#E9A98A"/><path d="M20 130 q24 -10 48 0" stroke="#C98466" stroke-width="2" fill="none"/>`,
-  PLANTJE: `<path d="M78 112 h18 l-3 22 h-12z" fill="#B9714A"/><path d="M87 112 C82 96 74 90 66 88 C78 88 86 96 87 108 C88 94 96 84 106 82 C100 90 92 98 88 112" fill="#7E9A6B"/>`,
-  BOEKEN: `<rect x="92" y="130" width="24" height="7" rx="1.5" fill="#8E6A9A"/><rect x="94" y="123" width="20" height="7" rx="1.5" fill="#6F8FA6"/>`,
-  MOK: `<rect x="98" y="110" width="12" height="13" rx="3" fill="#FFF4E6" stroke="#C9733A" stroke-width="1.5"/><path d="M110 113 q5 0 5 4 q0 4 -5 4" stroke="#C9733A" stroke-width="1.5" fill="none"/>`
+  KLEED: `<ellipse cx="60" cy="140" rx="56" ry="11" fill="#D9B8A6" opacity=".8"/><ellipse cx="60" cy="140" rx="44" ry="7" fill="none" stroke="#C49A86" stroke-width="1.5"/>`,
+  LAMPJE: `<circle cx="29" cy="58" r="26" fill="#FFC86B" opacity=".2"/><path d="M29 66 v64" stroke="#8A6555" stroke-width="3"/><ellipse cx="29" cy="131" rx="12" ry="3.5" fill="#8A6555"/><path d="M14 66 h30 l-6 -20 h-18z" fill="#F3D3A3"/>`,
+  KUSSEN: `<ellipse cx="38" cy="128" rx="28" ry="13" fill="#E9A98A"/><path d="M12 126 q26 -12 52 0" stroke="#C98466" stroke-width="2" fill="none"/>`,
+  PLANTJE: `<path d="M94 110 h24 l-3 26 h-18z" fill="#B9714A"/><path d="M106 110 C100 94 92 86 84 84 C96 84 104 94 106 106 C107 92 112 80 120 76 C116 88 110 98 107 110" fill="#7E9A6B"/>`,
+  BOEKEN: `<rect x="64" y="128" width="28" height="9" rx="2" fill="#8E6A9A"/><rect x="66" y="120" width="25" height="8" rx="2" fill="#6F8FA6"/><rect x="65" y="113" width="26" height="7" rx="2" fill="#C98466"/>`,
+  MOK: `<rect x="68" y="92" width="17" height="21" rx="3" fill="#FFF4E6" stroke="#C9733A" stroke-width="1.8"/><path d="M85 97 q7 0 7 6 q0 6 -7 6" stroke="#C9733A" stroke-width="1.8" fill="none"/><path d="M73 87 q2 -4 0 -8 M79 87 q2 -4 0 -8" stroke="#C9B3A6" stroke-width="1.5" fill="none" stroke-linecap="round"/>`,
+  // seizoensdingen, getekend vanaf (0, 0); ze krijgen een plek uit SEIZOEN_PLEK
+  HERFSTBLAD: `<path d="M2 22 C2 8 12 2 24 2 C24 14 16 24 2 22z" fill="#D9823B"/><path d="M2 22 L18 8" stroke="#A85A26" stroke-width="1.6"/>`,
+  WINTERLAMPJE: `<circle cx="14" cy="15" r="13" fill="#FFC86B" opacity=".18"/><path d="M11 0 h6 v4 h-6z" fill="#8A6555"/><rect x="3" y="4" width="22" height="22" rx="4" fill="#FFE2A8" stroke="#8A6555" stroke-width="1.6"/><circle cx="14" cy="15" r="5" fill="#FFC86B"/>`,
+  LENTETAKJE: `<path d="M2 24 C10 18 18 12 28 4" stroke="#8A6555" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="12" cy="17" r="3.5" fill="#F7C6C0"/><circle cx="20" cy="11" r="3.5" fill="#F7C6C0"/><circle cx="27" cy="5" r="3.5" fill="#FFF4E6" stroke="#F7C6C0"/>`,
+  ZOMERSCHELP: `<path d="M13 24 C3 22 0 12 4 6 C8 0 18 0 22 6 C26 12 23 22 13 24z" fill="#F3D3C3" stroke="#C98466" stroke-width="1.4"/><path d="M13 23 L8 6 M13 23 L13 3 M13 23 L18 6" stroke="#C98466" stroke-width="1.2"/>`
 };
+const HOEKJE_VAK = {
+  KLEED: [4, 129, 112, 22], LAMPJE: [14, 46, 30, 89], KUSSEN: [10, 115, 56, 26], PLANTJE: [84, 76, 36, 60], BOEKEN: [64, 113, 28, 24], MOK: [68, 79, 24, 34],
+  HERFSTBLAD: [2, 2, 22, 21], WINTERLAMPJE: [3, 0, 22, 26], LENTETAKJE: [2, 1, 29, 24], ZOMERSCHELP: [1, 1, 24, 23]
+};
+// acht plekken voor seizoensdingen; daarna komt een ding op een bestaande plek, iets verschoven (er gaat nooit iets weg)
+// review 114, U2: het hoekje is lager (viewBox begint op y 30); alle plekken liggen daarom op y 30 of lager in beeld
+const HOEKJE_VIEWBOX = [0, 30, 120, 120];
+const SEIZOEN_PLEK = [[44, 32], [88, 30], [56, 54], [88, 52], [0, 30], [40, 88], [0, 96], [66, 30]];
 const HOEKJE_LAAG = ["KLEED", "LAMPJE", "KUSSEN", "PLANTJE", "BOEKEN", "MOK"];
 function hoekjeSvg() {
-  const er = HOEKJE.slice(0, Math.min(S.hoekje, HOEKJE.length));
-  return `<svg class="hoekje" data-dingen="${er.join(" ").toLowerCase()}" viewBox="0 0 120 150" role="img" aria-label="${esc(T.HOEKJE_ALT)}">${HOEKJE_LAAG.filter((d) => er.includes(d)).map((d) => HOEKJE_DING[d]).join("")}</svg>`;
+  const er = hoekjeDingen(), nieuw = S.hoekjeNieuw ? er.length - 1 : -1;
+  const ding = (d, i, binnen) => `<g class="ding${i === nieuw ? " nieuw" : ""}" data-ding="${d.toLowerCase()}">${binnen}</g>`;
+  const basis = HOEKJE_LAAG.filter((d) => er.includes(d)).map((d) => ding(d, er.indexOf(d), HOEKJE_DING[d])).join("");
+  const seizoen = er.slice(HOEKJE.length).map((d, k) => {
+    const plek = SEIZOEN_PLEK[k % SEIZOEN_PLEK.length], n = Math.floor(k / SEIZOEN_PLEK.length);
+    return ding(d, HOEKJE.length + k, `<g transform="translate(${plek[0] + 3 * n} ${plek[1] + 2 * n})">${HOEKJE_DING[d]}</g>`);
+  }).join("");
+  return `<svg class="hoekje" data-dingen="${er.join(" ").toLowerCase()}" viewBox="${HOEKJE_VIEWBOX.join(" ")}" role="img" aria-label="${esc(T.HOEKJE_ALT)}">${basis}${seizoen}</svg>`;
 }
+// review 113, B1: de buitentimer als tekst; de timer werkt elke seconde alleen dit getal bij
+const timerTekst = () => Math.floor(S.buitenSec / 60) + ":" + pad2(S.buitenSec % 60);
 // overdag: minder melden (review 109). "Ik ben op" gebeurt vanzelf bij Stop; alleen zonder wekker staat er een kleine knop.
 const samenDag = () => (S.op ? "" : `<div class="chips samen">${chip("ikBenOp", T.SAMEN_KNOP_OP, false)}</div>`);
 // review 111: één tijdkiezer (input type=time) in plaats van stappen van 5 minuten
 const invoerTijd = (m) => pad2(Math.floor(m / 60) % 24) + ":" + pad2(m % 60);
 const uitInvoer = (v) => { const m = String(v || "").match(/^(\d{1,2}):(\d{2})/); return m ? (Number(m[1]) % 24) * 60 + Math.min(59, Number(m[2])) : null; };
-const wektijdKiezer = (act, waarde, groot) => `<div class="tijdkiezer"${groot ? "" : ' style="margin:4px 0"'}>
-        <input class="tijdinvoer${groot ? "" : " klein-tijd"}" type="time" step="60" data-input="tijd" data-act-tijd="${act}" value="${invoerTijd(waarde)}" aria-label="${esc(T.VANDAAG_WEKTIJD)}">
+const wektijdKiezer = (act, waarde, groot, label) => `<div class="tijdkiezer"${groot ? "" : ' style="margin:4px 0"'}>
+        <input class="tijdinvoer${groot ? "" : " klein-tijd"}" type="time" step="60" data-input="tijd" data-act-tijd="${act}" value="${invoerTijd(waarde)}" aria-label="${esc(label || T.VANDAAG_WEKTIJD)}">
       </div>`;
 // review 109 (voorstel, keuze Pjotr): na zeven avonden met een deal zegt Doezel het één keer. Geen teller in beeld.
 // review 110: zonder getal en hooguit één keer per maand (30 dagen)
@@ -1001,26 +1580,55 @@ const koopRegelNu = () => !S.gekocht && (S.proefdag === 13 || S.proefdag === 15)
 // review 110, S-1 en 65: Lees voor op Toilet en Hulp
 const LEESTEKST = {
   TOILET_LEES: () => [T.TOILET_TITEL].concat(T.TOILET).concat(slaappilNu() ? [T.SLAAPPIL] : []).concat(plaspilNu() ? [T.PLASPIL] : []).join(" "),
-  HULP_LEES: () => [T.N5_HULP, T.STOP112, T.NHULP_VAL, T.NHULP_DAG, T.N5_OPEN, T.N5_LIGGEN, T.NHULP_LANG].concat(slaappilNu() ? [T.SLAAPPIL] : []).concat(plaspilNu() ? [T.PLASPIL] : []).join(" ")
+  HULP_LEES: () => [T.N5_HULP, T.STOP112, T.NHULP_VAL, T.NHULP_POST, T.NHULP_DAG, T.N5_OPEN, T.N5_LIGGEN, T.NHULP_LANG].concat(slaappilNu() ? [T.SLAAPPIL] : []).concat(plaspilNu() ? [T.PLASPIL] : []).join(" "),
+  // review 113, B2: Lees voor ook op het wekscherm (met de opstaa-regel), bij "Slecht geslapen", op Info en bij Hulp overdag
+  WEK_LEES: () => [S.wekMiddag ? T.WEK_MIDDAG : T.WEK_DOEZEL].concat(opstaanRustig() ? [T.OPSTAANRUSTIG] : []).join(" "),
+  SLECHT_LEES: () => ochtendKaartTeksten("slecht").join(" "),
+  INFO_HUISARTS_LEES: () => [T.INFO_HUISARTS, T.VERWIJS_KOP].concat(T.VERWIJS_LIJST).join(" "),
+  INFO_CGT_LEES: () => [T.INFO_CGT, T.CGT].join(" "),
+  INFO_HULP_LEES: () => [T.INFO_HULP, T.HULP113, T.STOP112].concat(bipNu() ? [T.BIPSIGNAAL] : []).join(" "),
+  INFO_MEDS_LEES: () => [T.INFO_MEDS, T.SLAAPPIL, T.PLASPIL].concat(S.gez === "ja" && (S.chips.stemming || S.chips.anders || medsuf()) ? [T.MEDS] : []).join(" "),
+  HULPDAG_LEES: () => [T.NHULP_TITEL, T.S4KORT, T.HULP113, T.N5_HUISARTS].join(" ")
 };
+// review 113, B2: de teksten van de kaart "Slecht geslapen" (en "Laat geworden?"), zelfde keuze als op Vanochtend
+function ochtendKaartTeksten(soort) {
+  const open = gezOpen() ? [T.SLECHT_OPEN, T.SLECHT_RISICO] : null;
+  if (soort === "laat") return open || [slechtRuim() ? T.OCHTEND_LAAT_RUIM : T.OCHTEND_LAAT_ZIN];
+  return (open || [slechtRuim() ? T.SLECHT_RUIM : T.SLECHT]).concat([S.cgtNu ? T.OCHTEND_CGTZIN : bipNu() ? T.SLECHT_HULP_BIP : T.SLECHT_HULP]);
+}
 const dagZin = (standaard) => {
   if (S.reactie) return S.reactie;
   // besluit Pjotr 24-11 (1): Doezel noemt het nieuwe ding hooguit één keer, kort
-  if (S.hoekjeNieuw && S.hoekje > 0 && !isNacht()) { S.hoekjeGetoond = true; return "HOEKJE_ZIN_" + HOEKJE[S.hoekje - 1]; }
+  // review 113, B4: ook de seizoensdingen (hoekjeDing)
+  if (S.hoekjeNieuw && S.hoekje > 0 && !isNacht()) { S.hoekjeGetoond = true; return "HOEKJE_ZIN_" + hoekjeDing(S.hoekje - 1); }
   return doezelStand() === "brak" ? "SAMEN_BRAK" : doezelStand() === "energiek" ? "SAMEN_ENERGIEK" : standaard;
 };
 
 // review 112 (28): morgen anders de avond ervoor, gratis (besluit 3). Op Vanavond en Welterusten, alleen overdag en 's avonds.
 // Eén tikbare regel; die opent een kleine kaart met de tijdkiezer, "Alleen morgen" en (als er een wekker gaat) "Geen wekker morgen".
+// review 114 (28): na middernacht, 's nachts onder Meer, de wekker later in stappen (30, 60 of 90 minuten). Er komt geen kloktijd in beeld.
+function laterBlok() {
+  const keuzes = T.LATER_KEUZES.map(([n, t]) => chip("later", t, S.laterMin === n, n)).join("");
+  const gezet = S.laterMin != null ? p(T.LATER_ZIN.replace("[n]", S.laterMin)) + `<div class="linkrij">${link("laterTerug", T.LATER_TERUG)}</div>` : "";
+  return `<div data-later="1"><p>${esc(T.NACHT_LATER)}</p><div class="chips">${keuzes}</div>${gezet}</div>`;
+}
 function morgenRegel() {
   if (S.tijd === "nacht") return "";
   const gaat = wekkerMorgen();
+  // review 114 (heftig): 's avonds op Welterusten zonder kloktijd; de tijd staat pas in de kaart na een tik op "Morgen anders?"
+  const zonderTijd = S.scherm === "welterusten" && S.tijd === "avond";
   const regel = gaat
-    ? `<p class="klein" data-morgenregel="1">${esc(T.AVOND_WEKKER.replace("[tijd]", kloktijd(wektijdMorgen())))} ${link("morgenKaart", T.WEK_MORGEN)}</p>`
+    ? `<p class="klein" data-morgenregel="1">${esc(zonderTijd ? T.RUST_WEKKER_AAN : T.AVOND_WEKKER.replace("[tijd]", kloktijd(wektijdMorgen())))} ${link("morgenKaart", T.WEK_MORGEN)}</p>`
     : `<p class="klein" data-morgenregel="1">${esc(T.MORGEN_GEEN)} ${link("morgenKaart", T.MORGEN_TOCH)}</p>`;
-  const kaart = S.morgenKaart ? `<div class="kaart rustig" data-morgenkaart="1">${wektijdKiezer("morgenConcept", S.morgenConcept != null ? S.morgenConcept : wektijdMorgen())}${p(T.MORGEN_KAART_ZIN, "klein")}
-      ${knop("morgenAlleen", T.MORGEN_ALLEEN)}${gaat ? `<div class="linkrij">${link("morgenGeen", T.MORGEN_GEENKNOP)}</div>` : ""}</div>` : "";
-  return regel + kaart;
+  return regel + morgenKaartHtml();
+}
+// review 112c (vangnet): dezelfde kaart op Vanavond, Welterusten en het wekscherm. De tijdkiezer is een concept;
+// pas "Alleen morgen" zet de wekker van morgen. Openen en dichtklappen verandert niets.
+function morgenKaartHtml() {
+  if (!S.morgenKaart) return "";
+  const gaat = wekkerMorgen();
+  return `<div class="kaart rustig" data-morgenkaart="1">${wektijdKiezer("morgenConcept", S.morgenConcept != null ? S.morgenConcept : wektijdMorgen())}${p(T.MORGEN_KAART_ZIN, "klein")}
+      ${knop("morgenAlleen", T.MORGEN_ALLEEN)}${gaat ? `<div class="linkrij">${link("morgenGeen", T.MORGEN_GEENKNOP)}</div>` : ""}</div>`;
 }
 // review 112 (28): na de dienstlink een eenmalige wekker voor vanmiddag, gratis. Alleen overdag.
 function middagBlok() {
@@ -1029,6 +1637,22 @@ function middagBlok() {
   return `<div class="linkrij" data-middag="1" style="justify-content:flex-start">${link("middagOpen", T.RUST_MIDDAG_LINK)}</div>` +
     (S.middagOpen ? `<div class="kaart rustig" data-middagkaart="1">${wektijdKiezer("middagConcept", S.middagConcept)}${p(T.RUST_MIDDAG_ZIN, "klein")}${knop("middagZet", T.RUST_MIDDAG_KNOP)}</div>` : "");
 }
+// review 113, B4: het avondseintje. Eén keer de vraag naar de bedtijd (met een tijdkiezer); overslaan = wektijd min 8 uur.
+function seinBlok() {
+  if (S.bedVraag) return `<div class="kaart rustig" data-bedvraag="1"><p>${esc(T.SEIN_VRAAG)}</p>${wektijdKiezer("bedConcept", S.bedConcept != null ? S.bedConcept : bedtijdNu(), false, T.SEIN_VRAAG)}${p(T.SEIN_OVERSLAAN_ZIN, "klein")}
+      ${knop("bedZet", T.SEIN_ZET)}<div class="linkrij">${link("bedOver", T.SEIN_OVERSLAAN)}</div></div>`;
+  return `<p class="klein" data-seinom="1">${esc(T.SEIN_OM.replace("[tijd]", kloktijd(seinTijd())))}</p>`;
+}
+// op Vanavond: hooguit één keer per week "Seintje aanzetten?", zonder druk; nooit 's nachts
+function seinVanavond() {
+  if (S.tijd === "nacht") return "";
+  if (S.avondSein && S.bedVraag) return seinBlok();
+  if (S.avondSein && S.seinNet) return `<p class="klein" data-seinnet="1">${esc(T.SEIN_AAN)}</p>`;
+  if (seinAanbodNu()) return `<div class="linkrij" data-seinaanbod="1" style="justify-content:flex-start">${link("seinAanbod", T.SEIN_AANBOD)}</div>`;
+  return "";
+}
+// review 113, B2: bij de eerste start één keer de vraag "Geluid aan?" op Welkom (een keuze, geen extra klik in de route); niet 's nachts
+const geluidVraagNu = () => S.eerste && !S.geluidGevraagd && !S.geluid && S.tijd !== "nacht";
 function gezBlok() {
   let h = `<p class="klein">${esc(T.GEZ_INLEIDING)}</p><p>${esc(T.GEZVRAAG)}</p>`;
   h += `<div class="chips">${chip("gez", T.GEZ_JA, S.gez === "ja", "ja")}${chip("gez", T.GEZ_NEE, S.gez === "nee", "nee")}${chip("gez", T.GEZ_OVERSLAAN, S.gez === "over", "over")}</div>`;
@@ -1036,7 +1660,9 @@ function gezBlok() {
     h += `<p class="klein">${esc(T.GEZ_CHIPKOP)}</p><div class="chips">${T.GEZCHIPS.map((c) => chip("gezchip", c, !!S.chips[c], c)).join("")}</div>`;
     if (S.chips.slaappil) h += p(T.SLAAPPIL_MELA, "klein");
   }
-  if (S.gez) h += p(T.GEZ_DANK, "klein");
+  // review 113, A1: "Ik houd er rekening mee" pas na een gekozen chip; "Ja" zonder chip houdt de voorzichtige stand aan
+  if (S.gez === "ja") h += gezChipGekozen() ? p(T.GEZ_DANK, "klein") : p(T.GEZ_GEENCHIP, "klein");
+  else if (S.gez) h += p(T.GEZ_DANK_KORT, "klein");
   return h;
 }
 function wekdagChips() {
@@ -1054,6 +1680,8 @@ const SCHERMEN = {
       ${doezelKnop()}
       ${ballon(S.toon === "rustig" && S.tijd === "avond" ? "WELKOM_DOEZEL_AVOND" : S.toon === "rustig" && n ? "WELKOM_DOEZEL_NACHT" : "WELKOM_DOEZEL")}
       ${waarom(T.WELKOM_WAAROM)}
+      ${geluidVraagNu() ? `<div class="kaart rustig" data-geluidvraag="1"><p class="voorstel">${esc(T.GELUID_VRAAG)}</p>${p(T.GELUID_VRAAG_ZIN, "klein")}
+        <div class="chips">${chip("geluidVraag", T.GELUID_JA, false, "ja")}${chip("geluidVraag", T.GELUID_NEE, false, "nee")}</div></div>` : ""}
       <div class="knoppen">
         ${knop("nachtNu", T.WELKOM_WAKKER, n ? "" : "twee")}
         ${knop("beginnen", T.WELKOM_BEGIN, n ? "" : "")}
@@ -1077,15 +1705,16 @@ const SCHERMEN = {
     const zin = S.reactie || (ritmeNu() ? "SAMEN_RITME" : "AVOND_DOEZEL");
     return { thema: "avond", nav: "nu", html: `
       <h1 class="sr">${esc(T.AVOND_TITEL)}</h1>
-      <div data-deel="doezel">${doezelKnop()}</div>
+      ${doezelKnop()}
       <div data-deel="zin">${ballon(zin)}</div>
       <div data-deel="deal" class="kaart deal"><p class="label">${esc(T.AVOND_LABEL)}</p><p class="voorstel">${esc(T["AVOND_DEAL_" + dk])}</p>
         ${waarom(T["AVOND_WAAROM_" + dk])}
         ${S.gisterenDeal && !S.deal ? `<p class="geheugen">${esc(T.AVOND_GEHEUGEN)}</p>` : ""}
-        ${reactie ? `<p class="antwoord">${esc(reactie)}</p>` : knop("deal", T.AVOND_DEAL) + `<div class="linkrij">${link("dealNiet", T.AVOND_NIET)}</div>`}
+        ${reactie ? `<p class="antwoord">${esc(reactie)}</p>` : ""}
         ${S.deal === "ja" && dealTweeTik(dk) && !S.dealGedaan ? knop("dealGedaan", T.AVOND_GEDAAN, "twee") : ""}</div>
-      <div data-deel="wekker">${morgenRegel()}</div>
-      <div data-deel="bed" class="knoppen">${S.deal ? knop("naarBed", T.AVOND_BED) : `<div class="linkrij">${link("naarBed", T.AVOND_BED)}</div>`}</div>` };
+      <div data-deel="wekker">${morgenRegel()}${seinVanavond()}</div>
+      ${/* review 114, U2: "Deal" en "Vandaag niet" staan in het vaste knoppenblok onderaan; na de keuze is "Naar bed" de hoofdknop */ ""}
+      <div data-deel="bed" class="knoppen">${S.deal ? knop("naarBed", T.AVOND_BED) : knop("deal", T.AVOND_DEAL) + `<div class="linkrij" data-tweede="1">${link("dealNiet", T.AVOND_NIET)}${link("naarBed", T.AVOND_BED)}</div>`}</div>` };
   },
   welterusten() {
     return { thema: "nacht", html: `
@@ -1098,15 +1727,15 @@ const SCHERMEN = {
       ${S.dienst ? p(T.DIENST_RIJ) : ""}
       <details><summary>${esc(T.RUST_TOILETKOP)}</summary>${lijst(T.TOILET)}${pillen()}</details>
       ${gezVragen() ? `<div class="kaart rustig" data-gez="1">${gezBlok()}</div>` : ""}
-      <div class="knoppen">${knop("nachtAan", T.RUST_KNOP)}</div>` };
+      <div class="knoppen">${knop("nachtAan", T.RUST_KNOP)}${dagUitgang() ? `<div data-dagop="1">${knop("dagOp", T.DAG_OP, "twee")}</div>` : ""}</div>` };
   },
   nacht() {
     // review 109, R-1: na "Nachtstand aan" slaapt Doezel zonder zin; na 20 s helemaal zwart. Half wakker pas na een tik.
     if (S.nachtFase === "zwart") return { thema: "zwart", zwart: true, html: `<button class="zwartvlak" data-act="nachtTik" aria-label="${esc(T.NACHT_TIK)}"></button>` };
-    if (S.nachtFase === "slaapt") return { thema: "nacht", html: `<button class="zwartvlak slaapvlak" data-act="nachtTik" aria-label="${esc(T.NACHT_TIK)}">${doezel("slapend")}</button>` };
+    // review 113, B1: dit korte tussenscherm (20 s, alles is één tikvlak) heeft een eigen slapende Doezel; de vaste Doezel is dan verborgen
+    if (S.nachtFase === "slaapt") return { thema: "nacht", html: `<button class="zwartvlak slaapvlak" data-act="nachtTik" aria-label="${esc(T.NACHT_TIK)}">${doezelNachtSvg("slapend", "", "slaap")}</button>` };
     const zin = S.nachtOog ? T.NACHT_OOG : T.NACHT_DOEZEL;
     return { thema: "nacht", html: `
-      <div style="height:40px"></div>
       ${doezelKnop()}
       <div class="ballon"><p class="zin">${esc(zin)}</p>${lees(S.nachtOog ? "NACHT_OOG" : "NACHT_DOEZEL")}</div>
       <div class="knoppen">
@@ -1115,10 +1744,14 @@ const SCHERMEN = {
           ${knop("naar", T.NACHT_TOILET, "", "toilet")}${knop("naar", T.NACHT_HULP, "", "nachthulp")}
         </div>
         <div class="linkrij" data-zichtbaar="1">${link("naar", T.NACHT_PARKEER, "parkeer")}${S.viaRust ? "" : link("netThuis", T.NACHT_NETTHUIS)}</div>
-        <details><summary>${esc(T.NACHT_MEER)}</summary>
+        ${dagUitgang() ? `<div data-dagop="1">${knop("dagOp", T.DAG_OP, "twee")}</div>` : ""}
+        <details data-nachtmeer="1"${S.nachtMeerOpen ? " open" : ""}><summary>${esc(T.NACHT_MEER)}</summary>
           ${wekkerMorgen() ? `<div class="linkrij">${link("naar", T.VO_LINK, "vo")}</div>` : ""}
           ${S.voUit ? p(T.VO_UIT.replace("[dag]", dagNaam())) + `<div class="linkrij">${link("voTerug", T.VO_TERUG)}</div>` : ""}
           ${!wekkerMorgen() && !S.voUit ? p(T.VO_GEEN) : ""}
+          ${laterNu() ? laterBlok() : ""}
+          <div class="linkrij" data-vroegnacht="1">${link("vroegNacht", T.VROEG_LINK)}</div>
+          ${S.vroegMorgen ? p(T.VROEG_NACHT_OK) : ""}
         </details>
       </div>` };
   },
@@ -1127,10 +1760,10 @@ const SCHERMEN = {
       <h1>${esc(T.NACHT_ADEM)}</h1>
       ${ballon("ADEM_DOEZEL")}
       ${waarom(T.ADEM_WAAROM)}
-      <div class="ademvak">
-        ${S.ademAan ? `<div class="cirkel" id="cirkel">${esc(S.ademFase === "in" ? T.ADEM_IN : T.ADEM_UIT)}</div>` : ""}
-        <div style="margin-top:${S.ademAan ? "-30px" : "0"}">${doezelKnop()}</div>
+      <div class="ademvak" data-tempo="${ADEM_IN_MS / 1000}-${ADEM_UIT_MS / 1000}">
+        ${S.ademAan ? `<div class="cirkel${S.ademUitdoof ? " uitdoof" : ""}" id="cirkel">${esc(S.ademFase === "in" ? T.ADEM_IN : T.ADEM_UIT)}</div>` : ""}
       </div>
+      ${doezelKnop()}
       <div class="knoppen">
         ${S.ademAan ? knop("ademStop", T.ADEM_STOP) : knop("ademStart", T.ADEM_START)}
         <div class="linkrij">${link("naar", T.NACHT_TERUG, "nacht")}</div>
@@ -1167,6 +1800,7 @@ const SCHERMEN = {
       ${ptel(T.N5_HULP)}
       ${ptel(T.STOP112)}
       ${ptel(T.NHULP_VAL)}
+      ${/* review 114 (65): volgorde 113 en 112, dan de valregel, dan de huisartsenpost */ ""}<p data-post="1">${esc(T.NHULP_POST)}</p><p class="proto">${esc(T.NHULP_POST_PROTO)}</p>
       ${p(T.NHULP_DAG)}
       ${pillen()}
       ${lees("HULP_LEES")}
@@ -1200,17 +1834,17 @@ const SCHERMEN = {
       ${doezelKnop()}
       ${ballon("WEK_GESNOOZED")}
       <div class="knoppen">${knop("wekOp", T.WEK_OP, "zon")}<div class="linkrij">${link("wekWeer", T.WEK_DEMO_WEER)}</div></div>` };
+    // review 113, B1: "Morgen anders?" staat niet meer op het wekscherm (alleen op Vanavond, Welterusten en Vandaag).
+    // B2: "Lees voor" leest ook de opstaa-regel (WEK_LEES).
     return { thema: "ochtend", html: `
       <p class="proto">${esc(zacht() ? T.WEK_LABEL_ZACHT : T.WEK_LABEL_GEWOON)}</p>
-      <p class="wekker-tijd">${kloktijd(S.wekVandaag != null ? S.wekVandaag : S.wektijd)}</p>
+      <p class="wekker-tijd">${kloktijd(wekTijdNu())}</p>
       ${doezelKnop()}
-      ${ballon("WEK_DOEZEL")}
+      ${ballon(S.wekMiddag ? "WEK_MIDDAG" : "WEK_DOEZEL", null, "WEK_LEES")}
       ${opstaanRustig() ? p(T.OPSTAANRUSTIG) : ""}
       <div class="knoppen">
         ${knop("wekStop", T.WEK_STOP, "zon")}
         ${over > 0 ? knop("snooze", T.WEK_SNOOZE, "twee") + `<p class="klein" style="text-align:center;margin:0">${esc(max === 2 ? T.SNOOZE2 : T.SNOOZE)}</p>` : ""}
-        <div class="linkrij">${link("morgenAnders", T.WEK_MORGEN)}</div>
-        ${S.morgenOpen ? `<div class="kaart rustig" data-morgen="1">${wektijdKiezer("morgenTijd", wektijdMorgen())}${p(T.WEK_MORGEN_ZIN, "klein")}</div>` : ""}
       </div>` };
   },
   goedemorgen() {
@@ -1220,7 +1854,7 @@ const SCHERMEN = {
     const info = S.ochtendInfo === "slecht"
       ? `<div class="kaart rustig">${neutraal || p(slechtRuim() ? T.SLECHT_RUIM : T.SLECHT)}
          ${S.cgtNu ? p(T.OCHTEND_CGTZIN) : p(bip ? T.SLECHT_HULP_BIP : T.SLECHT_HULP, "klein")}
-         ${bip ? "" : `<div>${link("naarInfo", T.OCHTEND_CGT, "cgt")}</div>`}</div>`
+         ${bip ? "" : `<div>${link("naarInfo", T.OCHTEND_CGT, "cgt")}</div>`}${lees("SLECHT_LEES")}</div>`
       : S.ochtendInfo === "laat" ? `<div class="kaart rustig">${neutraal || p(slechtRuim() ? T.OCHTEND_LAAT_RUIM : T.OCHTEND_LAAT_ZIN)}</div>` : "";
     // review 110, S-7: na Stop eerst "Hoe was je nacht?", één tik
     // besluit Pjotr 24-11 (7): elke ochtend, met een derde knop Overslaan
@@ -1229,31 +1863,44 @@ const SCHERMEN = {
     const buitenKnop = (cls) => zacht() ? knop("naar", T.OCHTEND_BUITEN, cls, "buiten")
       : S.buiten ? knop("naar", T.OCHTEND_VERDER, cls, "vandaag") : knop("buitenGeweest", T.OCHTEND_BUITENGEWEEST, cls);
     // review 110, S-6: met diensten = ja is de dienstlink de hoofdknop; anders een kleine link
-    const hoofd = S.diensten && !S.dienst ? knop("dienstSlapen", T.DIENST_LINK, "zon") + buitenKnop("twee") : buitenKnop("zon");
+    // review 113, B1: één hoofdknop, vast onderaan, met daaronder een kleine regel met de tweede keuze. "Naar buiten" staat
+    // altijd in beeld: als hoofdknop, of (bij diensten = ja) als eerste link in die regel.
+    // review 114, W1: bij te vroeg wakker (chip, link of 's nachts aangetikt) is de hoofdknop "Rustig aan beginnen" en wordt
+    // Naar buiten een kleine link "Later naar buiten" (na de proef blijft het de gratis tik "Ik ben buiten geweest")
+    const vroeg = vroegNu();
+    const buitenLink = () => zacht() ? link("naar", vroeg ? T.VROEG_BUITENLINK : T.OCHTEND_BUITEN, "buiten")
+      : S.buiten ? link("naar", T.OCHTEND_VERDER, "vandaag") : link("buitenGeweest", T.OCHTEND_BUITENGEWEEST);
+    const dienstHoofd = S.diensten && !S.dienst;
+    const hoofd = dienstHoofd ? knop("dienstSlapen", T.DIENST_LINK, "zon") : vroeg ? knop("rustigBeginnen", T.VROEG_HOOFD, "zon") : buitenKnop("zon");
+    const tweede = (dienstHoofd || vroeg ? buitenLink() : "") + (vroeg && !dienstHoofd ? "" : link("laterBuiten", T.OCHTEND_LATER));
+    // review 114, W3 (wacht op Pjotr): bij te vroeg wakker en de chip bipolair ook het signaal, en de zin met de behandelaar
+    const vroegZin = bipNu() ? T.VROEG_ZIN_BIP : T.VROEG_ZIN;
     return { thema: "ochtend", nav: "nu", html: `
       <h1>${esc(T.OCHTEND_TITEL)}</h1>
-      ${S.nachtVraag ? "" : `<div class="linkrij" style="justify-content:flex-start">${link("ochtendInfo", T.OCHTEND_SLECHT, "slecht")}</div>`}
+      ${S.nachtVraag ? "" : `<div class="linkrij" style="justify-content:flex-start">${link("ochtendInfo", T.OCHTEND_SLECHT, "slecht")}${S.vroeg ? "" : link("vroegVandaag", T.VROEG_LINK)}</div>`}
       ${info}
       ${doezelKnop()}
-      ${ballon(S.nachtVraag ? "OCHTEND_HOEWAS" : dagZin("OCHTEND_DOEZEL"))}
+      ${ballon(S.nachtVraag ? "OCHTEND_HOEWAS" : dagZin(vroeg ? "OCHTEND_DOEZEL_VROEG" : "OCHTEND_DOEZEL"))}
       ${vraag}
-      ${waarom(S.dienst ? T.DIENST_ZIN : T.OCHTEND_WAAROM)}
+      ${waarom(S.dienst ? T.DIENST_ZIN : vroeg ? vroegZin : T.OCHTEND_WAAROM)}
+      ${vroeg && bipNu() ? `<p data-bipsignaal="1">${esc(T.BIPSIGNAAL)}</p>` : ""}
       ${S.dienst || S.diensten ? p(T.DIENST_RIJ) : ""}
       ${opstaanRustig() ? p(T.OPSTAANRUSTIG) : ""}
+      <details${S.ochtendInfo === "laat" ? " open" : ""}><summary>${esc(T.OCHTEND_MEER)}</summary><div class="linkrij">${link("ochtendInfo", T.OCHTEND_LAAT, "laat")}</div></details>
       <div class="knoppen">
         ${hoofd}
-        <div class="linkrij">${link("laterBuiten", T.OCHTEND_LATER)}</div>
-        <details${S.ochtendInfo === "laat" ? " open" : ""}><summary>${esc(T.OCHTEND_MEER)}</summary><div class="linkrij">${link("ochtendInfo", T.OCHTEND_LAAT, "laat")}</div></details>
+        <div class="linkrij" data-tweede="1">${tweede}</div>
       </div>` };
   },
   buiten() {
-    const m = Math.floor(S.buitenSec / 60), s = S.buitenSec % 60;
     return { thema: "ochtend", nav: "nu", html: `
       <h1>${esc(T.BUITEN_TITEL)}</h1>
       ${doezelKnop()}
       ${ballon(S.buitenKlaar ? S.reactie || "BUITEN_GEDAAN" : "BUITEN_DOEZEL")}
       ${waarom(T.BUITEN_WAAROM)}
-      <p class="timer" aria-live="polite">${m}:${pad2(s)}</p>
+      <p class="timer" id="buitentimer" aria-live="off">${timerTekst()}</p>
+      ${/* review 114, U3: de schermlezer hoort alleen de start en het eind, niet elke seconde */ ""}<p class="sr" aria-live="polite" data-buitenmelding="1">${S.buitenAan ? esc(T.BUITEN_SR_START) : S.buitenKlaar ? esc(T.BUITEN_SR_KLAAR) : ""}</p>
+      ${/* echte functies (25-11): de lichtcheck, met uitleg vooraf; de band en schatting worden elke seconde alleen als tekst bijgewerkt */ ""}${lichtBlok()}
       ${gezVragen() ? `<div class="kaart rustig" data-gez="1">${gezBlok()}</div>` : ""}
       ${p(T.BUITEN_GLAD)}
       <p>${telLinks(T.STOP112)}</p>
@@ -1275,7 +1922,9 @@ const SCHERMEN = {
       <div class="kaart rustig"><p class="label">${esc(labelTekst(T.VANDAAG_WEKTIJD))}</p>
         <p class="voorstel">${kloktijd(S.wektijd)}, ${esc(dagen)}</p>
         ${p(S.wekker ? T.VANDAAG_WEKKER_AAN : T.VANDAAG_WEKKER_UIT, "klein")}</div>
+      ${morgenRegel()}
       ${S.gisterenDeal ? `<div class="kaart rustig">${p(T.VANDAAG_GISTEREN)}</div>` : ""}
+      ${bipRegelNu() ? `<div class="kaart rustig" data-bipsignaal="1">${p(T.BIPSIGNAAL)}</div>` : ""}
       ${proef ? p(proef, "klein") : ""}
       ${koopRegelNu() ? `<div class="kaart rustig" data-koopregel="1">${p((S.proefdag === 13 ? T.VANDAAG_KOOP13 : T.VANDAAG_KOOP15).replace("[datum]", proefDatum()), "klein")}${link("naar", T.VANDAAG_KOOPLINK, "aankoop")}</div>` : ""}
       ${S.geparkeerd != null ? `<div class="kaart rustig"><p class="label">${esc(labelTekst(T.VANDAAG_PARKEERKOP))}</p>${S.geparkeerd ? p(S.geparkeerd) : ""}${link("parkeerWeg", T.VANDAAG_PARKEERWEG)}</div>` : ""}
@@ -1289,10 +1938,10 @@ const SCHERMEN = {
     return { thema: "dag", nav: "info", html: `
       <h1>${esc(T.INFO_TITEL)}</h1>
       ${p(T.DOEL)}
-      <h2 id="huisarts">${esc(T.INFO_HUISARTS)}</h2>${p(T.VERWIJS_KOP)}${lijst(T.VERWIJS_LIJST)}
-      <h2 id="cgt">${esc(T.INFO_CGT)}</h2>${p(T.CGT)}
-      <h2>${esc(T.INFO_HULP)}</h2>${ptel(T.HULP113)}${ptel(T.STOP112)}
-      <h2>${esc(T.INFO_MEDS)}</h2>${p(T.SLAAPPIL)}${p(T.PLASPIL)}${meds ? p(T.MEDS) : ""}
+      <h2 id="huisarts">${esc(T.INFO_HUISARTS)}</h2>${p(T.VERWIJS_KOP)}${lijst(T.VERWIJS_LIJST)}${lees("INFO_HUISARTS_LEES")}
+      <h2 id="cgt">${esc(T.INFO_CGT)}</h2>${p(T.CGT)}${lees("INFO_CGT_LEES")}
+      <h2>${esc(T.INFO_HULP)}</h2>${ptel(T.HULP113)}${ptel(T.STOP112)}${bipNu() ? `<p data-bipsignaal="1">${esc(T.BIPSIGNAAL)}</p>` : ""}${lees("INFO_HULP_LEES")}
+      <h2>${esc(T.INFO_MEDS)}</h2>${p(T.SLAAPPIL)}${p(T.PLASPIL)}${meds ? p(T.MEDS) : ""}${lees("INFO_MEDS_LEES")}
       <h2>${esc(T.INFO_BRONKOP)}</h2>${lijst(T.INFO_BRONNEN)}
       ${p(T.INFO_STEM, "klein")}` };
   },
@@ -1308,18 +1957,23 @@ const SCHERMEN = {
       <div class="rij"><label>${esc(T.TWEESNOOZE)}</label>${schakel("tweeSnooze", S.tweeSnooze, T.TWEESNOOZE)}</div>
       ${p(T.TWEESNOOZEZIN, "klein")}
       <p class="klein">${esc(T.MEER_WEKGELUID)}</p>
-      <div class="chips">${chip("wekGeluid", T.MEER_SPEELDOOS, S.wekGeluid === "speeldoos", "speeldoos")}${chip("wekGeluid", T.MEER_BEL, S.wekGeluid === "bel", "bel")}${chip("wekTest", T.MEER_TEST, false)}</div>
+      <div class="chips" data-wekgeluid="1">${zacht() ? chip("wekGeluid", T.MEER_ZACHT, wekGeluidNu() === "zacht", "zacht") : ""}${chip("wekGeluid", T.MEER_SPEELDOOS, wekGeluidNu() === "speeldoos", "speeldoos")}${chip("wekGeluid", T.MEER_BEL, wekGeluidNu() === "bel", "bel")}${chip("wekTest", T.MEER_TEST, false)}</div>
+      ${zacht() ? p(T.MEER_WEKZACHT_ZIN, "klein") : ""}
       <div class="rij"><label>${esc(T.MEER_DIENSTEN)}</label>${schakel("diensten", S.diensten, T.MEER_DIENSTEN)}</div>
       <div class="rij"><label>${esc(T.MEER_AVONDSEIN)}</label>${schakel("avondSein", S.avondSein, T.MEER_AVONDSEIN)}</div>
-      ${S.avondSein ? `<p class="proto" data-sein="1">${esc(T.MEER_AVONDSEIN_PROTO)}</p>` : ""}
+      ${S.avondSein ? `<p class="proto" data-sein="1">${esc(T.MEER_AVONDSEIN_PROTO)}</p>${seinBlok()}` : ""}
       <h2>${esc(T.MEER_TOON)}</h2>
       <div class="chips">${chip("toon", T.MEER_TOON_GEWOON, S.toon !== "rustig", "gewoon")}${chip("toon", T.MEER_TOON_RUSTIG, S.toon === "rustig", "rustig")}</div>
       ${p(T.MEER_TOON_ZIN, "klein")}
       <h2>${esc(T.MEER_GEZ)}</h2>${gezBlok()}
+      <h2>${esc(T.MEER_VRAGEN)}</h2>
+      <div class="chips" data-vroegchip="1">${chip("vroeg", T.VROEG_CHIP, S.vroeg)}</div>
+      ${S.vroeg ? p(T.VROEG_ZIN, "klein") : ""}
       <h2>${esc(T.MEER_STEM)}</h2>
       <div class="rij"><label>${esc(T.MEER_STEMAAN)}</label>${schakel("stem", S.stem, T.MEER_STEMAAN)}</div>
       <label for="volume">${esc(T.MEER_VOLUME)}</label>
-      <input id="volume" type="range" min="0" max="100" value="${S.volume}" data-input="volume">` };
+      <input id="volume" type="range" min="0" max="100" value="${S.volume}" data-input="volume">
+      ${p(T.MEER_VOLUME_ZIN, "klein")}` };
   },
   aankoop() {
     return { thema: "dag", nav: "vandaag", html: `
@@ -1338,35 +1992,140 @@ const SCHERMEN = {
       ${p(T.S4KORT)}
       ${ptel(T.HULP113)}
       ${p(T.N5_HUISARTS)}
+      ${lees("HULPDAG_LEES")}
       <details><summary>${esc(T.INFO_HUISARTS)}</summary>${p(T.VERWIJS_KOP)}${lijst(T.VERWIJS_LIJST)}</details>
       <div class="knoppen">${knop("naar", T.TERUG, "twee", S.eerste ? "welkom" : "vandaag")}</div>` };
   }
 };
 
-/* ---------- render ---------- */
-let laatsteHtml = "";
-function shell(r) {
-  if (r.zwart) return r.html; // helemaal zwart: geen statusbalk, geen knop in beeld
+/* ---------- render ----------
+   review 113, B1: Doezel staat buiten de render. #app krijgt één keer een vast skelet:
+   - #kop: de statusbalk en (daaronder) de geluidknop;
+   - #binnen: het scherm vóór Doezel (#boven), Doezel zelf (#doezelvast, vast) en het scherm na Doezel (#onder);
+   - #voet: de nav en de melding.
+   render() vervangt alleen kop, boven, onder en voet (en alleen als die echt anders zijn). Van Doezel wisselen alleen
+   de stand (class), de grootte (dag of nacht, 150 of 240 px) en of hij in beeld is. Zo lopen zijn animaties door,
+   ook op Buiten met de timer. html() (voor de rooktest) geeft wat er in beeld staat, met Doezel op zijn plek. */
+let laatsteHtml = "", skeletKlaar = false, laatsteScherm = null, hoekjeNu = null;
+const delenNu = {};
+function kopHtml(r) {
   const nacht = r.thema === "nacht";
-  const klok = nacht ? "" : (S.scherm === "wekker" ? kloktijd(S.wekVandaag != null ? S.wekVandaag : S.wektijd) : { avond: "22.04", nacht: "", ochtend: "07.18", dag: "13.30" }[S.tijd]);
+  const klok = nacht ? "" : (S.scherm === "wekker" ? kloktijd(wekTijdNu()) : { avond: "22.04", nacht: "", ochtend: "07.18", dag: "13.30" }[S.tijd]);
+  // review 114, U2: de geluidknop is alleen een icoon (44 px) rechts in de titelrij; de stand staat in aria-label ("Geluid aan" of "Geluid uit")
+  return `<div class="statusbalk"><span>${klok}</span></div>
+    <button class="geluidknop${S.geluid ? " aan" : ""}" data-act="geluidWissel" aria-pressed="${S.geluid}" aria-label="${esc(S.geluid ? T.GELUID_AAN : T.GELUID_UITLABEL)}" title="${esc(S.geluid ? T.GELUID_AAN : T.GELUID_WEKKER)}">${S.geluid ? ICON_GELUID_AAN : ICON_GELUID_UIT}</button>`;
+}
+function voetHtml(r) {
   const nav = r.nav ? `<nav class="nav">${[["nu", T.NAV_NU, "home"], ["vandaag", T.NAV_VANDAAG, "vandaag"], ["info", T.NAV_INFO, "info"], ["meer", T.NAV_MEER, "meer"]]
     .map(([k, t, doel]) => `<button class="${r.nav === k ? "actief" : ""}" data-act="${doel === "home" ? "home" : "naar"}" data-arg="${doel}">${esc(t)}</button>`).join("")}</nav>` : "";
-  return `<div class="statusbalk"><span>${klok}</span>
-    <button class="geluidknop${S.geluid ? " aan" : ""}" data-act="geluidWissel" aria-pressed="${S.geluid}" aria-label="${esc(S.geluid ? T.GELUID_AAN : T.GELUID_UITLABEL)}" title="${esc(S.geluid ? T.GELUID_AAN : T.GELUID_WEKKER)}">${S.geluid ? ICON_GELUID_AAN : ICON_GELUID_UIT}</button></div>
-    <div class="binnen">${r.html}</div>${nav}${S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : ""}`;
+  return nav + (S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : "");
+}
+// wat Doezel nu is: zichtbaar, dag of nacht, stand en extra klassen. Het hoekje staat overdag naast hem, 's nachts niet.
+function doezelNu(zicht) {
+  const nacht = isNacht();
+  const cls = nacht ? (S.nachtOog ? " oog" : "") : (S.gaapGedaan ? " gegaapt" : "") + (avondDoezel() >= 2 ? " zwaar" : "");
+  return {
+    zicht, nacht, stand: doezelStand(), cls,
+    // review 109, R-6: op Vanavond is Doezel een van de vijf onderdelen
+    deel: S.scherm === "vanavond",
+    ademtrek: S.scherm === "adem" && S.ademAan,
+    hoekje: zicht && !nacht && S.hoekje > 0 ? hoekjeSvg() : ""
+  };
+}
+// de tekstweergave van de vaste Doezel (voor html()); in het echte scherm staat hij in het skelet
+function doezelVastHtml(dz) {
+  const svg = dz.nacht ? doezelNachtSvg(dz.stand, dz.cls, "vast") : doezelDagSvg(dz.stand, dz.cls, "vast");
+  return `<div id="doezelvast" class="doezelrij${dz.ademtrek ? " ademtrek" : ""}"${dz.deel ? ' data-deel="doezel"' : ""}><button class="doezelvak" data-act="doezelTik" aria-label="${esc(T.DOEZEL_ALT)}">${svg}</button>${dz.hoekje}</div>`;
+}
+function bouwSkelet(app) {
+  app.innerHTML = `<div id="kop"></div><div class="binnen" id="binnen"><div class="deel" id="boven"></div>` +
+    `<div id="doezelvast" class="doezelrij verborgen"><button class="doezelvak" data-act="doezelTik" aria-label="${esc(T.DOEZEL_ALT)}">` +
+    `${doezelDagSvg("rustig", "", "vast")}${doezelNachtSvg("halfwakker", " verborgen", "vast")}</button></div>` +
+    `<div class="deel" id="onder"></div></div><div id="voet"></div>`;
+  skeletKlaar = true;
+}
+// zet een deel alleen opnieuw als de inhoud anders is; geeft true als het deel vervangen is
+function zetDeel(id, html) {
+  if (delenNu[id] === html) return false;
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = html;
+  delenNu[id] = html;
+  return true;
+}
+// alleen in een echte browser: de klasse, data-stand, aria-label, zichtbaarheid en het hoekje van de vaste Doezel
+function zetDoezel(dz) {
+  const vak = document.getElementById("doezelvast");
+  if (!vak || typeof vak.querySelector !== "function") return;
+  vak.classList.toggle("verborgen", !dz.zicht);
+  if (!dz.zicht) return;
+  vak.classList.toggle("ademtrek", !!dz.ademtrek);
+  if (dz.deel) vak.setAttribute("data-deel", "doezel"); else vak.removeAttribute("data-deel");
+  const dag = vak.querySelector("svg.doezel.dag"), nacht = vak.querySelector("svg.doezel.nacht");
+  const aan = dz.nacht ? nacht : dag, uit = dz.nacht ? dag : nacht;
+  if (uit) uit.classList.add("verborgen");
+  if (aan) {
+    // review 114, U1: overdag een pufje bij een standwissel
+    const oudStand = aan.getAttribute("data-stand"), wasZicht = !aan.classList.contains("verborgen");
+    if (!dz.nacht && wasZicht && oudStand && oudStand !== dz.stand) pufje();
+    let cls = (dz.nacht ? "doezel groot nacht st-" : "doezel dag st-") + dz.stand + dz.cls;
+    // de gaap loopt één keer: blijft Doezel doezelig, dan geen "gegaapt" erbij midden in de gaap
+    if (!dz.nacht && dz.stand === "doezelig" && aan.classList.contains("st-doezelig") && !aan.classList.contains("verborgen") && !aan.classList.contains("gegaapt")) cls = cls.replace(" gegaapt", "");
+    aan.setAttribute("class", cls);
+    aan.setAttribute("data-stand", dz.stand);
+    aan.setAttribute("aria-label", altStand(dz.stand));
+  }
+  if (dz.hoekje !== hoekjeNu) {
+    const oud = vak.querySelector("svg.hoekje");
+    if (oud) oud.remove();
+    if (dz.hoekje) vak.insertAdjacentHTML("beforeend", dz.hoekje);
+    hoekjeNu = dz.hoekje;
+  }
+}
+// op Adem: komt de cirkel opnieuw in beeld, dan begint Doezels adem gelijk met de cirkel (review 113, A2)
+function herstartAdem() {
+  const vak = document.getElementById("doezelvast");
+  if (!vak || typeof vak.querySelectorAll !== "function") return;
+  // de CSS-regel op Adem heeft !important; daarom ook hier !important (inline gaat dan voor)
+  vak.querySelectorAll(".adem").forEach((a) => { a.style.setProperty("animation", "none", "important"); a.getBoundingClientRect(); a.style.removeProperty("animation"); });
 }
 function render() {
   const app = document.getElementById("app");
+  if (!skeletKlaar) bouwSkelet(app);
   const r = SCHERMEN[S.scherm]();
-  laatsteHtml = shell(r);
-  app.innerHTML = laatsteHtml;
-  app.className = "thema-" + r.thema + (S.toon === "rustig" ? " toon-rustig" : "");
+  const stuk = String(r.html).split(DOEZEL_PLEK);
+  const metDoezel = !r.zwart && stuk.length > 1;
+  const boven = stuk[0], onder = stuk.slice(1).join("");
+  const dz = doezelNu(metDoezel);
+  // helemaal zwart: geen statusbalk, geen knop in beeld
+  const kop = r.zwart ? "" : kopHtml(r), voet = r.zwart ? "" : voetHtml(r);
+  laatsteHtml = r.zwart ? boven : `${kop}<div class="binnen">${boven}${metDoezel ? doezelVastHtml(dz) : ""}${onder}</div>${voet}`;
+  zetDeel("kop", kop);
+  const bovenNieuw = zetDeel("boven", boven);
+  zetDeel("onder", onder); zetDeel("voet", voet);
+  zetDoezel(dz);
+  // echte functies (25-11): het camerabeeld van de lichtcheck terug in de (nieuwe) kaart, in dezelfde stap, zodat het blijft spelen
+  lichtPlaats();
+  if (S.scherm === "adem" && S.ademAan && bovenNieuw) herstartAdem();
+  app.className = "thema-" + r.thema + " scherm-" + S.scherm + (S.toon === "rustig" ? " toon-rustig" : "");
+  if (laatsteScherm !== S.scherm) { const b = document.getElementById("binnen"); if (b) b.scrollTop = 0; laatsteScherm = S.scherm; }
   const demo = document.getElementById("demo");
   if (demo) demo.innerHTML = demoHtml();
 }
-function toon(s) { S.toast = s; clearTimeout(timers.toast); timers.toast = setTimeout(() => { S.toast = null; render(); }, 3200); render(); }
+// review 114 (65): meldingen blijven 5 s staan (was 3,2 s); de melding "Geluid aan" bij de geluidknop 2 s (U2)
+const TOAST_MS = 5000, TOAST_GELUID_MS = 2000;
+function toon(s, ms) { S.toast = s; clearTimeout(timers.toast); timers.toast = setTimeout(() => { S.toast = null; render(); }, ms || TOAST_MS); render(); }
+// review 114, U1: een klein pufje (300 ms) en ogen die opengaan (400 ms) bij een standwissel overdag, en bij een tik op Doezel overdag.
+// Alleen in een echte browser (de rooktest heeft geen classList); bij minder beweging staat de animatie uit (CSS).
+function pufje() {
+  const vak = document.getElementById("doezelvast");
+  const knopEl = vak && typeof vak.querySelector === "function" ? vak.querySelector(".doezelvak") : null;
+  if (!knopEl || !knopEl.classList) return;
+  knopEl.classList.remove("pufje"); void knopEl.offsetWidth; knopEl.classList.add("pufje");
+  clearTimeout(timers.pufje); timers.pufje = setTimeout(() => knopEl.classList.remove("pufje"), 450);
+}
 function stopLopend() {
   clearTimeout(timers.adem); timers.adem = null; S.ademAan = false;
+  clearTimeout(timers.ademEind); clearTimeout(timers.ademZwart); timers.ademEind = null; timers.ademZwart = null; S.ademUitdoof = false;
   clearInterval(timers.buiten); timers.buiten = null; S.buitenAan = false;
 }
 function go(scherm) {
@@ -1374,23 +2133,59 @@ function go(scherm) {
   if (S.scherm === "wekker" && scherm !== "wekker") wekStop();
   if (scherm !== "geluid" && !NACHTSCHERMEN.includes(scherm)) klankStop(false);
   if (scherm === "buiten") { S.buitenSec = 300; S.buitenKlaar = false; }
+  // echte functies (25-11): de camera of sensor van de lichtcheck gaat uit bij een ander scherm (en begint opnieuw met de uitleg)
+  if (S.scherm === "buiten" || scherm === "buiten") lichtUit();
   if (scherm === "nacht") S.nachtOog = false;
   // de regel over de aankoop staat er één keer (review 110, S-5)
   if (S.scherm === "vandaag" && scherm !== "vandaag" && koopRegelNu()) S.koopGezien[S.proefdag] = true;
+  // review 113, A3 (wacht op Pjotr): BIPSIGNAAL staat er overdag één keer
+  // review 114, W3 (wacht op Pjotr): nu hooguit één keer per 30 dagen; bipGezien is de dag van de laatste keer
+  if (S.scherm === "vandaag" && scherm !== "vandaag" && bipRegelNu()) S.bipGezien = S.dagNr;
+  // review 114 (licht): bij Overslaan staat de opstaaregel hooguit één keer per dag (op het wekscherm of op Vanochtend)
+  if (["wekker", "goedemorgen"].includes(S.scherm) && scherm !== S.scherm && S.gez === "over" && opstaanRustig()) S.opstaanDag = S.dagNr;
+  // review 113, B2: de vraag "Geluid aan?" staat er één keer; B4: het aanbod voor het seintje hooguit één keer per week
+  if (S.scherm === "welkom" && scherm !== "welkom") S.geluidGevraagd = true;
+  if (S.scherm === "vanavond" && scherm !== "vanavond" && seinAanbodNu()) S.seinAanbodDag = S.dagNr;
+  if (scherm !== S.scherm) S.seinNet = false;
   // Welterusten: eerst 10 s doezelig, dan slaapt Doezel (review 110)
   if (scherm === "welterusten" && S.scherm !== "welterusten") { S.rustSlaapt = false; clearTimeout(timers.rust); timers.rust = setTimeout(() => act("rustSlaap"), RUST_SLAAP_MS); }
   S.reactie = null; S.parkeerNet = false; S.gezNet = false;
-  if (scherm !== S.scherm) { S.morgenKaart = false; S.middagOpen = false; }
+  if (scherm !== S.scherm) { S.morgenKaart = false; S.middagOpen = false; S.nachtMeerOpen = false; }
   if (S.hoekjeGetoond) { S.hoekjeNieuw = false; S.hoekjeGetoond = false; }
   S.scherm = scherm; render();
 }
 function ademStap() {
   S.ademFase = S.ademFase === "in" ? "uit" : "in";
   ademToon(S.ademFase);
+  // echte functies (25-11): de stem zegt kort "In" of "Uit", op hetzelfde moment als de toon
+  ademStem(S.ademFase);
   const c = document.getElementById("cirkel");
   if (c) c.textContent = S.ademFase === "in" ? T.ADEM_IN : T.ADEM_UIT;
-  timers.adem = setTimeout(ademStap, S.ademFase === "in" ? 4000 : 6000);
+  // echte functies (25-11): bij elk nieuw "in" beginnen de cirkel en Doezel opnieuw, gelijk met de toon en de stem.
+  // Zo lopen CSS en timers ook na 10 minuten niet uit elkaar. Niet tijdens het uitdoven (dan zou de cirkel weer oplichten).
+  if (S.ademFase === "in" && !S.ademUitdoof) ademGelijk(c);
+  timers.adem = setTimeout(ademStap, S.ademFase === "in" ? ADEM_IN_MS : ADEM_UIT_MS);
 }
+function ademGelijk(c) {
+  if (c && c.style && typeof c.style.setProperty === "function") {
+    c.style.setProperty("animation", "none"); void c.offsetWidth; c.style.removeProperty("animation");
+  }
+  herstartAdem();
+}
+// review 113, A1: na de middagwekker of "Ik ben op" overdag naar Vanochtend, of naar Vandaag als het later op de dag is
+function opNaDagslaap() {
+  clearTimeout(timers.rust);
+  S.nachtFase = "wakker"; S.viaRust = false; S.rustSlaapt = false; S.nachtOog = false; S.voorZwart = null;
+  S.op = true; S.nachtVraag = false;
+  // review 113, B4: op een dienstdag telt "Ik ben op" mee voor het hoekje
+  if (S.dienst || S.diensten) S.goedeDag = true;
+  // review 114 (28): na de dagslaap is de dienst klaar. De middagwekker gaat niet meer af en de zonnebrilzin en de rijzin verdwijnen.
+  S.middagTijd = null; S.middagOpen = false; S.wekMiddag = false; S.dienst = false;
+  go(S.tijd === "ochtend" ? "goedemorgen" : "vandaag");
+  S.reactie = S.brak ? "SAMEN_OP_BRAK" : "SAMEN_OP"; render();
+}
+// de middagwekker is eenmalig: na Stop of "Ik ben op" is hij weg
+function naMiddagWekker() { S.wekMiddag = false; S.middagTijd = null; S.tijd = "dag"; opNaDagslaap(); }
 
 /* ---------- acties ---------- */
 const ACTS = {
@@ -1402,7 +2197,41 @@ const ACTS = {
   nachtTik: () => {
     S.nachtFase = "wakker"; S.nachtOog = false;
     const terug = S.voorZwart; S.voorZwart = null;
-    if (terug === "nachthulp" || terug === "parkeer" || terug === "toilet") go(terug); else render();
+    // review 113, A2: na het uitdoven van Adem brengt een tik je terug op Adem
+    if (terug === "ademKlaar") go("adem");
+    else if (terug === "nachthulp" || terug === "parkeer" || terug === "toilet") go(terug); else render();
+  },
+  // review 113, A1: overdag een uitgang uit Nacht en Welterusten
+  dagOp: () => { if (!dagUitgang() || !["nacht", "welterusten"].includes(S.scherm)) return; opNaDagslaap(); },
+  // review 113, A2: na 10 minuten doven de cirkel en de toon in 30 s uit; daarna wordt het scherm zwart
+  ademEind: () => {
+    if (!S.ademAan || S.scherm !== "adem") return;
+    S.ademUitdoof = true; ademBusVol(0, ADEM_UITDOOF_MS); render();
+    clearTimeout(timers.ademZwart); timers.ademZwart = setTimeout(() => act("ademZwart"), ADEM_UITDOOF_MS);
+  },
+  ademZwart: () => {
+    if (S.scherm !== "adem") return;
+    S.voorZwart = "ademKlaar"; S.nachtFase = "zwart"; S.nachtOog = false; go("nacht");
+  },
+  // review 113, A3 (advies van de sessie, wacht op Pjotr): te vroeg wakker
+  vroeg: () => { S.vroeg = !S.vroeg; render(); },
+  vroegVandaag: () => { S.vroegVandaag = !S.vroegVandaag; render(); },
+  // review 114, W1: 's nachts onder Meer "Te vroeg wakker?": een vlag voor de ochtend, zonder tijd
+  vroegNacht: () => { if (S.scherm !== "nacht") return; S.vroegMorgen = !S.vroegMorgen; S.nachtMeerOpen = true; render(); },
+  // review 114, W1: de hoofdknop bij te vroeg wakker; Doezel blijft gewoon zichzelf
+  rustigBeginnen: () => { go("vandaag"); S.reactie = "SAMEN_LATER"; render(); },
+  // review 114 (28): na middernacht de wekker 30, 60 of 90 minuten later; nog een keer tikken (of "Zoals het was") zet hem terug
+  later: (a) => {
+    if (!laterNu() && S.laterMin == null) return;
+    const n = Number(a);
+    if (![30, 60, 90].includes(n)) return;
+    if (S.laterMin === n) { ACTS.laterTerug(); return; }
+    if (S.laterBasis == null) S.laterBasis = wektijdMorgen();
+    S.laterMin = n; S.morgenTijd = (S.laterBasis + n) % 1440; S.nachtMeerOpen = true; render();
+  },
+  laterTerug: () => {
+    if (S.laterBasis != null) S.morgenTijd = S.laterBasis === S.wektijd ? null : S.laterBasis;
+    S.laterMin = null; S.laterBasis = null; S.nachtMeerOpen = true; render();
   },
   nachtStil: () => {
     if (!NACHT_STIL_SCHERMEN.includes(S.scherm)) return;
@@ -1432,11 +2261,12 @@ const ACTS = {
   toon: (a) => { S.toon = a === "rustig" ? "rustig" : "gewoon"; render(); },
   // review 110, S-5: na de proef blijft buiten gratis als één tik, en Doezel wordt energiek
   buitenGeweest: () => { S.op = true; S.buiten = true; S.goedeDag = true; S.reactie = S.onthoudBuiten ? "SAMEN_ENERGIEK" : "SAMEN_ONTHOUD_BUITEN"; S.onthoudBuiten = true; render(); },
-  morgenAnders: () => { S.morgenOpen = !S.morgenOpen; if (S.morgenTijd == null) S.morgenTijd = S.wektijd; if (S.morgenOpen) { S.morgenExtra = true; S.morgenGeen = false; } render(); }, // review 112b: ook op een dag zonder wekker gaat hij dan
+  morgenAnders: () => ACTS.morgenKaart(), // review 112c: oude naam; opent nu dezelfde kaart als op Vanavond en zet zelf niets
   // review 111: de tijd komt uit de tijdkiezer ("HH:MM")
   morgenTijd: (a) => { const m = uitInvoer(a); if (m != null) { S.morgenTijd = m; S.morgenExtra = true; S.morgenGeen = false; } render(); },
   // review 112 (28): de regel van morgen opent de kaart; "Alleen morgen" zet een eenmalige tijd (ook als er morgen geen wekker ging)
-  morgenKaart: () => { if (S.tijd === "nacht") return; S.morgenKaart = !S.morgenKaart; S.morgenConcept = wektijdMorgen(); render(); },
+  // review 113, B1: niet op het wekscherm (daar staat "Morgen anders?" niet meer)
+  morgenKaart: () => { if (S.tijd === "nacht" || S.scherm === "wekker") return; S.morgenKaart = !S.morgenKaart; S.morgenConcept = wektijdMorgen(); render(); },
   morgenConcept: (a) => { const m = uitInvoer(a); if (m != null) S.morgenConcept = m; render(); },
   morgenAlleen: () => { S.morgenTijd = S.morgenConcept != null ? S.morgenConcept : wektijdMorgen(); S.morgenExtra = true; S.morgenGeen = false; S.voUit = false; S.morgenKaart = false; render(); },
   morgenGeen: () => { S.morgenGeen = true; S.morgenExtra = false; S.morgenKaart = false; render(); },
@@ -1446,7 +2276,24 @@ const ACTS = {
   middagZet: () => { S.middagTijd = S.middagConcept; S.middagOpen = false; render(); },
   middagWeg: () => { S.middagTijd = null; render(); },
   welkomToon: () => { S.toon = S.toon === "rustig" ? "gewoon" : "rustig"; render(); },
-  avondSein: () => { S.avondSein = !S.avondSein; render(); },
+  // review 113, B4: zet je het seintje aan, dan vraagt de app één keer de bedtijd (overslaan = wektijd min 8 uur)
+  avondSein: () => {
+    S.avondSein = !S.avondSein;
+    if (S.avondSein && !S.bedGevraagd) { S.bedVraag = true; S.bedConcept = bedtijdNu(); }
+    if (!S.avondSein) S.bedVraag = false;
+    render();
+  },
+  seinAanbod: () => {
+    if (S.tijd === "nacht") return;
+    S.avondSein = true; S.seinAanbodDag = S.dagNr;
+    if (!S.bedGevraagd) { S.bedVraag = true; S.bedConcept = bedtijdNu(); } else S.seinNet = true;
+    render();
+  },
+  bedConcept: (a) => { const m = uitInvoer(a); if (m != null) S.bedConcept = m; render(); },
+  bedZet: () => { S.bedtijd = S.bedConcept != null ? S.bedConcept : bedtijdNu(); S.bedGevraagd = true; S.bedVraag = false; S.seinNet = true; render(); },
+  bedOver: () => { S.bedtijd = null; S.bedGevraagd = true; S.bedVraag = false; S.seinNet = true; render(); },
+  // review 113, B2: de vraag "Geluid aan?" bij de eerste start (een keuze op Welkom)
+  geluidVraag: (a) => { S.geluidGevraagd = true; if (a === "ja") { S.geluid = true; geluidAanMelding(); } render(); },
   welkomHulp: () => go(S.tijd === "nacht" ? "nachthulp" : "hulpdag"),
   wektijd: (a) => { const m = uitInvoer(a); if (m != null) S.wektijd = m; render(); },
   wekker: () => { S.wekker = !S.wekker; render(); },
@@ -1472,12 +2319,21 @@ const ACTS = {
   dealGedaan: () => { const dk = dealNu(); if (S.deal !== "ja" || !dealTweeTik(dk)) return; S.dealGedaan = true; S.reactie = dk === "SCHRIJF" ? "SAMEN_SCHRIJF" : "SAMEN_DOUCHE"; render(); },
   // overslaan: Doezel blijft gewoon zichzelf, met een begripvolle zin
   dealNiet: () => { ritmeZeg(); S.deal = "nee"; render(); },
-  ikBenOp: () => { S.op = true; S.reactie = S.brak ? "SAMEN_OP_BRAK" : "SAMEN_OP"; render(); },
+  // review 113, B4: op een dienstdag (dienstlink of diensten = ja) telt "Ik ben op" mee voor het hoekje
+  ikBenOp: () => { S.op = true; if (S.dienst || S.diensten) S.goedeDag = true; S.reactie = S.brak ? "SAMEN_OP_BRAK" : "SAMEN_OP"; render(); },
   laterBuiten: () => { go("vandaag"); S.reactie = "SAMEN_LATER"; render(); },
-  wekOp: () => { wekStop(); S.snoozes = 0; S.gesnoozed = false; S.op = true; S.nachtVraag = true; go("goedemorgen"); S.reactie = "OCHTEND_HOEWAS"; render(); },
+  // review 113, A1: na de middagwekker geen "Hoe was je nacht?", maar door naar Vandaag
+  wekOp: () => { wekStop(); S.snoozes = 0; S.gesnoozed = false; S.op = true; if (S.wekMiddag) { naMiddagWekker(); return; } S.nachtVraag = true; go("goedemorgen"); S.reactie = "OCHTEND_HOEWAS"; render(); },
   naarBed: () => { ritmeZeg(); go("welterusten"); },
-  doezelTik: () => { if (S.scherm === "nacht") { S.nachtOog = !S.nachtOog; render(); } },
-  ademStart: () => { S.ademAan = true; S.ademFase = "in"; render(); ademToon("in"); timers.adem = setTimeout(ademStap, 4000); },
+  // review 114, U1: overdag geeft een tik op Doezel een pufje, ook met het geluid uit
+  doezelTik: () => { if (S.scherm === "nacht") { S.nachtOog = !S.nachtOog; render(); } else if (!isNacht()) pufje(); },
+  // review 113, A2: een tik op Begin zet het geluid aan (zoals Regen); Adem stopt na 10 minuten vanzelf
+  ademStart: () => {
+    if (!S.geluid) { S.geluid = true; audioStart(); }
+    stopLopend(); S.ademAan = true; S.ademFase = "in"; ademBusVol(1); render(); ademToon("in"); ademStem("in");
+    timers.adem = setTimeout(ademStap, ADEM_IN_MS);
+    timers.ademEind = setTimeout(() => act("ademEind"), ADEM_MAX_MS);
+  },
   ademStop: () => { stopLopend(); render(); },
   eb: (a) => { S.eb = a; render(); },
   // review 110 (28): een tik op Regen of Haard zet het geluid ook aan
@@ -1487,7 +2343,7 @@ const ACTS = {
   voTerug: () => { S.voUit = false; render(); },
   // "Ik ben op" gebeurt vanzelf bij Stop (review 109)
   // review 110, S-7: na Stop eerst "Goedemorgen. Hoe was je nacht?"
-  wekStop: () => { wekStop(); S.snoozes = 0; S.gesnoozed = false; S.op = true; S.nachtVraag = true; go("goedemorgen"); S.reactie = "OCHTEND_HOEWAS"; render(); },
+  wekStop: () => { wekStop(); S.snoozes = 0; S.gesnoozed = false; S.op = true; if (S.wekMiddag) { naMiddagWekker(); return; } S.nachtVraag = true; go("goedemorgen"); S.reactie = "OCHTEND_HOEWAS"; render(); },
   snooze: () => { S.snoozes++; S.gesnoozed = true; wekStop(); render(); },
   wekWeer: () => { S.gesnoozed = false; render(); wekStart(false); },
   // brak gaat weer weg als je "Slecht geslapen?" sluit (review 109, bug hersteld)
@@ -1498,29 +2354,50 @@ const ACTS = {
     else if (was === "slecht") { S.brak = false; S.reactie = null; }
     render();
   },
+  // review 113, B1: de timer werkt elke seconde alleen het getal bij; Doezel en de rest van het scherm blijven staan
   buitenStart: () => {
     S.buitenAan = true; render();
-    timers.buiten = setInterval(() => { S.buitenSec = Math.max(0, S.buitenSec - 1); if (S.buitenSec === 0) { ACTS.buitenKlaar(); return; } render(); }, 1000);
+    timers.buiten = setInterval(() => {
+      S.buitenSec = Math.max(0, S.buitenSec - 1);
+      if (S.buitenSec === 0) { ACTS.buitenKlaar(); return; }
+      const el = document.getElementById("buitentimer");
+      if (el && S.scherm === "buiten") el.textContent = timerTekst(); else render();
+    }, 1000);
   },
+  // echte functies (25-11): de lichtcheck (sensor, camera of nagebootst) en Stop
+  lichtStart: () => { if (S.scherm !== "buiten") return; lichtStart(); render(); },
+  lichtStop: (a) => { lichtStop(a); render(); },
   buitenKlaar: () => { stopLopend(); S.buitenKlaar = true; S.buiten = true; S.goedeDag = true; if (!S.onthoudBuiten) { S.onthoudBuiten = true; S.reactie = "SAMEN_ONTHOUD_BUITEN"; } render(); },
   tweeSnooze: () => { S.tweeSnooze = !S.tweeSnooze; render(); },
   wekGeluid: (a) => { S.wekGeluid = a; render(); },
   wekTest: () => { if (!S.geluid) { S.geluid = true; audioStart(); } wekStart(true); render(); },
   stem: () => { S.stem = !S.stem; render(); },
   koop: () => { S.gekocht = true; render(); },
-  lees: (sleutel) => { if (!S.geluid) { S.geluid = true; audioStart(); render(); } spreek(LEESTEKST[sleutel] ? LEESTEKST[sleutel]() : T[sleutel] || sleutel); },
+  // review 113, B2: staat de stem uit, dan zegt Lees voor dat (en waar je hem aanzet)
+  lees: (sleutel) => {
+    if (!S.stem) { toon(T.STEM_UIT); return; }
+    if (!S.geluid) { S.geluid = true; audioStart(); render(); }
+    // review 114 (65): Hulp wordt 's nachts op het gewone volume voorgelezen, niet op de helft
+    spreek(LEESTEKST[sleutel] ? LEESTEKST[sleutel]() : T[sleutel] || sleutel, sleutel === "HULP_LEES" || S.scherm === "nachthulp");
+  },
   geluidWissel: () => {
     S.geluid = !S.geluid;
-    if (S.geluid) audioStart();
+    // review 113, B2: aanzetten geeft een zacht tikje en "Geluid staat aan."
+    // review 114, U2: en kort (2 s) de melding "Geluid aan"
+    if (S.geluid) { geluidAanMelding(); toon(T.GELUID_AAN, TOAST_GELUID_MS); return; }
     // de wekker blijft gewoon afgaan; de knop dempt alleen Doezel en de geluiden
-    else { klankStop(false); if (window.speechSynthesis) window.speechSynthesis.cancel(); toon(T.GELUID_WEKKER); return; }
-    render();
+    klankStop(false); if (window.speechSynthesis) window.speechSynthesis.cancel(); toon(T.GELUID_WEKKER);
   },
   // demopaneel
   demoTijd: (a) => { if (a === "ochtend") nieuweDag(); if (a === "avond") nieuweAvond(); S.tijd = a; S.deal = null; S.ochtendInfo = null; S.gesnoozed = false; S.nachtFase = "wakker"; S.viaRust = false; go(homeScherm()); },
   demoAvond: (a) => { if (a === "gisteren") S.gisterenDeal = !S.gisterenDeal; else { S.dealDagen = S.dealDagen >= 7 ? 0 : 7; S.ritmeLaatst = null; } render(); },
   demoDiensten: () => { S.diensten = !S.diensten; render(); },
-  demoWekker: () => { nieuweDag(); S.tijd = "ochtend"; S.eerste = false; S.snoozes = 0; S.gesnoozed = false; go("wekker"); wekStart(false); },
+  // review 113, A1: staat er een middagwekker (na de dienst), dan gaat die af: zonder nieuwe dag, met "Goedemiddag"
+  demoWekker: () => {
+    if (S.middagTijd != null) { S.wekMiddag = true; S.tijd = "dag"; }
+    else { nieuweDag(); S.tijd = "ochtend"; }
+    S.eerste = false; S.snoozes = 0; S.gesnoozed = false; go("wekker"); wekStart(false);
+  },
   demoNieuweDag: () => { nieuweDag(); nieuweAvond(); go(homeScherm()); },
   // Doezel bekijken: zet het moment zoals het in de app ontstaat, en speelt zijn geluid
   demoStand: (a) => {
@@ -1538,18 +2415,41 @@ const ACTS = {
   },
   // besluit Pjotr 24-11 (1): het hoekje een stap verder, of terug naar het begin (alleen in de demo)
   demoHoekje: (a) => {
-    if (a === "begin") { S.hoekje = 0; S.hoekjeTel = 0; S.hoekjeNieuw = false; S.hoekjeGetoond = false; }
-    else if (S.hoekje < HOEKJE.length) { S.hoekje++; S.hoekjeTel = 0; S.hoekjeNieuw = true; }
+    // review 113, B4: het begin is dag 1, met het kussen; verder kan altijd (seizoensdingen)
+    if (a === "begin") { S.hoekje = 1; S.hoekjeTel = 0; S.hoekjeNieuw = false; S.hoekjeGetoond = false; }
+    else { hoekjeErbij(); S.hoekjeTel = 0; S.hoekjeNieuw = true; }
     render();
   },
   demoToon: () => { S.toon = S.toon === "rustig" ? "gewoon" : "rustig"; render(); },
   demoProef: (a) => { if (a === "koop") S.gekocht = !S.gekocht; else S.proefdag = Number(a); render(); },
   demoGez: (a) => { S.gez = a === "open" ? null : a === "plas" ? "ja" : a; S.chips = a === "ja" ? { slaappil: true } : a === "plas" ? { "plaspil of bloeddruk": true } : {}; render(); },
-  demoOpnieuw: () => { stopLopend(); klankStop(false); wekStop(); const g = S.geluid; S = BEGIN(); S.geluid = g; render(); },
+  demoOpnieuw: () => { stopLopend(); klankStop(false); wekStop(); lichtUit(); demoWekWeg(); const g = S.geluid; S = BEGIN(); S.geluid = g; render(); },
+  // echte functies (25-11): een echte wekker over 1 of 5 minuten (setTimeout). De tik ontgrendelt het geluid alvast,
+  // zodat de wektoon straks echt klinkt. De aftelling staat alleen in het demopaneel.
+  demoWekOver: (a) => {
+    const min = Number(a);
+    if (!DEMO_WEK_MIN.includes(min)) return;
+    demoWekWeg(); audioStart();
+    demoWek.min = min; demoWek.om = Date.now() + min * 60000;
+    demoWek.timer = setTimeout(() => { demoWekWeg(); act("demoWekker"); }, min * 60000);
+    demoWek.tik = setInterval(demoAftelZet, DEMO_AFTEL_MS);
+    render();
+  },
+  demoWekAnnuleer: () => { demoWekWeg(); render(); },
+  // echte functies (25-11): Adem meteen naar het uitdoven (30 s), daarna zwart, zoals na 10 minuten
+  demoAdemEinde: () => {
+    S.eerste = false;
+    if (S.scherm !== "adem") { S.nachtFase = "wakker"; go("adem"); }
+    if (!S.ademAan) ACTS.ademStart();
+    ACTS.ademEind();
+  },
+  demoStemTest: () => { if (!S.geluid) { S.geluid = true; audioStart(); } if (!S.stem) { toon(T.STEM_UIT); return; } spreek(D.STEM_ZIN); render(); },
   demoSpring: (a) => { if (SCHERMEN[a]) { S.eerste = a === "welkom" || a === "wektijd" ? S.eerste : false; go(a); } }
 };
 // Doezel laat zich horen als zijn stand verandert, of als je iets met hem samen doet.
-const SAMEN_ACTS = ["deal", "ikBenOp", "buitenKlaar", "wekOp", "wekStop", "doezelTik", "nachtTik", "demoStand"];
+const SAMEN_ACTS = ["deal", "ikBenOp", "buitenKlaar", "wekOp", "wekStop", "doezelTik", "nachtTik", "demoStand", "dagOp"];
+// zwart worden en uitdoven zijn stil (review 113, A2)
+const STIL_ACTS = ["nachtStil", "ademEind", "ademZwart"];
 function nachtTimer(ms) { clearTimeout(timers.nacht); timers.nacht = setTimeout(() => act("nachtStil"), ms); }
 function act(naam, arg) {
   if (!ACTS[naam]) return;
@@ -1559,18 +2459,37 @@ function act(naam, arg) {
   // zwart worden is stil: geen zuchtje als het scherm uitgaat
   // hooguit één gaap per avond (review 110)
   const alGegaapt = na === "doezelig" && S.gaapGedaan;
-  if (!alGegaapt && naam !== "nachtStil" && (voor !== na || SAMEN_ACTS.includes(naam))) standGeluid(na);
+  if (!alGegaapt && !STIL_ACTS.includes(naam) && (voor !== na || SAMEN_ACTS.includes(naam))) standGeluid(na);
   if (na === "doezelig") S.gaapGedaan = true;
   // 's nachts: na 60 s zonder tik weer zwart (review 109, R-1)
-  if (NACHT_STIL_SCHERMEN.includes(S.scherm)) { if (S.nachtFase === "wakker" && naam !== "nachtStil") nachtTimer(NACHT_STIL_MS); }
+  if (NACHT_STIL_SCHERMEN.includes(S.scherm)) { if (S.nachtFase === "wakker" && !STIL_ACTS.includes(naam)) nachtTimer(NACHT_STIL_MS); }
   else { clearTimeout(timers.nacht); timers.nacht = null; }
 }
 
+// echte functies (25-11): de demowekker. Eén setTimeout; de aftelling (elke halve seconde) staat alleen in het demopaneel.
+const DEMO_WEK_MIN = [1, 5], DEMO_AFTEL_MS = 500;
+const demoWek = { min: null, om: null, timer: null, tik: null };
+function demoWekWeg() {
+  clearTimeout(demoWek.timer); clearInterval(demoWek.tik);
+  demoWek.min = null; demoWek.om = null; demoWek.timer = null; demoWek.tik = null;
+}
+function demoAftelTekst() {
+  if (demoWek.om == null) return D.WEK_UITLEG;
+  const s = Math.max(0, Math.ceil((demoWek.om - Date.now()) / 1000));
+  return D.WEK_AFTEL.replace("[t]", Math.floor(s / 60) + ":" + pad2(s % 60));
+}
+function demoAftelZet() { const el = document.getElementById("demoAftel"); if (el) el.textContent = demoAftelTekst(); }
 function demoHtml() {
   const c = (a, t, aan, arg) => chip(a, t, aan, arg);
   return `<h3>${esc(D.TITEL)}</h3><p>${esc(D.UITLEG)}</p>
   <div class="groep"><b>${esc(D.TIJD)}</b><div class="chips">${Object.keys(D.TIJDEN).map((k) => c("demoTijd", D.TIJDEN[k], S.tijd === k, k)).join("")}</div></div>
   <div class="groep">${knop("demoWekker", D.WEKKER, "zon")}</div>
+  <div class="groep" data-echt="1"><b>${esc(D.ECHT)}</b>
+    <div class="chips">${DEMO_WEK_MIN.map((m) => c("demoWekOver", m === 1 ? D.WEK_1 : D.WEK_5, demoWek.min === m, m)).join("")}${demoWek.om != null ? c("demoWekAnnuleer", D.WEK_WEG, false) : ""}</div>
+    <p id="demoAftel"${demoWek.om != null ? ' class="aftel"' : ""}>${esc(demoAftelTekst())}</p>
+    <div class="chips">${c("demoAdemEinde", D.ADEM_EINDE, false)}</div>
+    <p><b style="display:inline;margin:0">${esc(D.STEM)}:</b> <span id="demoStem">${esc(stemInfo())}</span></p>
+    <div class="chips">${c("demoStemTest", D.STEM_TEST, false)}</div></div>
   <div class="groep"><b>${esc(D.PROEF)}</b><div class="chips">${c("demoProef", D.DAG1, S.proefdag === 1, 1)}${c("demoProef", D.DAG13, S.proefdag === 13, 13)}${c("demoProef", D.DAG15, S.proefdag === 15, 15)}${c("demoProef", D.GEKOCHT, S.gekocht, "koop")}</div></div>
   <div class="groep"><b>${esc(D.AVOND)}</b><div class="chips">${c("demoAvond", D.GISTEREN, S.gisterenDeal, "gisteren")}${c("demoAvond", D.RITME, S.dealDagen >= 7, "ritme")}</div></div>
   <div class="groep"><b>${esc(D.GEZ)}</b><div class="chips">${c("demoGez", D.GEZJA, S.gez === "ja" && !!S.chips.slaappil, "ja")}${c("demoGez", D.GEZPLAS, S.gez === "ja" && !!S.chips["plaspil of bloeddruk"], "plas")}${c("demoGez", D.GEZNEE, S.gez === "nee", "nee")}${c("demoGez", D.GEZOPEN, S.gez === null, "open")}</div></div>
@@ -1584,9 +2503,16 @@ function demoHtml() {
 }
 
 /* ---------- start ---------- */
+// review 114 (heftig): een tik op "Meer" (summary) of het openen of sluiten van een uitklap telt 's nachts als tik:
+// de 60 s naar zwart beginnen opnieuw. Op de nacht onthoudt de app of Meer open staat.
+function nachtTikTelt(details) {
+  if (details && S.scherm === "nacht" && details.getAttribute && details.getAttribute("data-nachtmeer") === "1") S.nachtMeerOpen = !!details.open;
+  if (NACHT_STIL_SCHERMEN.includes(S.scherm) && S.nachtFase === "wakker") nachtTimer(NACHT_STIL_MS);
+}
+document.addEventListener("toggle", (e) => { if (e.target && e.target.tagName === "DETAILS") nachtTikTelt(e.target); }, true);
 document.addEventListener("click", (e) => {
   const el = e.target && e.target.closest ? e.target.closest("[data-act]") : null;
-  if (!el) return;
+  if (!el) { if (e.target && e.target.closest && e.target.closest("summary, details")) nachtTikTelt(null); return; }
   e.preventDefault();
   act(el.getAttribute("data-act"), el.getAttribute("data-arg"));
 });
@@ -1597,12 +2523,27 @@ document.addEventListener("change", (e) => {
 });
 document.addEventListener("input", (e) => {
   const el = e.target;
-  if (el && el.getAttribute && el.getAttribute("data-input") === "volume") S.volume = Number(el.value);
+  // review 113, B2: één volumeregelaar voor de stem, de geluiden, Adem en Doezel (de wekker niet)
+  if (el && el.getAttribute && el.getAttribute("data-input") === "volume") { S.volume = Number(el.value); volumeZet(); }
   if (el && el.getAttribute && el.getAttribute("data-input") === "parkeer") S.parkeerTekst = String(el.value || "");
 });
-if (window.speechSynthesis && window.speechSynthesis.getVoices) window.speechSynthesis.getVoices();
+if (window.speechSynthesis && window.speechSynthesis.getVoices) {
+  stemNl();
+  // review 113, B2: Chrome laadt de stemmen soms later; dan alsnog de Nederlandse stem kiezen
+  // echte functies (25-11): en het demopaneel laat meteen zien welke stem er gekozen is
+  try { window.speechSynthesis.onvoiceschanged = () => { stemNl(); stemDemoZet(); }; } catch (e) { /* geen voiceschanged: dan de standaardstem */ }
+}
+// echte functies (25-11): raakt de pagina verborgen (andere app, scherm uit), dan gaat de camera van de lichtcheck meteen uit
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden" && (lichtNu.stream || lichtNu.sensor || S.lichtModus === "start")) act("lichtStop"); });
+{ const band = document.getElementById("band"); if (band) band.textContent = BAND; }
 render();
-window.Etmaal = { T, T_BASIS, HOEKJE, HOEKJE_DAGEN, D, SCHERMEN, NACHTSCHERMEN, NACHT_STIL_SCHERMEN, STANDEN, NACHT_ZWART_MS, NACHT_STIL_MS, RUST_SLAAP_MS, DEALS, doezelStand, act, go, render, html: () => laatsteHtml, toestand: () => S, zet: (o) => Object.assign(S, o) };
+window.Etmaal = { T, T_BASIS, HOEKJE, HOEKJE_DAGEN, SEIZOEN, HOEKJE_VAK, HOEKJE_BREED, DAG_STANDEN, WEK_ZACHT_S, WEK_GEWOON_S, D, SCHERMEN, NACHTSCHERMEN, NACHT_STIL_SCHERMEN, STANDEN, NACHT_ZWART_MS, NACHT_STIL_MS, RUST_SLAAP_MS, DEALS, ADEM_MAX_MS, ADEM_UITDOOF_MS, ADEM_IN_MS, ADEM_UIT_MS, DAG_VORM, volgendeIdx, doezelStand, wekGeluidNu, bedtijdNu, seinTijd, hoekjeDingen,
+  // review 114
+  TOAST_MS, TOAST_GELUID_MS, WEK_ZACHT_BEGIN, WEK_ZACHT_EIND, WEK_GEWOON_EIND, WEK_ZACHT_GRONDTOON, WEK_ZACHT_AKKOORDEN, BIP_DAGEN, HOEKJE_VIEWBOX, SEIZOEN_PLEK,
+  wekZachtNiveau, seizoenNu, opstaanRustig, naMiddernacht, nachtTikTelt, timerNu: (k) => timers[k],
+  // echte functies (25-11)
+  BAND, LICHT_MAX_MS, LICHT_STAP_MS, LICHT_W, LICHT_H, LICHT_ANKERS, DEMO_WEK_MIN, RUIS_OVERLOOP_S,
+  lichtBandVanY, lichtBandVanLux, luxVanY, luxRond, lichtYVanPixels, stemInfo, demoAftelTekst, licht: () => lichtNu, demoWek: () => demoWek, audio: () => ({ master, wekBus, volumeZet }), act, go, render, html: () => laatsteHtml, toestand: () => S, zet: (o) => Object.assign(S, o) };
 </script>
 </body>
 </html>
